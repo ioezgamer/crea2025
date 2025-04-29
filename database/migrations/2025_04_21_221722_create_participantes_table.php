@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('grado_p');
             $table->string('turno')->nullable();
             $table->boolean('repite_grado')->nullable();
-            $table->integer('dias_de_asistencia_al_programa');
+            $table->string('dias_de_asistencia_al_programa');
             $table->string('programa');
             $table->string('tutor_principal');
             $table->string('nombres_y_apellidos_tutor_principal');
@@ -53,7 +53,7 @@ return new class extends Migration
             $table->string('telefono_tutor_secundario')->nullable();
             $table->boolean('asiste_a_otros_programas')->nullable();
             $table->string('otros_programas')->nullable();
-            $table->integer('dias_asiste_a_otros_programas')->nullable();
+            $table->string('dias_asiste_a_otros_programas')->nullable();
             $table->timestamps();
         });
     }
