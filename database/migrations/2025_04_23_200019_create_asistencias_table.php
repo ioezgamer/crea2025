@@ -14,7 +14,7 @@ class CreateAsistenciasTable extends Migration
                 ->constrained(table: 'participants', column: 'participant_id')
                 ->onDelete('cascade');
             $table->date('fecha_asistencia');
-            $table->enum('estado', ['Presente', 'Ausente', 'Justificado'])->default('Ausente')->after('fecha_asistencia');
+            $table->enum('estado', ['Presente', 'Ausente', 'Justificado'])->default('Ausente');
             $table->timestamps();
 
            
