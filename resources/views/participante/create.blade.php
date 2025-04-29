@@ -345,7 +345,7 @@
                         <!-- Sección de Lugar de Encuentro-->
                         <div class="mb-4 w-64">
                             <label class="block text-xs font-medium text-gray-800 mb-1">Lugar de encuentro <span class="text-red-500">*</span></label>
-                            <select name="lugar_de_encuentro_del_programa" id="lugar_de_encuentro_del_programa" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
+                            <select name="lugar_de_encuentro_del_programa" id="lugar_de_encuentro_del_programa" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600">
                                 <option value="">Seleccione...</option>
                                 <option value="Virgen Morena" {{ old('lugar_de_encuentro_del_programa') == 'Virgen Morena' ? 'selected' : '' }}>Virgen Morena</option>
                                 <option value="Las Salinas" {{ old('lugar_de_encuentro_del_programa') == 'Las Salinas' ? 'selected' : '' }}>Las Salinas</option>
@@ -371,7 +371,7 @@
                                     </label>
                                 @endforeach
                             </div>
-                            <input type="hidden" name="dias_de_asistencia_al_programa_count" id="dias_de_asistencia_al_programa" value="0" required>
+                            <input type="hidden" name="dias_de_asistencia_al_programa_count" id="dias_de_asistencia_al_programa" value="0">
                             <p class="text-sm text-gray-500 mt-1">Total días: <span id="total-dias-asistencia">0</span></p>
                             @error('dias_de_asistencia_al_programa')
                                 <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
@@ -387,7 +387,7 @@
                             <!-- Tutor Principal -->
                             <div>
                                 <label for="tutor_principal" class="block text-xs font-medium text-gray-800 mb-1">Tipo de Tutor</label>
-                                <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required {{ $errors->has('tutor_principal') ? 'aria-invalid=true' : '' }}>
+                                <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" {{ $errors->has('tutor_principal') ? 'aria-invalid=true' : '' }}>
                                     <option value="" disabled {{ old('tutor_principal', isset($participante) ? $participante->tutor_principal : '') == '' ? 'selected' : '' }}>Seleccione</option>
                                     @foreach ($tipos_tutor as $tipo)
                                         <option value="{{ $tipo }}" {{ old('tutor_principal', isset($participante) ? $participante->tutor_principal : '') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
@@ -427,19 +427,19 @@
                             <!-- Dirección (Tutor) -->
                             <div>
                                 <label for="direccion_tutor" class="block text-xs font-medium text-gray-800 mb-1">Dirección</label>
-                                <textarea type="text" name="direccion_tutor" id="direccion_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required></textarea>
+                                <textarea type="text" name="direccion_tutor" id="direccion_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" ></textarea>
                             </div>
 
                             <!-- Teléfono (Tutor) -->
                             <div>
                                 <label for="telefono_tutor" class="block text-xs font-medium text-gray-800 mb-1">Teléfono</label>
-                                <input type="text" name="telefono_tutor" id="telefono_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                <input type="text" name="telefono_tutor" id="telefono_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" >
                             </div>
 
                             <!-- Sector Económico (Tutor) -->
                             <div>
                                 <label for="sector_economico_tutor" class="block text-xs font-medium text-gray-800 mb-1">Sector económico</label>
-                                <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required {{ $errors->has('sector_economico_tutor') ? 'aria-invalid=true' : '' }}>
+                                <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" {{ $errors->has('sector_economico_tutor') ? 'aria-invalid=true' : '' }}>
                                     <option value="" disabled {{ old('sector_economico_tutor', isset($participante) ? $participante->sector_economico : '') == '' ? 'selected' : '' }}>Seleccione</option>
                                     @foreach ($sector_economico as $sector)
                                         <option value="{{ $sector }}" {{ old('tutor_principal', isset($participante) ? $participante->sector_economico : '') == $sector ? 'selected' : '' }}>{{ $sector }}</option>
@@ -453,7 +453,7 @@
                             <!-- Nivel de Educación Formal Adquirido (Tutor) -->
                             <div>
                                 <label for="nivel_de_educacion_formal_adquirido_tutor" class="block text-xs font-medium text-gray-800 mb-1">Nivel de Educación</label>
-                                <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required {{ $errors->has('nivel_de_educacion_formal_adquirido_tutor') ? 'aria-invalid=true' : '' }}>
+                                <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out"  {{ $errors->has('nivel_de_educacion_formal_adquirido_tutor') ? 'aria-invalid=true' : '' }}>
                                     <option value="" disabled {{ old('nivel_de_educacion_formal_adquirido_tutor', isset($participante) ? $participante->nivel_educacion : '') == '' ? 'selected' : '' }}>Seleccione</option>
                                     @foreach ($nivel_educacion as $nivel)
                                         <option value="{{ $nivel }}" {{ old('tutor_principal', isset($participante) ? $participante->nivel_educacion : '') == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
@@ -467,7 +467,7 @@
                             <!-- Expectativas del Programa (Tutor Principal) -->
                             <div>
                                 <label for="expectativas_del_programa_tutor_principal" class="block text-xs font-medium text-gray-800 mb-1">Expectativas del Programa</label>
-                                <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required></textarea>
+                                <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" ></textarea>
                             </div>
                         </div>
                     </div>
