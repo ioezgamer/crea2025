@@ -8,17 +8,15 @@ class CreateAsistenciasTable extends Migration
 {
     public function up()
     {
-        Schema::create('asistencias', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('participant_id')
-                ->constrained(table: 'participants', column: 'participant_id')
-                ->onDelete('cascade');
-            $table->date('fecha_asistencia');
-            $table->enum('estado', ['Presente', 'Ausente', 'Justificado'])->default('Ausente');
-            $table->timestamps();
-
-           
-        });
+        if (!Schema::hasTable('asistencias')) {
+            Schema::create('asistencias', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('participant_id');
+                $table->date('fecha_asistencia');
+                $table->enum('estado', ['Presente', 'Ausente', 'Justificado'])->default('Ausente');
+                $table->timestamps();
+            });
+        }
     }
 
     public function down()
