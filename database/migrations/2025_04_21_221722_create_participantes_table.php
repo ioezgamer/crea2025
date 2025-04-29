@@ -13,10 +13,10 @@ return new class extends Migration
             $table->date('fecha_de_inscripcion');
             $table->year('ano_de_inscripcion');
             $table->string('participante');
-            $table->boolean('partida_de_nacimiento');
-            $table->boolean('boletin_o_diploma_2024');
-            $table->boolean('cedula_tutor');
-            $table->boolean('cedula_participante_adulto');
+            $table->boolean('partida_de_nacimiento')->nullable();
+            $table->boolean('boletin_o_diploma_2024')->nullable();
+            $table->boolean('cedula_tutor')->nullable();
+            $table->boolean('cedula_participante_adulto')->nullable();
             $table->string('programas');
             $table->string('lugar_de_encuentro_del_programa');
             $table->string('primer_nombre_p');
