@@ -86,7 +86,7 @@ class ParticipanteController extends Controller
         $validated = $request->validate([
             'fecha_de_inscripcion' => 'required|date',
             'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
-            'participante' => 'required',
+            'participante' => 'required|string',
             'partida_de_nacimiento' => 'required|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
             'cedula_tutor' => 'required|boolean',

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id('participante_id');
             $table->date('fecha_de_inscripcion');
             $table->year('ano_de_inscripcion');
-            $table->enum('participante', ['primaria', 'secundaria']);
+            $table->string('participante');
             $table->boolean('partida_de_nacimiento');
             $table->boolean('boletin_o_diploma_2024');
             $table->boolean('cedula_tutor');
