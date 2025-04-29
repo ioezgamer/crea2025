@@ -12,7 +12,7 @@ class EjecutarSQLParticipantes extends Command
 
     public function handle()
     {
-        $path = database_path('scripts/participantes.sql');
+        $path = database_path('scripts/insert_datos_2025_complete');
 
         if (!file_exists($path)) {
             $this->error('El archivo participantes.sql no se encontró.');
