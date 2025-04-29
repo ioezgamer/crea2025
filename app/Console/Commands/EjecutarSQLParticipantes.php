@@ -7,15 +7,15 @@ use Illuminate\Support\Facades\DB;
 
 class EjecutarSQLParticipantes extends Command
 {
-    protected $signature = 'sql:insert_datos_2025_complete';
+    protected $signature = 'sql:participantes';
     protected $description = 'Ejecuta el archivo SQL con datos de participantes';
 
     public function handle()
     {
-        $path = database_path('scripts/insert_datos_2025_completel.sql');
+        $path = database_path('scripts/participantes.sql');
 
         if (!file_exists($path)) {
-            $this->error('El archivo insert_datos_2025_complete.sql no se encontró.');
+            $this->error('El archivo participantes.sql no se encontró.');
             return 1;
         }
 
@@ -31,3 +31,4 @@ class EjecutarSQLParticipantes extends Command
         return 0;
     }
 }
+
