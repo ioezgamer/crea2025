@@ -17,15 +17,15 @@ class AsistenciaController extends Controller
         $grado = $request->input('grado_p', '');
         $fechaInicio = $request->input('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
 
-        $fechaInicioCarbon = Carbon::parse($fechaInicio);
+        // Configurar zona horaria y idioma
+        Carbon::setLocale('es');
+        $fechaInicioCarbon = Carbon::parse($fechaInicio)->setTimezone(config('app.timezone'));
+
         if ($fechaInicioCarbon->dayOfWeek !== Carbon::MONDAY) {
             return redirect()->route('asistencia.create')
                 ->withErrors(['fecha_inicio' => 'La fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
-
-        // Configurar el idioma para Carbon
-        Carbon::setLocale('es');
 
         // Consulta de participantes con filtros
         $query = Participante::query();
@@ -59,7 +59,7 @@ class AsistenciaController extends Controller
         // Obtener lugar de encuentro del primer participante encontrado
         $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
 
-        // Generar los días de lunes a viernes (almacenar fechas completas con hora 00:00:00)
+        // Generar los días de lunes a viernes
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicioCarbon->copy()->addDays($i)->startOfDay();
@@ -72,7 +72,7 @@ class AsistenciaController extends Controller
                 ->whereBetween('fecha_asistencia', [$fechaInicioCarbon, $fechaInicioCarbon->copy()->addDays(4)->endOfDay()])
                 ->get()
                 ->keyBy(function ($item) {
-                    return Carbon::parse($item->fecha_asistencia)->toDateTimeString();
+                    return Carbon::parse($item->fecha_asistencia)->setTimezone(config('app.timezone'))->toDateTimeString();
                 });
 
             // Verificar si el participante tiene asistencias guardadas para todos los días
@@ -117,7 +117,7 @@ class AsistenciaController extends Controller
         ]);
 
         $programa = $request->input('programa');
-        $fechaInicio = Carbon::parse($request->input('fecha_inicio'));
+        $fechaInicio = Carbon::parse($request->input('fecha_inicio'))->setTimezone(config('app.timezone'));
         $lugarEncuentro = $request->input('lugar_de_encuentro_del_programa');
         $grado = $request->input('grado_p');
         $participanteId = $request->input('participante_id');
@@ -182,15 +182,15 @@ class AsistenciaController extends Controller
         $grado = $request->input('grado_p', '');
         $fechaInicio = $request->input('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
 
-        $fechaInicioCarbon = Carbon::parse($fechaInicio);
+        // Configurar zona horaria y idioma
+        Carbon::setLocale('es');
+        $fechaInicioCarbon = Carbon::parse($fechaInicio)->setTimezone(config('app.timezone'));
+
         if ($fechaInicioCarbon->dayOfWeek !== Carbon::MONDAY) {
             return redirect()->route('asistencia.reporte')
                 ->withErrors(['fecha_inicio' => 'La fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
-
-        // Configurar el idioma para Carbon
-        Carbon::setLocale('es');
 
         // Consulta de participantes con filtros
         $query = Participante::query();
@@ -224,7 +224,7 @@ class AsistenciaController extends Controller
         // Obtener lugar de encuentro del primer participante encontrado
         $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
 
-        // Generar los días de lunes a viernes (almacenar fechas completas con hora 00:00:00)
+        // Generar los días de lunes a viernes
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicioCarbon->copy()->addDays($i)->startOfDay();
@@ -250,8 +250,15 @@ class AsistenciaController extends Controller
                 ->whereBetween('fecha_asistencia', [$fechaInicioCarbon, $fechaInicioCarbon->copy()->addDays(4)->endOfDay()])
                 ->get()
                 ->keyBy(function ($item) {
-                    return Carbon::parse($item->fecha_asistencia)->toDateTimeString();
+                    return Carbon::parse($item->fecha_asistencia)->setTimezone(config('app.timezone'))->toDateTimeString();
                 });
+
+            // Log para depurar las asistencias cargadas
+            \Log::info('Asistencias cargadas para participante', [
+                'participante_id' => $participante->participante_id,
+                'asistencias' => $asistenciasParticipante->toArray(),
+                'rango' => [$fechaInicioCarbon->toDateTimeString(), $fechaInicioCarbon->copy()->addDays(4)->endOfDay()->toDateTimeString()],
+            ]);
 
             // Inicializar el array de asistencias para este participante
             $asistencias[$participante->participante_id] = [];
