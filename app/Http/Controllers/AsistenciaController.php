@@ -24,6 +24,9 @@ class AsistenciaController extends Controller
                 ->withInput();
         }
 
+        // Configurar el idioma para Carbon
+        Carbon::setLocale('es');
+
         // Consulta de participantes con filtros
         $query = Participante::query();
         if ($programa) {
@@ -120,6 +123,9 @@ class AsistenciaController extends Controller
         $participanteId = $request->input('participante_id');
         $asistencias = $request->input('asistencias');
 
+        // Configurar el idioma para Carbon
+        Carbon::setLocale('es');
+
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicio->copy()->addDays($i)->startOfDay();
@@ -183,6 +189,9 @@ class AsistenciaController extends Controller
                 ->withInput();
         }
 
+        // Configurar el idioma para Carbon
+        Carbon::setLocale('es');
+
         // Consulta de participantes con filtros
         $query = Participante::query();
         if ($programa) {
@@ -222,6 +231,12 @@ class AsistenciaController extends Controller
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateTimeString();
         }
 
+        // Validar que $diasSemana no esté vacío
+        if (empty($diasSemana)) {
+            \Log::error('No se pudieron generar los días de la semana', ['fecha_inicio' => $fechaInicio]);
+            return redirect()->back()->withErrors(['error' => 'No se pudieron generar los días de la semana.']);
+        }
+
         $asistencias = [];
         $estadisticasPorDia = array_fill_keys(array_keys($diasSemana), ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0]);
         foreach ($participantes as $participante) {
@@ -244,7 +259,17 @@ class AsistenciaController extends Controller
             foreach ($diasSemana as $dia => $fecha) {
                 $estado = $asistenciasParticipante->get($fecha)?->estado ?? 'Ausente';
                 $asistencias[$participante->participante_id][$dia] = $estado;
-                $estadisticasPorDia[$dia][$estado]++;
+
+                // Validar que las claves existan antes de incrementar
+                if (isset($estadisticasPorDia[$dia]) && isset($estadisticasPorDia[$dia][$estado])) {
+                    $estadisticasPorDia[$dia][$estado]++;
+                } else {
+                    \Log::warning('Clave no encontrada en estadisticasPorDia', [
+                        'dia' => $dia,
+                        'estado' => $estado,
+                        'estadisticasPorDia' => $estadisticasPorDia,
+                    ]);
+                }
             }
 
             $totalAsistido = $asistenciasParticipante->where('estado', 'Presente')->count();
