@@ -27,6 +27,14 @@ class AsistenciaController extends Controller
                 ->withInput();
         }
 
+        // Log de los parámetros recibidos
+        \Log::info('Parámetros recibidos en create', [
+            'programa' => $programa,
+            'lugar_de_encuentro_del_programa' => $lugarencuentro,
+            'grado_p' => $grado,
+            'fecha_inicio' => $fechaInicio,
+        ]);
+
         // Consulta de participantes con filtros
         $query = Participante::query();
         if ($programa) {
@@ -39,6 +47,15 @@ class AsistenciaController extends Controller
             $query->where('grado_p', 'LIKE', '%' . $grado . '%');
         }
         $participantes = $query->get();
+
+        \Log::info('Participantes cargados en create', [
+            'participantes' => $participantes->map(function ($p) {
+                return [
+                    'id' => $p->participante_id,
+                    'nombre' => $p->primer_nombre_p . ' ' . $p->primer_apellido_p,
+                ];
+            })->toArray(),
+        ]);
 
         // Obtener lugares de encuentro únicos
         $lugares_encuentro = Participante::select('lugar_de_encuentro_del_programa')
@@ -143,6 +160,10 @@ class AsistenciaController extends Controller
             'participante_id' => $participanteId,
             'asistencias' => $asistencias,
             'diasSemana' => $diasSemana,
+            'programa' => $programa,
+            'fecha_inicio' => $fechaInicio->toDateString(),
+            'lugar_de_encuentro_del_programa' => $lugarEncuentro,
+            'grado_p' => $grado,
         ]);
 
         DB::beginTransaction();
@@ -204,6 +225,14 @@ class AsistenciaController extends Controller
                 ->withErrors(['fecha_inicio' => 'La fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
+
+        // Log de los parámetros recibidos
+        \Log::info('Parámetros recibidos en reporte', [
+            'programa' => $programa,
+            'lugar_de_encuentro_del_programa' => $lugarencuentro,
+            'grado_p' => $grado,
+            'fecha_inicio' => $fechaInicio,
+        ]);
 
         // Consulta de participantes con filtros
         $query = Participante::query();
@@ -271,8 +300,11 @@ class AsistenciaController extends Controller
                 continue;
             }
 
+            $fechaInicioStr = $fechaInicioCarbon->toDateString();
+            $fechaFinStr = $fechaInicioCarbon->copy()->addDays(4)->toDateString();
+
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
-                ->whereBetween('fecha_asistencia', [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()])
+                ->whereBetween('fecha_asistencia', [$fechaInicioStr, $fechaFinStr])
                 ->get()
                 ->keyBy('fecha_asistencia');
 
@@ -281,7 +313,8 @@ class AsistenciaController extends Controller
                 'participante_id' => $participante->participante_id,
                 'nombre' => $participante->primer_nombre_p . ' ' . $participante->primer_apellido_p,
                 'asistencias' => $asistenciasParticipante->toArray(),
-                'rango' => [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()],
+                'rango' => [$fechaInicioStr, $fechaFinStr],
+                'query' => "SELECT * FROM asistencias WHERE participante_id = {$participante->participante_id} AND fecha_asistencia BETWEEN '$fechaInicioStr' AND '$fechaFinStr'",
             ]);
 
             // Inicializar el array de asistencias para este participante
