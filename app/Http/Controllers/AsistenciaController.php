@@ -60,7 +60,7 @@ class AsistenciaController extends Controller
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicioCarbon->copy()->addDays($i);
-           咖啡[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+        [$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
         }
 
         $asistencias = [];
