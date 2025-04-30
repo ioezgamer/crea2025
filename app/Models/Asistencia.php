@@ -18,8 +18,7 @@ class Asistencia extends Model
         'estado',
     ];
     protected $casts = [
-        'estado' => 'integer', // Asegura que estado sea tratado como entero
-        'fecha_asistencia' => 'date',
+        
     ];
     public function participante()
     {
