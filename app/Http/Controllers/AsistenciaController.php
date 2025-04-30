@@ -40,7 +40,7 @@ class AsistenciaController extends Controller
         // Obtener lugares de encuentro únicos
         $lugares_encuentro = Participante::select('lugar_de_encuentro_del_programa')
             ->distinct()
-            ->whereNotNull('lugar_de_enc遇ro_del_programa')
+            ->whereNotNull('lugar_de_encuentro_del_programa')
             ->pluck('lugar_de_encuentro_del_programa')
             ->sort()
             ->values();
@@ -60,7 +60,7 @@ class AsistenciaController extends Controller
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicioCarbon->copy()->addDays($i);
-        [$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
         }
 
         $asistencias = [];
