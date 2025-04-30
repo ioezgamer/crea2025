@@ -66,12 +66,21 @@ class AsistenciaController extends Controller
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
         }
 
+        \Log::info('Días de la semana generados en create', ['diasSemana' => $diasSemana]);
+
         $asistencias = [];
         foreach ($participantes as $participante) {
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
                 ->whereBetween('fecha_asistencia', [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()])
                 ->get()
                 ->keyBy('fecha_asistencia');
+
+            \Log::info('Asistencias cargadas en create', [
+                'participante_id' => $participante->participante_id,
+                'nombre' => $participante->primer_nombre_p . ' ' . $participante->primer_apellido_p,
+                'asistencias' => $asistenciasParticipante->toArray(),
+                'rango' => [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()],
+            ]);
 
             // Verificar si el participante tiene asistencias guardadas para todos los días
             $participante->hasAsistenciasGuardadas = $asistenciasParticipante->count() === count($diasSemana);
@@ -129,6 +138,12 @@ class AsistenciaController extends Controller
             $fecha = $fechaInicio->copy()->addDays($i);
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
         }
+
+        \Log::info('Guardando asistencias', [
+            'participante_id' => $participanteId,
+            'asistencias' => $asistencias,
+            'diasSemana' => $diasSemana,
+        ]);
 
         DB::beginTransaction();
         try {
@@ -203,6 +218,16 @@ class AsistenciaController extends Controller
         }
         $participantes = $query->get();
 
+        // Log para depurar los participantes cargados
+        \Log::info('Participantes cargados en reporte', [
+            'participantes' => $participantes->map(function ($p) {
+                return [
+                    'id' => $p->participante_id,
+                    'nombre' => $p->primer_nombre_p . ' ' . $p->primer_apellido_p,
+                ];
+            })->toArray(),
+        ]);
+
         // Obtener lugares de encuentro únicos
         $lugares_encuentro = Participante::select('lugar_de_encuentro_del_programa')
             ->distinct()
@@ -229,6 +254,8 @@ class AsistenciaController extends Controller
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
         }
 
+        \Log::info('Días de la semana generados en reporte', ['diasSemana' => $diasSemana]);
+
         // Validar que $diasSemana no esté vacío
         if (empty($diasSemana)) {
             \Log::error('No se pudieron generar los días de la semana', ['fecha_inicio' => $fechaInicio]);
@@ -250,8 +277,9 @@ class AsistenciaController extends Controller
                 ->keyBy('fecha_asistencia');
 
             // Log para depurar las asistencias cargadas
-            \Log::info('Asistencias cargadas para participante', [
+            \Log::info('Asistencias cargadas para participante en reporte', [
                 'participante_id' => $participante->participante_id,
+                'nombre' => $participante->primer_nombre_p . ' ' . $participante->primer_apellido_p,
                 'asistencias' => $asistenciasParticipante->toArray(),
                 'rango' => [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()],
             ]);
