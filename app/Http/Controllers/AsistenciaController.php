@@ -179,25 +179,24 @@ class AsistenciaController extends Controller
                 ->whereBetween('fecha_asistencia', [$fechaInicio->toDateString(), $fechaInicio->copy()->addDays(4)->toDateString()])
                 ->delete();
     
-            // Guardar las nuevas asistencias
-            foreach ($asistencias[$participanteId] as $dia => $estado) {
-                if (!isset($diasSemana[$dia])) {
-                    throw new \Exception("Día inválido: {$dia}");
-                }
-    
-                $fecha = $diasSemana[$dia];
-                if (!in_array($estado, ['Presente', 'Ausente', 'Justificado'])) {
-                    throw new \Exception("Estado inválido: {$estado}");
-                }
-    
-                Asistencia::create([
-                    'participante_id' => $participanteId,
-                    'fecha_asistencia' => $fecha,
-                    'estado' => $estado,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+          // Guardar las nuevas asistencias
+foreach ($asistencias[$participanteId] as $dia => $estado) {
+    if (!isset($diasSemana[$dia])) {
+        throw new \Exception("Día inválido: {$dia}");
+    }
+
+    $fecha = $diasSemana[$dia];
+    // Forzar el estado a un valor válido
+    $estado = in_array($estado, ['Presente', 'Ausente', 'Justificado']) ? $estado : 'Ausente';
+
+    Asistencia::create([
+        'participante_id' => $participanteId,
+        'fecha_asistencia' => $fecha,
+        'estado' => $estado,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+}
     
             DB::commit();
             return redirect()->route('asistencia.create', [
