@@ -142,7 +142,12 @@
                                             <td class="px-4 py-3 text-center total-asistido" data-participante-id="{{ $participante->participante_id }}">{{ $participante->totalAsistido ?? 0 }}</td>
                                             <td class="px-4 py-3 text-center porcentaje-asistencia" data-participante-id="{{ $participante->participante_id }}">{{ $participante->porcentajeAsistencia ?? 0 }}%</td>
                                             <td class="px-4 py-3 text-center">
-                                                <x-boton-guardar type="submit">Guardar</x-boton-guardar>
+                                                @if ($participante->hasAsistenciasGuardadas)
+                                                    <span class="text-green-600 mr-2" title="Asistencia registrada">&#10003;</span>
+                                                    <x-boton-guardar type="submit" class="bg-gray-400 hover:bg-gray-500">Editar</x-boton-guardar>
+                                                @else
+                                                    <x-boton-guardar type="submit">Guardar</x-boton-guardar>
+                                                @endif
                                             </td>
                                         </form>
                                     </tr>
