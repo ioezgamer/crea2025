@@ -56,19 +56,21 @@ class AsistenciaController extends Controller
         // Obtener lugar de encuentro del primer participante encontrado
         $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
 
-        // Generar los días de lunes a viernes
+        // Generar los días de lunes a viernes (almacenar fechas completas con hora 00:00:00)
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
-            $fecha = $fechaInicioCarbon->copy()->addDays($i);
-            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+            $fecha = $fechaInicioCarbon->copy()->addDays($i)->startOfDay();
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateTimeString();
         }
 
         $asistencias = [];
         foreach ($participantes as $participante) {
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
-                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicioCarbon->copy()->addDays(4)])
+                ->whereBetween('fecha_asistencia', [$fechaInicioCarbon, $fechaInicioCarbon->copy()->addDays(4)->endOfDay()])
                 ->get()
-                ->keyBy('fecha_asistencia');
+                ->keyBy(function ($item) {
+                    return Carbon::parse($item->fecha_asistencia)->toDateTimeString();
+                });
 
             // Verificar si el participante tiene asistencias guardadas para todos los días
             $participante->hasAsistenciasGuardadas = $asistenciasParticipante->count() === count($diasSemana);
@@ -120,15 +122,15 @@ class AsistenciaController extends Controller
 
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
-            $fecha = $fechaInicio->copy()->addDays($i);
-            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+            $fecha = $fechaInicio->copy()->addDays($i)->startOfDay();
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateTimeString();
         }
 
         DB::beginTransaction();
         try {
             // Eliminar asistencias existentes para este participante en la semana seleccionada
             Asistencia::where('participante_id', $participanteId)
-                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicio->copy()->addDays(4)])
+                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicio->copy()->addDays(4)->endOfDay()])
                 ->delete();
 
             // Guardar las nuevas asistencias
@@ -213,20 +215,22 @@ class AsistenciaController extends Controller
         // Obtener lugar de encuentro del primer participante encontrado
         $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
 
-        // Generar los días de lunes a viernes
+        // Generar los días de lunes a viernes (almacenar fechas completas con hora 00:00:00)
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
-            $fecha = $fechaInicioCarbon->copy()->addDays($i);
-            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+            $fecha = $fechaInicioCarbon->copy()->addDays($i)->startOfDay();
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateTimeString();
         }
 
         $asistencias = [];
         $estadisticasPorDia = array_fill_keys(array_keys($diasSemana), ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0]);
         foreach ($participantes as $participante) {
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
-                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicioCarbon->copy()->addDays(4)])
+                ->whereBetween('fecha_asistencia', [$fechaInicioCarbon, $fechaInicioCarbon->copy()->addDays(4)->endOfDay()])
                 ->get()
-                ->keyBy('fecha_asistencia');
+                ->keyBy(function ($item) {
+                    return Carbon::parse($item->fecha_asistencia)->toDateTimeString();
+                });
 
             foreach ($diasSemana as $dia => $fecha) {
                 $estado = $asistenciasParticipante->get($fecha)?->estado ?? 'Ausente';
