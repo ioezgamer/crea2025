@@ -1,4 +1,3 @@
-```blade
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -9,7 +8,7 @@
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Formulario -->
+            <!-- Formulario de filtros -->
             <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
                 <form method="GET" action="{{ route('asistencia.create') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
@@ -68,43 +67,48 @@
             <!-- Tabla -->
             @if (isset($programa) && $programa && $participantes->isNotEmpty())
                 <div class="bg-transparent p-6">
-                    <form method="POST" action="{{ route('asistencia.store') }}">
-                        @csrf
-                        <input type="hidden" name="programa" value="{{ $programa }}">
-                        <input type="hidden" name="fecha_inicio" value="{{ $fechaInicio }}">
+                    <div class="overflow-x-auto rounded-2xl border-x-2 border-y-2 shadow-lg">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-200">
+                                <tr class="text-xs font-medium text-gray-600">
+                                    <th class="px-4 py-3 text-left">Nombres y apellidos</th>
+                                    <th class="px-4 py-3 text-left">Género</th>
+                                    <th class="px-4 py-3 text-left">Grado</th>
+                                    <th class="px-4 py-3 text-left">Programa</th>
+                                    @foreach ($diasSemana as $dia => $fecha)
+                                        <th class="px-4 py-3 text-center">
+                                            @php
+                                                $abreviaturas = [
+                                                    'Lunes' => 'Lun',
+                                                    'Martes' => 'Mar',
+                                                    'Miércoles' => 'Mié',
+                                                    'Jueves' => 'Jue',
+                                                    'Viernes' => 'Vie',
+                                                    'Sábado' => 'Sáb',
+                                                    'Domingo' => 'Dom',
+                                                ];
+                                                $diaAbreviado = $abreviaturas[$dia] ?? mb_substr($dia, 0, 3, 'UTF-8');
+                                            @endphp
+                                            {{ $diaAbreviado }} {{ \Carbon\Carbon::parse($fecha)->format('d') }}
+                                        </th>
+                                    @endforeach
+                                    <th class="px-4 py-3 text-center">Total</th>
+                                    <th class="px-4 py-3 text-center">%</th>
+                                    <th class="px-4 py-3 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 rounded-2xl">
+                                @foreach ($participantes as $participante)
+                                    <tr class="hover:bg-sky-100">
+                                        <!-- Formulario por participante -->
+                                        <form method="POST" action="{{ route('asistencia.store') }}">
+                                            @csrf
+                                            <input type="hidden" name="programa" value="{{ $programa }}">
+                                            <input type="hidden" name="fecha_inicio" value="{{ $fechaInicio }}">
+                                            <input type="hidden" name="lugar_de_encuentro_del_programa" value="{{ $lugar_encuentro }}">
+                                            <input type="hidden" name="grado_p" value="{{ $grado }}">
+                                            <input type="hidden" name="participante_id" value="{{ $participante->participante_id }}">
 
-                        <div class="overflow-x-auto rounded-2xl border-x-2 border-y-2 shadow-lg">
-                            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                                <thead class="bg-gray-200">
-                                    <tr class="text-xs font-medium text-gray-600 ">
-                                        <th class="px-4 py-3 text-left">Nombres y apellidos</th>
-                                        <th class="px-4 py-3 text-left">Género</th>
-                                        <th class="px-4 py-3 text-left">Grado</th>
-                                        <th class="px-4 py-3 text-left">Programa</th>
-                                        @foreach ($diasSemana as $dia => $fecha)
-                                            <th class="px-4 py-3 text-center">
-                                                @php
-                                                    $abreviaturas = [
-                                                        'Lunes' => 'Lun',
-                                                        'Martes' => 'Mar',
-                                                        'Miércoles' => 'Mié',
-                                                        'Jueves' => 'Jue',
-                                                        'Viernes' => 'Vie',
-                                                        'Sábado' => 'Sáb',
-                                                        'Domingo' => 'Dom',
-                                                    ];
-                                                    $diaAbreviado = $abreviaturas[$dia] ?? mb_substr($dia, 0, 3, 'UTF-8');
-                                                @endphp
-                                                {{ $diaAbreviado }} {{ \Carbon\Carbon::parse($fecha)->format('d') }}
-                                            </th>
-                                        @endforeach
-                                        <th class="px-4 py-3 text-center">Total</th>
-                                        <th class="px-4 py-3 text-center">%</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 rounded-2xl">
-                                    @foreach ($participantes as $participante)
-                                        <tr class="hover:bg-sky-100">
                                             <td class="px-4 py-3 text-gray-900">
                                                 {{ $participante->primer_nombre_p }} {{ $participante->segundo_nombre_p ?? '' }} {{ $participante->primer_apellido_p }} {{ $participante->segundo_apellido_p ?? '' }}
                                             </td>
@@ -122,15 +126,15 @@
                                             @endforeach
                                             <td class="px-4 py-3 text-center total-asistido" data-participante-id="{{ $participante->participante_id }}">{{ $participante->totalAsistido ?? 0 }}</td>
                                             <td class="px-4 py-3 text-center porcentaje-asistencia" data-participante-id="{{ $participante->participante_id }}">{{ $participante->porcentajeAsistencia ?? 0 }}%</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4">
-                            <x-boton-guardar>Guardar</x-boton-guardar>
-                        </div>
-                    </form>
+                                            <td class="px-4 py-3 text-center">
+                                                <x-boton-guardar type="submit">Guardar</x-boton-guardar>
+                                            </td>
+                                        </form>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             @elseif (isset($programa) && $programa)
                 <div class="bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No hay participantes inscritos.</div>
@@ -139,17 +143,6 @@
     </div>
 
     <script>
-        document.querySelector('form').addEventListener('submit', (e) => {
-            const selects = document.querySelectorAll('.asistencia-select');
-            for (const select of selects) {
-                if (!['Presente', 'Ausente', 'Justificado'].includes(select.value)) {
-                    e.preventDefault();
-                    alert('Error: Estado de asistencia inválido.');
-                    return;
-                }
-            }
-        });
-
         const updateAttendance = (participanteId) => {
             const selects = document.querySelectorAll(`select[name^="asistencias[${participanteId}]"]`);
             let totalAsistido = 0;
@@ -166,6 +159,19 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.asistencia-select').forEach(select => updateAttendance(select.dataset.participanteId));
         });
+
+        // Validación del formulario al enviar
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                const selects = form.querySelectorAll('.asistencia-select');
+                for (const select of selects) {
+                    if (!['Presente', 'Ausente', 'Justificado'].includes(select.value)) {
+                        e.preventDefault();
+                        alert('Error: Estado de asistencia inválido.');
+                        return;
+                    }
+                }
+            });
+        });
     </script>
 </x-app-layout>
-```

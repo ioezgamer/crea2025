@@ -106,56 +106,64 @@ class AsistenciaController extends Controller
         $validated = $request->validate([
             'programa' => 'required|string',
             'fecha_inicio' => 'required|date',
+            'lugar_de_encuentro_del_programa' => 'nullable|string',
+            'grado_p' => 'nullable|string',
+            'participante_id' => 'required|integer|exists:participantes,participante_id',
             'asistencias' => 'required|array',
             'asistencias.*' => 'array',
             'asistencias.*.*' => 'in:Presente,Ausente,Justificado',
         ]);
-
+    
         $programa = $request->input('programa');
         $fechaInicio = Carbon::parse($request->input('fecha_inicio'));
+        $lugarEncuentro = $request->input('lugar_de_encuentro_del_programa');
+        $grado = $request->input('grado_p');
+        $participanteId = $request->input('participante_id');
         $asistencias = $request->input('asistencias');
-
+    
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicio->copy()->addDays($i);
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
         }
-
+    
         DB::beginTransaction();
         try {
-            Asistencia::whereIn('participante_id', array_keys($asistencias))
+            // Eliminar asistencias existentes para este participante en la semana seleccionada
+            Asistencia::where('participante_id', $participanteId)
                 ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicio->copy()->addDays(4)])
                 ->delete();
-
-            foreach ($asistencias as $participanteId => $dias) {
-                foreach ($dias as $dia => $estado) {
-                    if (!isset($diasSemana[$dia])) {
-                        throw new \Exception("Día inválido: {$dia}");
-                    }
-
-                    $fecha = $diasSemana[$dia];
-                    $valorEstado = match ($estado) {
-                        'Presente' => 1,
-                        'Ausente' => 0,
-                        'Justificado' => 2,
-                        default => throw new \Exception("Estado inválido: {$estado}"),
-                    };
-
-                    Asistencia::create([
-                        'participante_id' => (int) $participanteId,
-                        'fecha_asistencia' => $fecha,
-                        'estado' => $valorEstado,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+    
+            // Guardar las nuevas asistencias
+            foreach ($asistencias[$participanteId] as $dia => $estado) {
+                if (!isset($diasSemana[$dia])) {
+                    throw new \Exception("Día inválido: {$dia}");
                 }
+    
+                $fecha = $diasSemana[$dia];
+                $valorEstado = match ($estado) {
+                    'Presente' => 1,
+                    'Ausente' => 0,
+                    'Justificado' => 2,
+                    default => throw new \Exception("Estado inválido: {$estado}"),
+                };
+    
+                Asistencia::create([
+                    'participante_id' => $participanteId,
+                    'fecha_asistencia' => $fecha,
+                    'estado' => $valorEstado,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
             }
-
+    
             DB::commit();
             return redirect()->route('asistencia.create', [
                 'programa' => $programa,
-                'fecha_inicio' => $fechaInicio->format('Y-m-d')
-            ])->with('success', 'Asistencia registrada correctamente.');
+                'fecha_inicio' => $fechaInicio->format('Y-m-d'),
+                'lugar_de_encuentro_del_programa' => $lugarEncuentro,
+                'grado_p' => $grado,
+            ])->with('success', 'Asistencia registrada correctamente para el participante.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error al registrar asistencia: ' . $e->getMessage());
