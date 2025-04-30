@@ -139,23 +139,29 @@ class AsistenciaController extends Controller
             'asistencias.*' => 'array',
             'asistencias.*.*' => 'in:Presente,Ausente,Justificado',
         ]);
-
+    
         $programa = $request->input('programa');
         $fechaInicio = Carbon::parse($request->input('fecha_inicio'));
         $lugarEncuentro = $request->input('lugar_de_encuentro_del_programa');
         $grado = $request->input('grado_p');
         $participanteId = $request->input('participante_id');
         $asistencias = $request->input('asistencias');
-
+    
+        // Log para inspeccionar los datos recibidos
+        \Log::info('Datos recibidos en store', [
+            'participante_id' => $participanteId,
+            'asistencias' => $asistencias,
+        ]);
+    
         // Configurar el idioma para Carbon
         Carbon::setLocale('es');
-
+    
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicio->copy()->addDays($i);
             $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
         }
-
+    
         \Log::info('Guardando asistencias', [
             'participante_id' => $participanteId,
             'asistencias' => $asistencias,
@@ -165,25 +171,25 @@ class AsistenciaController extends Controller
             'lugar_de_encuentro_del_programa' => $lugarEncuentro,
             'grado_p' => $grado,
         ]);
-
+    
         DB::beginTransaction();
         try {
             // Eliminar asistencias existentes para este participante en la semana seleccionada
             Asistencia::where('participante_id', $participanteId)
                 ->whereBetween('fecha_asistencia', [$fechaInicio->toDateString(), $fechaInicio->copy()->addDays(4)->toDateString()])
                 ->delete();
-
+    
             // Guardar las nuevas asistencias
             foreach ($asistencias[$participanteId] as $dia => $estado) {
                 if (!isset($diasSemana[$dia])) {
                     throw new \Exception("Día inválido: {$dia}");
                 }
-
+    
                 $fecha = $diasSemana[$dia];
                 if (!in_array($estado, ['Presente', 'Ausente', 'Justificado'])) {
                     throw new \Exception("Estado inválido: {$estado}");
                 }
-
+    
                 Asistencia::create([
                     'participante_id' => $participanteId,
                     'fecha_asistencia' => $fecha,
@@ -192,7 +198,7 @@ class AsistenciaController extends Controller
                     'updated_at' => now(),
                 ]);
             }
-
+    
             DB::commit();
             return redirect()->route('asistencia.create', [
                 'programa' => $programa,
