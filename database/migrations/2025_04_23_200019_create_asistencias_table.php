@@ -11,7 +11,7 @@ class CreateAsistenciasTable extends Migration
         if (!Schema::hasTable('asistencias')) {
             Schema::create('asistencias', function (Blueprint $table) {
                 $table->id();
-                $table->unsignedBigInteger('participant_id');
+                $table->unsignedBigInteger('participante_id');
                 $table->date('fecha_asistencia');
                 $table->enum('estado', ['Presente', 'Ausente', 'Justificado'])->default('Ausente');
                 $table->timestamps();
