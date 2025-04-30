@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Asistencia;
+use Carbon\Carbon;
 use App\Http\Controllers\AsistenciaController;
 use App\Models\Participante;
 
@@ -108,6 +110,33 @@ Route::middleware('auth')->group(function () {
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         Route::post('/roles/{user}', [RoleController::class, 'update'])->name('roles.update');
     });
+});
+
+Route::get('/debug-asistencias', function () {
+    $participante = Participante::where('primer_nombre_p', 'Ines')
+        ->where('primer_apellido_p', 'Martinez')
+        ->first();
+
+    if (!$participante) {
+        return "Participante no encontrado.";
+    }
+
+    $fechaInicio = Carbon::parse('2025-04-28');
+    $fechaFin = $fechaInicio->copy()->addDays(4);
+
+    $asistencias = Asistencia::where('participante_id', $participante->participante_id)
+        ->whereBetween('fecha_asistencia', [$fechaInicio->toDateString(), $fechaFin->toDateString()])
+        ->get();
+
+    if ($asistencias->isEmpty()) {
+        return "No se encontraron asistencias para {$participante->primer_nombre_p} {$participante->primer_apellido_p} en el rango de fechas.";
+    }
+
+    $output = '';
+    foreach ($asistencias as $asistencia) {
+        $output .= "ID: {$asistencia->id}, Participante ID: {$asistencia->participante_id}, Fecha: {$asistencia->fecha_asistencia}, Estado: {$asistencia->estado}, Creado: {$asistencia->created_at}<br>";
+    }
+    return $output;
 });
 
 require __DIR__.'/auth.php';
