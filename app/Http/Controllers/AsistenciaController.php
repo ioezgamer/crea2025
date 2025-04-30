@@ -225,12 +225,21 @@ class AsistenciaController extends Controller
         $asistencias = [];
         $estadisticasPorDia = array_fill_keys(array_keys($diasSemana), ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0]);
         foreach ($participantes as $participante) {
+            // Validar que participante_id sea válido
+            if (empty($participante->participante_id)) {
+                \Log::warning('Participante sin ID válido', ['participante' => $participante->toArray()]);
+                continue;
+            }
+
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
                 ->whereBetween('fecha_asistencia', [$fechaInicioCarbon, $fechaInicioCarbon->copy()->addDays(4)->endOfDay()])
                 ->get()
                 ->keyBy(function ($item) {
                     return Carbon::parse($item->fecha_asistencia)->toDateTimeString();
                 });
+
+            // Inicializar el array de asistencias para este participante
+            $asistencias[$participante->participante_id] = [];
 
             foreach ($diasSemana as $dia => $fecha) {
                 $estado = $asistenciasParticipante->get($fecha)?->estado ?? 'Ausente';
