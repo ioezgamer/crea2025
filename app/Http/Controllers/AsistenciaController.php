@@ -164,4 +164,100 @@ public function store(Request $request)
             ->withInput();
     }
 }
+
+public function reporte(Request $request)
+    {
+        $programa = $request->input('programa', '');
+        $lugarencuentro = $request->input('lugar_de_encuentro_del_programa', '');
+        $grado = $request->input('grado_p', '');
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
+
+        $fechaInicioCarbon = Carbon::parse($fechaInicio);
+        if ($fechaInicioCarbon->dayOfWeek !== Carbon::MONDAY) {
+            return redirect()->route('asistencia.reporte')
+                ->withErrors(['fecha_inicio' => 'La fecha de inicio debe ser un lunes.'])
+                ->withInput();
+        }
+
+        // Consulta de participantes con filtros
+        $query = Participante::query();
+        if ($programa) {
+            $query->where('programa', 'LIKE', '%' . $programa . '%');
+        }
+        if ($lugarencuentro) {
+            $query->where('lugar_de_encuentro_del_programa', 'LIKE', '%' . $lugarencuentro . '%');
+        }
+        if ($grado) {
+            $query->where('grado_p', 'LIKE', '%' . $grado . '%');
+        }
+        $participantes = $query->get();
+
+        // Obtener lugares de encuentro únicos
+        $lugares_encuentro = Participante::select('lugar_de_encuentro_del_programa')
+            ->distinct()
+            ->whereNotNull('lugar_de_encuentro_del_programa')
+            ->pluck('lugar_de_encuentro_del_programa')
+            ->sort()
+            ->values();
+
+        // Obtener grados únicos
+        $grados = Participante::select('grado_p')
+            ->distinct()
+            ->whereNotNull('grado_p')
+            ->pluck('grado_p')
+            ->sort()
+            ->values();
+
+        // Obtener lugar de encuentro del primer participante encontrado
+        $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
+
+        // Generar los días de lunes a viernes
+        $diasSemana = [];
+        for ($i = 0; $i < 5; $i++) {
+            $fecha = $fechaInicioCarbon->copy()->addDays($i);
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+        }
+
+        $asistencias = [];
+        $estadisticasPorDia = array_fill_keys(array_keys($diasSemana), ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0]);
+        foreach ($participantes as $participante) {
+            $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
+                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicioCarbon->copy()->addDays(4)])
+                ->get()
+                ->keyBy('fecha_asistencia');
+
+            foreach ($diasSemana as $dia => $fecha) {
+                $estado = $asistenciasParticipante->get($fecha)?->estado ?? 'Ausente';
+                $asistencias[$participante->participante_id][$dia] = $estado;
+                $estadisticasPorDia[$dia][$estado]++;
+            }
+
+            $totalAsistido = $asistenciasParticipante->where('estado', 'Presente')->count();
+            $participante->totalAsistido = $totalAsistido;
+            $participante->porcentajeAsistencia = count($diasSemana) > 0
+                ? ($totalAsistido / count($diasSemana)) * 100
+                : 0;
+        }
+
+        // Calcular estadísticas generales
+        $totalParticipantes = $participantes->count();
+        $promedioAsistencia = $totalParticipantes > 0
+            ? ($participantes->sum('totalAsistido') / ($totalParticipantes * count($diasSemana))) * 100
+            : 0;
+
+        return view('asistencia.reporte', compact(
+            'participantes',
+            'programa',
+            'fechaInicio',
+            'diasSemana',
+            'asistencias',
+            'lugar_encuentro',
+            'lugares_encuentro',
+            'grado',
+            'grados',
+            'estadisticasPorDia',
+            'totalParticipantes',
+            'promedioAsistencia'
+        ));
+    }
 }
