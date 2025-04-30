@@ -16,25 +16,14 @@ class AsistenciaController extends Controller
         $lugarencuentro = $request->input('lugar_de_encuentro_del_programa', '');
         $grado = $request->input('grado_p', '');
         $fechaInicio = $request->input('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
-
-        // Configurar idioma
-        Carbon::setLocale('es');
+    
         $fechaInicioCarbon = Carbon::parse($fechaInicio);
-
         if ($fechaInicioCarbon->dayOfWeek !== Carbon::MONDAY) {
             return redirect()->route('asistencia.create')
                 ->withErrors(['fecha_inicio' => 'La fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
-
-        // Log de los parámetros recibidos
-        \Log::info('Parámetros recibidos en create', [
-            'programa' => $programa,
-            'lugar_de_encuentro_del_programa' => $lugarencuentro,
-            'grado_p' => $grado,
-            'fecha_inicio' => $fechaInicio,
-        ]);
-
+    
         // Consulta de participantes con filtros
         $query = Participante::query();
         if ($programa) {
@@ -47,16 +36,7 @@ class AsistenciaController extends Controller
             $query->where('grado_p', 'LIKE', '%' . $grado . '%');
         }
         $participantes = $query->get();
-
-        \Log::info('Participantes cargados en create', [
-            'participantes' => $participantes->map(function ($p) {
-                return [
-                    'id' => $p->participante_id,
-                    'nombre' => $p->primer_nombre_p . ' ' . $p->primer_apellido_p,
-                ];
-            })->toArray(),
-        ]);
-
+    
         // Obtener lugares de encuentro únicos
         $lugares_encuentro = Participante::select('lugar_de_encuentro_del_programa')
             ->distinct()
@@ -64,7 +44,7 @@ class AsistenciaController extends Controller
             ->pluck('lugar_de_encuentro_del_programa')
             ->sort()
             ->values();
-
+    
         // Obtener grados únicos
         $grados = Participante::select('grado_p')
             ->distinct()
@@ -72,48 +52,36 @@ class AsistenciaController extends Controller
             ->pluck('grado_p')
             ->sort()
             ->values();
-
+    
         // Obtener lugar de encuentro del primer participante encontrado
         $lugar_encuentro = $participantes->first()?->lugar_de_encuentro_del_programa;
-
-        // Generar los días de lunes a viernes (solo fecha, sin hora)
+    
+        // Generar los días de lunes a viernes
         $diasSemana = [];
         for ($i = 0; $i < 5; $i++) {
             $fecha = $fechaInicioCarbon->copy()->addDays($i);
-            $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
+            $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
         }
-
-        \Log::info('Días de la semana generados en create', ['diasSemana' => $diasSemana]);
-
+    
         $asistencias = [];
         foreach ($participantes as $participante) {
             $asistenciasParticipante = Asistencia::where('participante_id', $participante->participante_id)
-                ->whereBetween('fecha_asistencia', [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()])
+                ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicioCarbon->copy()->addDays(4)])
                 ->get()
                 ->keyBy('fecha_asistencia');
-
-            \Log::info('Asistencias cargadas en create', [
-                'participante_id' => $participante->participante_id,
-                'nombre' => $participante->primer_nombre_p . ' ' . $participante->primer_apellido_p,
-                'asistencias' => $asistenciasParticipante->toArray(),
-                'rango' => [$fechaInicioCarbon->toDateString(), $fechaInicioCarbon->copy()->addDays(4)->toDateString()],
-            ]);
-
-            // Verificar si el participante tiene asistencias guardadas para todos los días
-            $participante->hasAsistenciasGuardadas = $asistenciasParticipante->count() === count($diasSemana);
-
+    
             foreach ($diasSemana as $dia => $fecha) {
                 $estado = $asistenciasParticipante->get($fecha)?->estado;
                 $asistencias[$participante->participante_id][$dia] = $estado ?? 'Ausente';
             }
-
+    
             $totalAsistido = $asistenciasParticipante->where('estado', 'Presente')->count();
             $participante->totalAsistido = $totalAsistido;
             $participante->porcentajeAsistencia = count($diasSemana) > 0
                 ? ($totalAsistido / count($diasSemana)) * 100
                 : 0;
         }
-
+    
         return view('asistencia.attendance', compact(
             'participantes',
             'programa',
@@ -128,91 +96,74 @@ class AsistenciaController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'programa' => 'required|string',
-            'fecha_inicio' => 'required|date',
-            'lugar_de_encuentro_del_programa' => 'nullable|string',
-            'grado_p' => 'nullable|string',
-            'participante_id' => 'required|integer|exists:participantes,participante_id',
-            'asistencias' => 'required|array',
-            'asistencias.*' => 'array',
-            'asistencias.*.*' => 'in:Presente,Ausente,Justificado',
-        ]);
-    
-        $programa = $request->input('programa');
-        $fechaInicio = Carbon::parse($request->input('fecha_inicio'));
-        $lugarEncuentro = $request->input('lugar_de_encuentro_del_programa');
-        $grado = $request->input('grado_p');
-        $participanteId = $request->input('participante_id');
-        $asistencias = $request->input('asistencias');
-    
-        // Log para inspeccionar los datos recibidos
-        \Log::info('Datos recibidos en store', [
-            'participante_id' => $participanteId,
-            'asistencias' => $asistencias,
-        ]);
-    
-        // Configurar el idioma para Carbon
-        Carbon::setLocale('es');
-    
-        $diasSemana = [];
-        for ($i = 0; $i < 5; $i++) {
-            $fecha = $fechaInicio->copy()->addDays($i);
-            $diasSemana[$fecha->translatedFormat('l')] = $fecha->toDateString();
+{
+    $validated = $request->validate([
+        'programa' => 'required|string',
+        'fecha_inicio' => 'required|date',
+        'lugar_de_encuentro_del_programa' => 'nullable|string',
+        'grado_p' => 'nullable|string',
+        'participante_id' => 'required|integer|exists:participantes,participante_id',
+        'asistencias' => 'required|array',
+        'asistencias.*' => 'array',
+        'asistencias.*.*' => 'in:Presente,Ausente,Justificado',
+    ]);
+
+    $programa = $request->input('programa');
+    $fechaInicio = Carbon::parse($request->input('fecha_inicio'));
+    $lugarEncuentro = $request->input('lugar_de_encuentro_del_programa');
+    $grado = $request->input('grado_p');
+    $participanteId = $request->input('participante_id');
+    $asistencias = $request->input('asistencias');
+
+    $diasSemana = [];
+    for ($i = 0; $i < 5; $i++) {
+        $fecha = $fechaInicio->copy()->addDays($i);
+        $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+    }
+
+    DB::beginTransaction();
+    try {
+        // Eliminar asistencias existentes para este participante en la semana seleccionada
+        Asistencia::where('participante_id', $participanteId)
+            ->whereBetween('fecha_asistencia', [$fechaInicio, $fechaInicio->copy()->addDays(4)])
+            ->delete();
+
+        // Guardar las nuevas asistencias
+        foreach ($asistencias[$participanteId] as $dia => $estado) {
+            if (!isset($diasSemana[$dia])) {
+                throw new \Exception("Día inválido: {$dia}");
+            }
+
+            $fecha = $diasSemana[$dia];
+            // Validar que el estado sea válido
+            if (!in_array($estado, ['Presente', 'Ausente', 'Justificado'])) {
+                throw new \Exception("Estado inválido: {$estado}");
+            }
+
+            Asistencia::create([
+                'participante_id' => $participanteId,
+                'fecha_asistencia' => $fecha,
+                'estado' => $estado, // Usar la cadena directamente
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
-    
-        \Log::info('Guardando asistencias', [
-            'participante_id' => $participanteId,
-            'asistencias' => $asistencias,
-            'diasSemana' => $diasSemana,
+
+        DB::commit();
+        return redirect()->route('asistencia.create', [
             'programa' => $programa,
-            'fecha_inicio' => $fechaInicio->toDateString(),
+            'fecha_inicio' => $fechaInicio->format('Y-m-d'),
             'lugar_de_encuentro_del_programa' => $lugarEncuentro,
             'grado_p' => $grado,
-        ]);
-    
-        DB::beginTransaction();
-        try {
-            // Eliminar asistencias existentes para este participante en la semana seleccionada
-            Asistencia::where('participante_id', $participanteId)
-                ->whereBetween('fecha_asistencia', [$fechaInicio->toDateString(), $fechaInicio->copy()->addDays(4)->toDateString()])
-                ->delete();
-    
-          // Guardar las nuevas asistencias
-foreach ($asistencias[$participanteId] as $dia => $estado) {
-    if (!isset($diasSemana[$dia])) {
-        throw new \Exception("Día inválido: {$dia}");
+        ])->with('success', 'Asistencia registrada correctamente para el participante.');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error al registrar asistencia: ' . $e->getMessage());
+        return redirect()->back()
+            ->withErrors(['error' => 'Error al registrar la asistencia: ' . $e->getMessage()])
+            ->withInput();
     }
-
-    $fecha = $diasSemana[$dia];
-    // Forzar el estado a un valor válido
-    $estado = in_array($estado, ['Presente', 'Ausente', 'Justificado']) ? $estado : 'Ausente';
-
-    Asistencia::create([
-        'participante_id' => $participanteId,
-        'fecha_asistencia' => $fecha,
-        'estado' => $estado,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
 }
-    
-            DB::commit();
-            return redirect()->route('asistencia.create', [
-                'programa' => $programa,
-                'fecha_inicio' => $fechaInicio->format('Y-m-d'),
-                'lugar_de_encuentro_del_programa' => $lugarEncuentro,
-                'grado_p' => $grado,
-            ])->with('success', 'Asistencia registrada correctamente para el participante.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error al registrar asistencia: ' . $e->getMessage());
-            return redirect()->back()
-                ->withErrors(['error' => 'Error al registrar la asistencia: ' . $e->getMessage()])
-                ->withInput();
-        }
-    }
 
     public function reporte(Request $request)
     {
