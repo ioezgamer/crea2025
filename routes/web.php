@@ -101,6 +101,7 @@ Route::middleware('auth')->group(function () {
     // Rutas de asistencia
     Route::get('/asistencia', [AsistenciaController::class, 'create'])->name('asistencia.create');
     Route::post('/asistencia', [AsistenciaController::class, 'store'])->name('asistencia.store');
+    Route::get('/asistencia/reporte', [AsistenciaController::class, 'reporte'])->name('asistencia.reporte');
 
     // Rutas de roles (solo para admins)
     Route::middleware('can:manage-roles')->group(function () {
