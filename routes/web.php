@@ -112,31 +112,57 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::get('/debug-asistencias', function () {
-    $participante = Participante::where('primer_nombre_p', 'Ines')
-        ->where('primer_apellido_p', 'Martinez')
-        ->first();
+Route::get('/tutores', function () {
+    $selectedProgram = request('programa');
+    $query = Participante::query();
 
-    if (!$participante) {
-        return "Participante no encontrado.";
+    $programs = Participante::distinct()->pluck('programa')->toArray();
+
+    if ($selectedProgram) {
+        $query->where('programa', $selectedProgram);
     }
 
-    $fechaInicio = Carbon::parse('2025-04-28');
-    $fechaFin = $fechaInicio->copy()->addDays(4);
+    // Total de tutores únicos (basado en numero_de_cedula_tutor)
+    $totalTutors = $query->clone()->distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
 
-    $asistencias = Asistencia::where('participante_id', $participante->participante_id)
-        ->whereBetween('fecha_asistencia', [$fechaInicio->toDateString(), $fechaFin->toDateString()])
-        ->get();
+    // Tutores por programa
+    $tutorsByProgram = $query->clone()->groupBy('programa')
+        ->selectRaw('programa, count(distinct numero_de_cedula_tutor) as count')
+        ->pluck('count', 'programa')
+        ->toArray();
 
-    if ($asistencias->isEmpty()) {
-        return "No se encontraron asistencias para {$participante->primer_nombre_p} {$participante->primer_apellido_p} en el rango de fechas.";
-    }
+    // Tutores por sector económico
+    $tutorsBySector = $query->clone()->groupBy('sector_economico_tutor')
+        ->selectRaw('sector_economico_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->pluck('count', 'sector_economico_tutor')
+        ->toArray();
 
-    $output = '';
-    foreach ($asistencias as $asistencia) {
-        $output .= "ID: {$asistencia->id}, Participante ID: {$asistencia->participante_id}, Fecha: {$asistencia->fecha_asistencia}, Estado: {$asistencia->estado}, Creado: {$asistencia->created_at}<br>";
-    }
-    return $output;
-});
+    // Tutores por nivel de educación
+    $tutorsByEducationLevel = $query->clone()->groupBy('nivel_de_educacion_formal_adquirido_tutor')
+        ->selectRaw('nivel_de_educacion_formal_adquirido_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->pluck('count', 'nivel_de_educacion_formal_adquirido_tutor')
+        ->toArray();
+
+    // Tutores por comunidad
+    $tutorsByCommunity = $query->clone()->groupBy('comunidad_tutor')
+        ->selectRaw('comunidad_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->pluck('count', 'comunidad_tutor')
+        ->toArray();
+
+    // Promedio de participantes por tutor
+    $totalParticipants = $query->clone()->count();
+    $averageParticipantsPerTutor = $totalTutors > 0 ? $totalParticipants / $totalTutors : 0;
+
+    return view('tutores', compact(
+        'totalTutors',
+        'tutorsByProgram',
+        'tutorsBySector',
+        'tutorsByEducationLevel',
+        'tutorsByCommunity',
+        'averageParticipantsPerTutor',
+        'programs',
+        'selectedProgram'
+    ));
+})->middleware(['auth', 'verified'])->name('tutores');
 
 require __DIR__.'/auth.php';
