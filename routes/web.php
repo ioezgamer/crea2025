@@ -174,4 +174,62 @@ Route::get('/tutores', function () {
     ));
 })->middleware(['auth', 'verified'])->name('tutores');
 
+Route::get('/tutores-participantes', function () {
+    $selectedProgram = request('programa');
+    $selectedPlace = request('lugar');
+    $query = Participante::query();
+
+    // Aplicar filtros
+    if ($selectedProgram) {
+        $query->where('programa', $selectedProgram);
+    }
+    if ($selectedPlace) {
+        $query->where('lugar_de_encuentro_del_programa', $selectedPlace);
+    }
+
+    // Obtener programas y lugares distintos
+    $programs = Participante::distinct()->pluck('programa')->filter()->sort()->toArray();
+    $places = Participante::distinct()->pluck('lugar_de_encuentro_del_programa')->filter()->sort()->toArray();
+
+    // Obtener todos los participantes con los datos necesarios
+    $participantes = $query->select([
+        'numero_de_cedula_tutor',
+        'nombres_y_apellidos_tutor_principal',
+        'programa',
+        'primer_nombre_p',
+        'primer_apellido_p',
+        'grado_p'
+    ])->get();
+
+    // Agrupar participantes por tutor
+    $tutors = [];
+    foreach ($participantes as $participante) {
+        $tutorKey = $participante->numero_de_cedula_tutor ?? $participante->nombres_y_apellidos_tutor_principal;
+        if (!isset($tutors[$tutorKey])) {
+            $tutors[$tutorKey] = [
+                'nombres_y_apellidos_tutor_principal' => $participante->nombres_y_apellidos_tutor_principal,
+                'numero_de_cedula_tutor' => $participante->numero_de_cedula_tutor,
+                'programa' => $participante->programa,
+                'participantes' => []
+            ];
+        }
+        $tutors[$tutorKey]['participantes'][] = [
+            'primer_nombre_p' => $participante->primer_nombre_p,
+            'primer_apellido_p' => $participante->primer_apellido_p,
+            'grado_p' => $participante->grado_p
+        ];
+    }
+
+    // Convertir a un array indexado para la vista
+    $tutors = array_values($tutors);
+
+    return view('tutores_participantes', compact(
+        'tutors',
+        'programs',
+        'places',
+        'selectedProgram',
+        'selectedPlace'
+    ));
+})->middleware(['auth', 'verified'])->name('tutores_participantes');
+
 require __DIR__.'/auth.php';
