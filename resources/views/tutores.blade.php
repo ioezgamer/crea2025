@@ -7,21 +7,32 @@
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Program Filter -->
+            <!-- Program and Place Filter -->
             <div class="mb-6">
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <p class="text-gray-900 text-sm mb-4 sm:mb-0">
-                            {{ $selectedProgram ? "Métricas para tutores del programa: $selectedProgram" : 'Resumen de métricas de tutores' }}
+                            {{ $selectedProgram || $selectedPlace ? 'Métricas para tutores' . ($selectedProgram ? " del programa: $selectedProgram" : '') . ($selectedPlace ? " en el lugar: $selectedPlace" : '') : 'Resumen de métricas de tutores' }}
                         </p>
-                        <div class="flex items-center">
-                            <label for="programa" class="mr-2 text-sm text-gray-600">Filtrar por programa:</label>
-                            <select id="programa" name="programa" onchange="window.location.href='?programa='+encodeURIComponent(this.value)" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <option value="">Todos los programas</option>
-                                @foreach ($programs ?? [] as $program)
-                                    <option value="{{ $program }}" {{ $selectedProgram === $program ? 'selected' : '' }}>{{ $program }}</option>
-                                @endforeach
-                            </select>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                            <div class="flex items-center mb-4 sm:mb-0">
+                                <label for="programa" class="mr-2 text-sm text-gray-600">Filtrar por programa:</label>
+                                <select id="programa" name="programa" onchange="updateFilters(this.value, document.getElementById('lugar').value)" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="">Todos los programas</option>
+                                    @foreach ($programs ?? [] as $program)
+                                        <option value="{{ $program }}" {{ $selectedProgram === $program ? 'selected' : '' }}>{{ $program }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <label for="lugar" class="mr-2 text-sm text-gray-600">Filtrar por lugar:</label>
+                                <select id="lugar" name="lugar" onchange="updateFilters(document.getElementById('programa').value, this.value)" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="">Todos los lugares</option>
+                                    @foreach ($places ?? [] as $place)
+                                        <option value="{{ $place }}" {{ $selectedPlace === $place ? 'selected' : '' }}>{{ $place }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,4 +192,13 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function updateFilters(programa, lugar) {
+            const params = new URLSearchParams();
+            if (programa) params.set('programa', programa);
+            if (lugar) params.set('lugar', lugar);
+            window.location.href = '?' + params.toString();
+        }
+    </script>
 </x-app-layout>
