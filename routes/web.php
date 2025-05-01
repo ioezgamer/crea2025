@@ -114,38 +114,50 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/tutores', function () {
     $selectedProgram = request('programa');
+    $selectedPlace = request('lugar_de_encuentro_del_programa');
     $query = Participante::query();
 
     $programs = Participante::distinct()->pluck('programa')->toArray();
+    $tutorsByLugarEncuentro = Participante::distinct()->pluck('lugar_de_encuentro_del_programa')->filter()->sort()->toArray();
 
-    if ($selectedProgram) {
-        $query->where('programa', $selectedProgram);
-    }
+   // Aplicar filtros
+   if ($selectedProgram) {
+    $query->where('programa', $selectedProgram);
+}
+if ($selectedPlace) {
+    $query->where('lugar_de_encuentro_del_programa', $selectedPlace);
+}
 
     // Total de tutores únicos (basado en numero_de_cedula_tutor)
-    $totalTutors = $query->clone()->distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
+    $totalTutors = $query->clone()->distinct('nombres_y_apellidos_tutor_principal')->count('nombres_y_apellidos_tutor_principal');
 
     // Tutores por programa
     $tutorsByProgram = $query->clone()->groupBy('programa')
-        ->selectRaw('programa, count(distinct numero_de_cedula_tutor) as count')
+        ->selectRaw('programa, count(distinct nombres_y_apellidos_tutor_principal) as count')
         ->pluck('count', 'programa')
         ->toArray();
 
+    // Tutores por lugar de encuentro
+    $tutorsByLugarEncuentro = $query->clone()->groupBy('lugar_de_encuentro_del_programa')
+    ->selectRaw('lugar_de_encuentro_del_programa, count(distinct nombres_y_apellidos_tutor_principal) as count')
+    ->pluck('count', 'lugar_de_encuentro_del_programa')
+    ->toArray();
+
     // Tutores por sector económico
     $tutorsBySector = $query->clone()->groupBy('sector_economico_tutor')
-        ->selectRaw('sector_economico_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->selectRaw('sector_economico_tutor, count(distinct nombres_y_apellidos_tutor_principal) as count')
         ->pluck('count', 'sector_economico_tutor')
         ->toArray();
 
     // Tutores por nivel de educación
     $tutorsByEducationLevel = $query->clone()->groupBy('nivel_de_educacion_formal_adquirido_tutor')
-        ->selectRaw('nivel_de_educacion_formal_adquirido_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->selectRaw('nivel_de_educacion_formal_adquirido_tutor, count(distinct nombres_y_apellidos_tutor_principal) as count')
         ->pluck('count', 'nivel_de_educacion_formal_adquirido_tutor')
         ->toArray();
 
     // Tutores por comunidad
     $tutorsByCommunity = $query->clone()->groupBy('comunidad_tutor')
-        ->selectRaw('comunidad_tutor, count(distinct numero_de_cedula_tutor) as count')
+        ->selectRaw('comunidad_tutor, count(distinct nombres_y_apellidos_tutor_principal) as count')
         ->pluck('count', 'comunidad_tutor')
         ->toArray();
 
@@ -161,7 +173,9 @@ Route::get('/tutores', function () {
         'tutorsByCommunity',
         'averageParticipantsPerTutor',
         'programs',
-        'selectedProgram'
+        'tutorsByLugarEncuentro',
+        'selectedProgram',
+        'selectedPlace'
     ));
 })->middleware(['auth', 'verified'])->name('tutores');
 
