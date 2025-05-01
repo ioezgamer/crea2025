@@ -193,7 +193,7 @@ Route::get('/tutores-participantes', function () {
 
     // Obtener todos los participantes con los datos necesarios
     $participantes = $query->select([
-        'numero_de_cedula_tutor',
+        'tutor_principal',
         'nombres_y_apellidos_tutor_principal',
         'programa',
         'primer_nombre_p',
@@ -208,7 +208,7 @@ Route::get('/tutores-participantes', function () {
         if (!isset($tutors[$tutorKey])) {
             $tutors[$tutorKey] = [
                 'nombres_y_apellidos_tutor_principal' => $participante->nombres_y_apellidos_tutor_principal,
-                'numero_de_cedula_tutor' => $participante->numero_de_cedula_tutor,
+                'tutor_principal' => $participante->tutor_principal,
                 'programa' => $participante->programa,
                 'participantes' => []
             ];
