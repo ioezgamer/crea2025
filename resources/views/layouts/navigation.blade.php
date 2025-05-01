@@ -36,6 +36,12 @@
                         {{ __('Reportes asistencia') }}
                     </x-nav-link>
                 </div>
+                <!-- Dentro de la sección de Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('tutores')" :active="request()->routeIs('tutores')">
+                        {{ __('Tutores') }}
+                    </x-nav-link>
+                </div>
                 @can('manage-roles')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
@@ -105,6 +111,10 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia')">
                 {{ __('Asistencia') }}
+            </x-responsive-nav-link>
+            <!-- Dentro de la sección de Responsive Navigation Menu -->
+            <x-responsive-nav-link :href="route('tutores')" :active="request()->routeIs('tutores')">
+                {{ __('Tutores') }}
             </x-responsive-nav-link>
             @can('manage-roles')
             <x-responsive-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
