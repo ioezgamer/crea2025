@@ -46,7 +46,7 @@
                         <thead class="bg-gray-100">
                             <tr class="text-xs font-medium text-gray-600 uppercase">
                                 <th class="px-4 py-3 text-left">Tutor</th>
-                                <th class="px-4 py-3 text-left">Cédula</th>
+                                <th class="px-4 py-3 text-left">Nombres y apellidos</th>
                                 <th class="px-4 py-3 text-left">Programa</th>
                                 <th class="px-4 py-3 text-left">Participantes</th>
                             </tr>
@@ -54,8 +54,8 @@
                         <tbody class="divide-y divide-gray-200">
                             @forelse ($tutors ?? [] as $tutor)
                                 <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 text-gray-600">{{ $tutor['tutor_principal'] ?: 'No especificado' }}</td>
                                     <td class="px-4 py-3 text-gray-900">{{ $tutor['nombres_y_apellidos_tutor_principal'] }}</td>
-                                    <td class="px-4 py-3 text-gray-600">{{ $tutor['numero_de_cedula_tutor'] ?: 'No especificado' }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $tutor['programa'] }}</td>
                                     <td class="px-4 py-3 text-gray-600">
                                         <ul class="list-disc pl-5">
