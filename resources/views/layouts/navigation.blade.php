@@ -115,3 +115,6 @@
 </nav>
 
 <!-- Adjust main content to account for sidebar -->
+<div class="sm:ml-64">
+    {{ $slot }}
+</div>
