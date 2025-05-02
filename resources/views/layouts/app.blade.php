@@ -28,9 +28,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+            
         </div>
         
         <!-- Alpine.js (incluido solo una vez) -->
