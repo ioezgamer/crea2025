@@ -39,7 +39,7 @@
     </x-dropdown>
 </div>
 
-        <!-- Logo and Toggle Button -->
+        <!-- Logo and Toggle Boton -->
         <div class="flex items-center justify-between px-4 py-4 border-b border-gray-800">
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <x-application-logo class="h-8 w-auto fill-current text-white" />
