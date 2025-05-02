@@ -9,7 +9,7 @@
         <style>
             @media (min-width: 640px) {
                 .min-h-screen {
-                    min-height: calc(100vh - 64px); /* Ajusta según la altura del footer */
+                    min-height: calc(100vh - 12px); /* Ajusta según la altura del footer */
                 }
             }
         </style>
