@@ -17,102 +17,96 @@
             </button>
         </div>
 
-        <!-- Navigation Links -->
+        <!-- Enlaces de Navegación -->
         <div class="flex-1 overflow-y-auto pt-4 px-2 space-y-2">
-            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" count="10" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" count="585">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Panel</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Total Inscritos</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('programas')" :active="request()->routeIs('programas')" count="25" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('programas')" :active="request()->routeIs('programas')" count="3">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Programas</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Programas Activos</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('participante.index')" :active="request()->routeIs('participante')" count="81" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('participante.index')" :active="request()->routeIs('participante')" count="7">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Participantes</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Participantes</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia')" count="0" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia')" count="0">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Asistencia</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Asistencias</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('asistencia.reporte')" :active="request()->routeIs('asistencia')" count="5" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('asistencia.reporte')" :active="request()->routeIs('asistencia')" count="5">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Reportes asistencia</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Reportes asistencia</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('tutores')" :active="request()->routeIs('tutores')" count="12" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('tutores')" :active="request()->routeIs('tutores')" count="12">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Tutores</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Tutores</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
-            <x-nav-link :href="route('tutores_participantes')" :active="request()->routeIs('tutores_participantes')" count="20" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+            <x-nav-link :href="route('tutores_participantes')" :active="request()->routeIs('tutores_participantes')" count="20">
                 <div class="flex items-center space-x-3">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Tutores y Participantes</span>
+                    <span x-show="sidebarOpen && window.innerWidth >= 640">Tutores y Participantes</span>
                 </div>
-                <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
             </x-nav-link>
 
             @can('manage-roles')
-                <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')" count="9" class="flex items-center justify-between space-x-3 text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
+                <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')" count="9">
                     <div class="flex items-center space-x-3">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zm8 0c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zM6 3a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3H6z"></path>
                         </svg>
-                        <span x-show="sidebarOpen" class="text-sm font-medium transition-opacity duration-300">Roles</span>
+                        <span x-show="sidebarOpen && window.innerWidth >= 640">Roles</span>
                     </div>
-                    <span x-show="sidebarOpen" class="text-xs bg-blue-600 rounded-full px-2 py-1">{{ $attributes->get('count') }}</span>
                 </x-nav-link>
             @endcan
         </div>
 
-        <!-- User Section -->
-        <div class="border-t border-gray-700 p-4">
+        <!-- Sección de Usuario -->
+        <div class="border-t border-gray-800 p-4">
             <x-dropdown align="right" width="48">
                 <x-slot name="trigger">
-                    <button class="flex items-center space-x-3 w-full text-gray-300 hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors duration-200">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=32" class="h-8 w-8 rounded-full" alt="{{ Auth::user()->name }}">
-                        <div x-show="sidebarOpen" class="flex-1 flex flex-col text-left">
+                    <button class="flex items-center space-x-3 w-full text-gray-300 hover:bg-gray-800 rounded-lg px-3 py-2 transition-colors duration-200">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=32" 
+                             class="h-8 w-8 rounded-full" 
+                             alt="Avatar de {{ Auth::user()->name }}">
+                        <div x-show="sidebarOpen && window.innerWidth >= 640" class="flex-1 flex flex-col text-left">
                             <span class="text-sm font-medium">{{ Auth::user()->name }}</span>
                             <span class="text-xs text-gray-400">{{ Auth::user()->email }}</span>
                         </div>
-                        <svg x-show="sidebarOpen" class="h-4 w-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg x-show="sidebarOpen && window.innerWidth >= 640" class="h-4 w-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
@@ -123,7 +117,7 @@
                         <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065zM12 14a2 2 0 100-4 2 2 0 000 4z"></path>
                         </svg>
-                        {{ __('Profile') }}
+                        {{ __('Perfil') }}
                     </x-dropdown-link>
 
                     <form method="POST" action="{{ route('logout') }}">
@@ -133,7 +127,7 @@
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                             </svg>
-                            {{ __('Log Out') }}
+                            {{ __('Cerrar Sesión') }}
                         </x-dropdown-link>
                     </form>
                 </x-slot>
@@ -141,21 +135,20 @@
         </div>
     </div>
 
-    <!-- Overlay for Mobile -->
-    <div x-show="open" @click="open = false" class="sm:hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+    <!-- Botón de Hamburguesa para Móvil -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button @click="open = !open; console.log('Toggled open to:', !open)" 
+                class="p-2 rounded-full bg-gray-800 text-white hover:bg-gray-700 transition-colors duration-200" 
+                aria-label="Alternar Menú">
+            <svg x-show="!open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            <svg x-show="open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Superposición para Móvil -->
+    <div x-show="open && window.innerWidth < 640" @click="open = false" class="fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 </nav>
-
-<!-- Main Content and Footer -->
-<div class="ml-0 sm:ml-64 pt-6 min-h-screen bg-gray-100 transition-all duration-300" :class="{ 'ml-16': !sidebarOpen }">
-    {{ $slot }}
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 p-4 text-center text-gray-700 shadow-inner mt-auto">
-        <div class="flex justify-center space-x-4">
-            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Acerca de</a>
-            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Soporte</a>
-            <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Política de Privacidad</a>
-        </div>
-        <p class="mt-2 text-sm">© {{ date('Y') }} Tu Proyecto. Todos los derechos reservados.</p>
-    </footer>
-</div>
