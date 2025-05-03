@@ -1,18 +1,16 @@
 <x-app-layout>
     
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">Gestión de Participantes</h2>
+                <p class="mt-1 text-sm text-gray-500">Listado completo de participantes registrados</p>
+            </div>
+            <x-crear-button 
+                onclick="window.location.href='{{ route('participante.create') }}'" >
+            </x-crear-button>
+        </div>
 
     <div class="py-6 bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
-        <x-slot name="header">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-800">Gestión de Participantes</h2>
-                    <p class="mt-1 text-sm text-gray-500">Listado completo de participantes registrados</p>
-                </div>
-                <x-crear-button 
-                    onclick="window.location.href='{{ route('participante.create') }}'" >
-                </x-crear-button>
-            </div>
-        </x-slot>
         <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Card Container -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
