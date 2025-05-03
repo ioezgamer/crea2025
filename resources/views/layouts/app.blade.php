@@ -5,18 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'SistemaCREA') }}</title>
+    <title>{{ config('app.name', 'Tu Proyecto') }}</title>
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Estilos -->
     @vite(['resources/css/app.css'])
-    <style>
-        .min-h-screen {
-            min-height: calc(100vh - 60px); /* Ajuste para el pie de página */
-        }
-    </style>
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div class="flex h-screen">
@@ -45,7 +40,7 @@
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Soporte</a>
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Política de Privacidad</a>
                 </div>
-                <p class="mt-2 text-sm">© {{ date('Y') }} SistemaCREA. Todos los derechos reservados.</p>
+                <p class="mt-2 text-sm">© {{ date('Y') }} Tu Proyecto. Todos los derechos reservados.</p>
             </footer>
         </main>
     </div>
