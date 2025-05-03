@@ -1,5 +1,5 @@
 <x-app-layout>
-    
+    <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-3xl font-bold text-gray-800">Gestión de Participantes</h2>
@@ -9,6 +9,7 @@
                 onclick="window.location.href='{{ route('participante.create') }}'" >
             </x-crear-button>
         </div>
+    </x-slot>
 
     <div class="py-6 bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
         <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
