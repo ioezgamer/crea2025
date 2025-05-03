@@ -12,6 +12,11 @@
 
     <!-- Estilos -->
     @vite(['resources/css/app.css'])
+    <style>
+        .min-h-screen {
+            min-height: calc(100vh - 60px); /* Ajuste para el pie de página */
+        }
+    </style>
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div class="flex h-screen">
