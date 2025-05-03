@@ -22,9 +22,13 @@
 
         {{-- Contenido Principal --}}
         <main 
-            class="flex-1 overflow-y-auto transition-all duration-300"
-            :class="sidebarOpen ? 'ml-64' : 'ml-16'"
-        >
+    class="flex-1 overflow-y-auto transition-all duration-300"
+    :class="{
+        'ml-64': sidebarOpen && window.innerWidth >= 640,
+        'ml-16': !sidebarOpen && window.innerWidth >= 640,
+        'ml-0': window.innerWidth < 640
+    }"
+>
             {{-- Encabezado de Página --}}
             @isset($header)
                 <header class="bg-white shadow">

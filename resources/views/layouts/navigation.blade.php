@@ -1,13 +1,23 @@
-<nav x-data="{ open: false, sidebarOpen: true }"
-     x-init="console.log('Sidebar initialized, sidebarOpen:', sidebarOpen)"
-     :class="{
-         'w-64': sidebarOpen && window.innerWidth >= 640,
-         'w-16': !sidebarOpen && window.innerWidth >= 640,
-         'hidden': !open && window.innerWidth < 640
-     }"
-     class="bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out shadow-lg"
-     x-bind:aria-expanded="sidebarOpen.toString()"
-     aria-label="Navegación Principal">
+<nav x-data="{ 
+    open: false, 
+    sidebarOpen: window.innerWidth >= 640 ? true : false 
+}" 
+x-init="
+    console.log('Sidebar initialized, sidebarOpen:', sidebarOpen);
+    window.addEventListener('resize', () => {
+        if (window.innerWidth < 640) {
+            sidebarOpen = false;
+            open = false;
+        } else {
+            sidebarOpen = true;
+        }
+    });
+" 
+x-bind:class="{ 'w-64': sidebarOpen && window.innerWidth >= 640, 'w-16': !sidebarOpen && window.innerWidth >= 640 }" 
+class="bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out shadow-lg"
+:class="{ 'hidden': !open && window.innerWidth < 640 }"
+x-bind:aria-expanded="sidebarOpen"
+aria-label="Navegación Principal">
     <div class="h-full flex flex-col">
         <!-- Logo y Botón de Alternancia -->
         <div class="flex items-center justify-between px-4 py-4 border-b border-gray-700">
