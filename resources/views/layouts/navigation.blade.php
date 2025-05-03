@@ -1,13 +1,21 @@
-<nav x-data="{ open: true, sidebarOpen: true }" x-bind:class="{ 'w-64': sidebarOpen, 'w-16': !sidebarOpen }" class="bg-gradient-to-b from-gray-900 to-gray-800 text-white fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out shadow-lg">
-    <!-- Sidebar Content -->
+<nav x-data="{ open: true, sidebarOpen: true }" 
+     x-init="console.log('Sidebar initialized, sidebarOpen:', sidebarOpen)" 
+     x-bind:class="{ 'w-64': sidebarOpen && window.innerWidth >= 640, 'w-16': !sidebarOpen && window.innerWidth >= 640 }" 
+     class="bg-gray-900 text-white fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out shadow-lg lg:w-64" 
+     :class="{ 'hidden': !open && window.innerWidth < 640 }" 
+     x-bind:aria-expanded="sidebarOpen" 
+     aria-label="Navegación Principal">
     <div class="h-full flex flex-col">
-        <!-- Logo and Toggle Button -->
-        <div class="flex items-center justify-between px-4 py-4 border-b border-gray-700">
+        <!-- Logo y Botón de Alternancia -->
+        <div class="flex items-center justify-between px-4 py-4 border-b border-gray-800">
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <x-application-logo class="h-8 w-auto fill-current text-white" />
-                <span x-show="sidebarOpen" class="text-xl font-bold transition-opacity duration-300">Tu Proyecto</span>
+                <span x-show="sidebarOpen && window.innerWidth >= 640" class="text-xl font-bold transition-opacity duration-300">Tu Proyecto</span>
             </a>
-            <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-full hover:bg-gray-700 transition-colors duration-200">
+            <button @click="sidebarOpen = !sidebarOpen; console.log('Toggled sidebarOpen to:', !sidebarOpen)" 
+                    class="p-2 rounded-full hover:bg-gray-800 transition-colors duration-200 lg:block" 
+                    x-show="window.innerWidth >= 640"
+                    aria-label="Alternar Sidebar">
                 <svg x-show="!sidebarOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                 </svg>
