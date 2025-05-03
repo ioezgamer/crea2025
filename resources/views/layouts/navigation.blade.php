@@ -4,45 +4,7 @@
      :class="{ 'hidden': !open && window.innerWidth < 640 }" 
      x-bind:aria-expanded="sidebarOpen" 
      aria-label="Navegación Principal">
-<!-- Sección de Usuario -->
-<div class="border-t border-gray-800 p-4">
-    <x-dropdown align="right" width="48">
-        <x-slot name="trigger">
-            <button class="flex items-center space-x-3 w-full text-gray-300 hover:bg-gray-800 rounded-lg px-3 py-2 transition-colors duration-200">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=32" 
-                     class="h-8 w-8 rounded-full" 
-                     alt="Avatar de {{ Auth::user()->name }}">
-                <div x-show="sidebarOpen && window.innerWidth >= 640" class="flex-1 flex flex-col text-left">
-                    <span class="text-sm font-medium">{{ Auth::user()->name }}</span>
-                    <span class="text-xs text-gray-400">{{ Auth::user()->email }}</span>
-                </div>
-                <svg x-show="sidebarOpen && window.innerWidth >= 640" class="h-4 w-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-        </x-slot>
 
-        <x-slot name="content">
-            <x-dropdown-link :href="route('profile.edit')">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065zM12 14a2 2 0 100-4 2 2 0 000 4z"></path>
-                </svg>
-                {{ __('Perfil') }}
-            </x-dropdown-link>
-
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <x-dropdown-link :href="route('logout')"
-                        onclick="event.preventDefault(); this.closest('form').submit();">
-                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    {{ __('Cerrar Sesión') }}
-                </x-dropdown-link>
-            </form>
-        </x-slot>
-    </x-dropdown>
-</div>
 
     <div class="h-full flex flex-col">
         <!-- Logo y Botón de Alternancia -->
@@ -140,7 +102,45 @@
                 </x-nav-link>
             @endcan
         </div>
+<!-- Sección de Usuario -->
+<div class="border-t border-gray-800 p-4">
+    <x-dropdown align="right" width="48">
+        <x-slot name="trigger">
+            <button class="flex items-center space-x-3 w-full text-gray-300 hover:bg-gray-800 rounded-lg px-3 py-2 transition-colors duration-200">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&size=32" 
+                     class="h-8 w-8 rounded-full" 
+                     alt="Avatar de {{ Auth::user()->name }}">
+                <div x-show="sidebarOpen && window.innerWidth >= 640" class="flex-1 flex flex-col text-left">
+                    <span class="text-sm font-medium">{{ Auth::user()->name }}</span>
+                    <span class="text-xs text-gray-400">{{ Auth::user()->email }}</span>
+                </div>
+                <svg x-show="sidebarOpen && window.innerWidth >= 640" class="h-4 w-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+        </x-slot>
 
+        <x-slot name="content">
+            <x-dropdown-link :href="route('profile.edit')">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065zM12 14a2 2 0 100-4 2 2 0 000 4z"></path>
+                </svg>
+                {{ __('Perfil') }}
+            </x-dropdown-link>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <x-dropdown-link :href="route('logout')"
+                        onclick="event.preventDefault(); this.closest('form').submit();">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    {{ __('Cerrar Sesión') }}
+                </x-dropdown-link>
+            </form>
+        </x-slot>
+    </x-dropdown>
+</div>
         
     </div>
 
