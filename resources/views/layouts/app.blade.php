@@ -40,7 +40,7 @@
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Soporte</a>
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Política de Privacidad</a>
                 </div>
-                <p class="mt-2 text-sm">© {{ date('Y') }} Tu Proyecto. Todos los derechos reservados.</p>
+                <p class="mt-2 text-sm">© {{ date('Y') }} SistemaCREA. Todos los derechos reservados.</p>
             </footer>
         </main>
     </div>
