@@ -6,11 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'SistemaCREA') }}</title>
-    <!-- Fonts -->
+    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Styles -->
+    <!-- Estilos -->
     @vite(['resources/css/app.css'])
 </head>
 <body class="font-sans antialiased bg-gray-100">
@@ -19,7 +19,7 @@
 
         <main class="flex-1 overflow-y-auto ml-0 transition-all duration-300 lg:ml-64"
               :class="{ 'lg:ml-16': !sidebarOpen && window.innerWidth >= 640 }">
-            <!-- Page Heading -->
+            <!-- Encabezado de Página -->
             @isset($header)
                 <header class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -28,12 +28,12 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
+            <!-- Contenido de Página -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 {{ $slot }}
             </div>
 
-            <!-- Footer -->
+            <!-- Pie de Página -->
             <footer class="bg-white border-t border-gray-200 p-4 text-center text-gray-700 shadow-inner">
                 <div class="flex justify-center space-x-4">
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Acerca de</a>
