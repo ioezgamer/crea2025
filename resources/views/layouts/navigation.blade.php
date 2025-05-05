@@ -157,19 +157,64 @@ aria-label="Navegación Principal">
     </div>
 
     <!-- Botón de Hamburguesa para Móvil -->
-    <div class="lg:hidden fixed top-4 left-4 z-50">
-        <button @click="open = !open; console.log('Toggled open to:', !open)" 
-                class="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white"
-                aria-label="Alternar Menú">
-            <svg x-show="!open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-            <svg x-show="open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <!-- Hamburger -->
+    <div class="-me-2 flex items-center sm:hidden">
+        <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
     </div>
 
-    <!-- Superposición para Móvil -->
-    <div x-show="open && window.innerWidth < 640" @click="open = false" class="fixed inset-0 bg-black bg-opacity-50 z-40" aria-hidden="true"></div>
+    <!-- Responsive Navigation Menu -->
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('programas')" :active="request()->routeIs('programas')">
+                {{ __('Programas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('participante.index')" :active="request()->routeIs('participante')">
+                {{ __('Participantes') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia')">
+                {{ __('Asistencia') }}
+            </x-responsive-nav-link>
+            <!-- Dentro de la sección de Responsive Navigation Menu -->
+            <x-responsive-nav-link :href="route('tutores')" :active="request()->routeIs('tutores')">
+                {{ __('Tutores') }}
+            </x-responsive-nav-link>
+            @can('manage-roles')
+            <x-responsive-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')">
+                {{ __('Roles') }}
+            </x-responsive-nav-link>
+            @endcan
+        </div>
+
+        <!-- Responsive Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200">
+            <div class="px-4">
+                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+            </div>
+
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
+                </form>
+            </div>
+        </div>
 </nav>
