@@ -27,9 +27,9 @@
             @endisset
 
             {{-- Contenido --}}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <main>
                 {{ $slot }}
-            </div>
+            </main>
 
             {{-- Pie de Página --}}
             <footer class="bg-white border-t border-gray-200 p-4 text-center text-gray-700 shadow-inner">
