@@ -170,5 +170,4 @@ aria-label="Navegación Principal">
 <!-- Contenido principal con margen para el sidebar -->
 <main :class="{ 'ml-0': window.innerWidth < 640 || !sidebarOpen, 'ml-64': sidebarOpen && window.innerWidth >= 640, 'ml-16': !sidebarOpen && window.innerWidth >= 640 }" 
       class="transition-all duration-300 ease-in-out pt-16 px-4">
-    {{ $slot }}
 </main>
