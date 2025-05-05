@@ -1,4 +1,4 @@
-@props(['active'])
+@props(['active', 'count' => null])
 
 @php
 $classes = ($active ?? false)
@@ -10,5 +10,9 @@ $classes = ($active ?? false)
     <div class="flex items-center space-x-1">
         {{ $slot }}
     </div>
-    <span class="text-xs bg-blue-600 rounded-full px-1 py-0.5">{{ $attributes->get('count') }}</span>
+    @if($count !== null)
+        <span class="ml-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            {{ $count }}
+        </span>
+    @endif
 </a>

@@ -15,12 +15,12 @@
     @vite(['resources/css/app.css'])
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-transparent">
         @include('layouts.navigation')
             {{-- Encabezado de Página --}}
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-transparent shadow">
+                    <div class="max-w-full mx-auto py-3 px-2 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
@@ -33,12 +33,14 @@
 
             {{-- Pie de Página --}}
             <footer class="bg-white border-t border-gray-200 p-4 text-center text-gray-700 shadow-inner">
+                {{-- Pie de Página 
                 <div class="flex justify-center space-x-4">
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Acerca de</a>
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Soporte</a>
                     <a href="#" class="text-gray-500 hover:text-gray-700 transition-colors duration-200">Política de Privacidad</a>
                 </div>
-                <p class="mt-2 text-sm">© {{ date('Y') }} Tu Proyecto. Todos los derechos reservados.</p>
+                --}}
+                <p class="mt-2 text-sm">© {{ date('Y') }} SistemaCREA. Todos los derechos reservados.</p>
             </footer>
         </main>
     </div>

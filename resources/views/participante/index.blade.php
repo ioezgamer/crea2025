@@ -11,8 +11,8 @@
         </div>
     </x-slot>
 
-    <div class="py-6 bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
-        <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-6 bg-gradient-to-b from-gray-200 to-gray-100 min-h-screen">
+        <div class="max-w-full sm:px-6 lg:px-2">
             <!-- Card Container -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
                 <!-- Card Header with Filters -->
