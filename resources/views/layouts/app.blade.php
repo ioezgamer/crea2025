@@ -14,21 +14,9 @@
     <!-- Estilos -->
     @vite(['resources/css/app.css'])
 </head>
-<body class="font-sans antialiased bg-gray-100" x-data="{ sidebarOpen: true }">
-    <div class="flex h-screen">
-
-        {{-- Sidebar (lo puedes controlar con x-show o clases condicionales) --}}
+<body class="font-sans antialiased">
+    <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
-
-        {{-- Contenido Principal --}}
-        <main 
-    class="flex-1 overflow-y-auto transition-all duration-300"
-    :class="{
-        'ml-64': sidebarOpen && window.innerWidth >= 640,
-        'ml-16': !sidebarOpen && window.innerWidth >= 640,
-        'ml-0': window.innerWidth < 640
-    }"
->
             {{-- Encabezado de Página --}}
             @isset($header)
                 <header class="bg-white shadow">
