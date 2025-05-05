@@ -3,9 +3,9 @@
 }" 
 class="bg-gradient-to-r from-gray-900 to-gray-800 text-white fixed top-0 left-0 right-0 z-50 shadow-lg transition-all duration-300 ease-in-out"
 aria-label="Navegación Principal">
-    <div class="container mx-auto px-4">
-        <!-- Encabezado de la barra -->
-        <div class="flex items-center justify-between py-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+        <div class="flex">
             <!-- Logo -->
             <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                 <x-application-logo class="h-8 w-auto fill-current text-white transition-transform duration-300 hover:scale-105" />
