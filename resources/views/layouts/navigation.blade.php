@@ -1,7 +1,7 @@
 <nav x-data="{ open: false }" 
      class="bg-gray-900 text-white fixed top-0 left-0 right-0 z-50 shadow-md transition-all duration-300 ease-in-out"
      aria-label="Navegación Principal">
-    <div class="container mx-2 px-2 py-2 flex items-center justify-between">
+    <div class="container mx-auto py-3 flex items-center justify-between">
         <!-- Logo -->
         <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
             <x-application-logo class="h-6 w-auto fill-current text-white" />
