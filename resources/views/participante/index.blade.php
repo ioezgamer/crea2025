@@ -14,7 +14,7 @@
     <div class="py-6 bg-gradient-to-b from-gray-200 to-gray-100 min-h-screen">
         <div class="max-w-full sm:px-6 lg:px-2">
             <!-- Card Container -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <div class="bg-white rounded-2xl max-w-9xl shadow-md overflow-hidden border border-gray-100">
                 <!-- Card Header with Filters -->
                 <div class="px-6 py-4 bg-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -61,7 +61,7 @@
                 </div>
                 
                 <!-- Card Body -->
-                <div class="p-6">
+                <div class="p-2">
                     @if($participantes->isEmpty())
                         <div class="text-center py-12">
                             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

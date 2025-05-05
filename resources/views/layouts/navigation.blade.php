@@ -4,7 +4,7 @@
     <div class="container mx-auto py-3 flex items-center justify-between">
         <!-- Logo -->
         <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
-            <x-application-logo class="h-6 w-auto fill-current text-white" />
+            <x-application-logo class="h-6 w-full fill-current text-white" />
             <span class="text-sm font-semibold">SistemaCREA</span>
         </a>
 
