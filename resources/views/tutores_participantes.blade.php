@@ -54,7 +54,14 @@
                         <tbody class="divide-y divide-gray-200">
                             @forelse ($tutors ?? [] as $tutor)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-gray-600">{{ $tutor['tutor_principal'] ?: 'No especificado' }}</td>
+                                    <td class="px-4 py-3 text-gray-600">
+                                        {{ $tutor['tutor_principal'] ?: 'No especificado' }} 
+                                        @if ($tutor['tutor_secundario'])
+                                            / {{ $tutor['tutor_secundario'] }}
+                                        @else
+                                            / No especificado
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-gray-900">{{ $tutor['nombres_y_apellidos_tutor_principal'] }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $tutor['programa'] }}</td>
                                     <td class="px-4 py-3 text-gray-600">
