@@ -195,6 +195,7 @@ Route::get('/tutores-participantes', function () {
     $participantes = $query->select([
         'tutor_principal',
         'nombres_y_apellidos_tutor_principal',
+        'tutor_secundario',
         'programa',
         'primer_nombre_p',
         'primer_apellido_p',
