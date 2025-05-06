@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Tu Proyecto') }}</title>
+    <title>{{ config('app.name', 'SistemaCREA') }}</title>
 
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -19,8 +19,8 @@
         @include('layouts.navigation')
             {{-- Encabezado de Página --}}
             @isset($header)
-                <header>
-                    <div class="max-w-24 mx-auto py-3 px-2 sm:px-6 lg:px-8">
+                <header class="bg-white shadow-sm">
+                    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
                 </header>
