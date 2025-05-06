@@ -19,10 +19,10 @@
         @include('layouts.navigation')
             {{-- Encabezado de Página --}}
             @isset($header)
-                <header class="bg-transparent shadow">
-                    <div class="max-w-full mx-auto py-3 px-2 sm:px-6 lg:px-8">
+                <header>
+                    
                         {{ $header }}
-                    </div>
+                    
                 </header>
             @endisset
 
