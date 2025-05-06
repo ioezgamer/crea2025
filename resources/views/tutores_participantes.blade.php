@@ -59,7 +59,7 @@
                                         @if ($tutor['tutor_secundario'])
                                             / {{ $tutor['tutor_secundario'] }}
                                         @else
-                                            / ''
+                                            
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-gray-900">{{ $tutor['nombres_y_apellidos_tutor_principal'] }}</td>
