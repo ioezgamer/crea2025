@@ -55,12 +55,14 @@
                             @forelse ($tutors ?? [] as $tutor)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-3 text-gray-600">
-                                        {{ $tutor['tutor_principal'] ?: 'No especificado' }} 
-                                        @if ($tutor['tutor_secundario'])
-                                            / {{ $tutor['tutor_secundario'] }}
-                                        @else
-                                            
-                                        @endif
+                                        @php
+                                            // Obtener los tipos de tutor únicos de los participantes
+                                            $tipos_tutor = array_unique(array_column($tutor['participantes'], 'tipo_relacion'));
+                                            // Si no hay tipo_relacion, usar tutor_principal como fallback
+                                            $tipos_tutor = !empty($tipos_tutor) ? $tipos_tutor : [$tutor['tutor_principal'] ?: 'No especificado'];
+                                            // Unir los tipos con " / "
+                                            echo implode(' / ', $tipos_tutor);
+                                        @endphp
                                     </td>
                                     <td class="px-4 py-3 text-gray-900">{{ $tutor['nombres_y_apellidos_tutor_principal'] }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $tutor['programa'] }}</td>
