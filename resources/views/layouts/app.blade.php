@@ -15,23 +15,20 @@
     @vite(['resources/css/app.css'])
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-transparent">
+    <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
-        <!-- Espaciador para evitar que el contenido quede detrás de la barra -->
-        <div class="h-14 md:h-14"></div>
-
-        {{-- Encabezado de Página --}}
+        <!-- Page Heading -->
         @isset($header)
-            <header class="bg-white shadow-sm">
-                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
         @endisset
 
-        {{-- Contenido --}}
-        <main class="p-6">
+        <!-- Page Content -->
+        <main>
             {{ $slot }}
         </main>
 
