@@ -195,7 +195,6 @@ Route::get('/tutores-participantes', function () {
     $participantes = $query->select([
         'tutor_principal',
         'nombres_y_apellidos_tutor_principal',
-        'tutor_secundario',
         'programa',
         'primer_nombre_p',
         'primer_apellido_p',
@@ -209,20 +208,24 @@ Route::get('/tutores-participantes', function () {
         if (!isset($tutors[$tutorKey])) {
             $tutors[$tutorKey] = [
                 'nombres_y_apellidos_tutor_principal' => $participante->nombres_y_apellidos_tutor_principal,
-                'tutor_principal' => $participante->tutor_principal,
-                'tutor_secundario' => $participante->tutor_secundario,
+                'tutor_principal' => [], // Inicializar como arreglo para almacenar tipos
                 'programa' => $participante->programa,
                 'participantes' => []
             ];
         }
+        // Agregar el tipo de tutor al arreglo, si no está ya
+        $tipoTutor = $participante->tutor_principal ?: 'No especificado';
+        if (!in_array($tipoTutor, $tutors[$tutorKey]['tutor_principal'])) {
+            $tutors[$tutorKey]['tutor_principal'][] = $tipoTutor;
+        }
+        // Agregar participante
         $tutors[$tutorKey]['participantes'][] = [
             'primer_nombre_p' => $participante->primer_nombre_p,
             'primer_apellido_p' => $participante->primer_apellido_p,
             'grado_p' => $participante->grado_p
         ];
     }
-
-    // Convertir a un array indexado para la vista
+    // Convertir $tutors a un arreglo indexado para la vista
     $tutors = array_values($tutors);
 
     return view('tutores_participantes', compact(
