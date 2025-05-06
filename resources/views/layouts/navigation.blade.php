@@ -1,19 +1,15 @@
 <nav x-data="{ open: false }" 
-     class="bg-gray-900 text-white fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out"
+     class="bg-gray-900 text-white fixed top-0 left-0 right-0 z-50 shadow-md transition-all duration-300 ease-in-out"
      aria-label="Navegación Principal">
-       <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
-                </div>
+    <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
+            <x-application-logo class="h-8 w-auto fill-current text-white" />
+            <span class="text-lg font-bold">SistemaCREA</span>
+        </a>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+        <!-- Enlaces de Navegación -->
+        <div class="hidden md:flex items-center space-x-6">
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" :count="$totalParticipants">
                 <div class="flex items-center space-x-2">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
