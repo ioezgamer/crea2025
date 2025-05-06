@@ -210,6 +210,7 @@ Route::get('/tutores-participantes', function () {
             $tutors[$tutorKey] = [
                 'nombres_y_apellidos_tutor_principal' => $participante->nombres_y_apellidos_tutor_principal,
                 'tutor_principal' => $participante->tutor_principal,
+                'tutor_secundario' => $participante->tutor_secundario,
                 'programa' => $participante->programa,
                 'participantes' => []
             ];
