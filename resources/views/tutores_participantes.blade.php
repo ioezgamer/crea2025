@@ -57,7 +57,7 @@
                                     <td class="px-4 py-3 text-gray-600">
                                         @php
                                             // Obtener los tipos de tutor únicos de los participantes
-                                            $tipos_tutor = array_unique(array_column($tutor['participantes'], 'tipo_relacion'));
+                                            $tipos_tutor = array_unique(array_column($tutor['participantes'], 'tutor_principal'));
                                             // Si no hay tipo_relacion, usar tutor_principal como fallback
                                             $tipos_tutor = !empty($tipos_tutor) ? $tipos_tutor : [$tutor['tutor_principal'] ?: 'No especificado'];
                                             // Unir los tipos con " / "
