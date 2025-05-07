@@ -5,7 +5,7 @@
                 <h2 class="text-3xl font-bold text-gray-800">Gestión de Participantes</h2>
                 <p class="mt-1 text-sm text-gray-500">
                     @if(request('grado'))
-                        Participantes en el grado: {{ urldecode(request('grado')) }}
+                        Participantes en el grado: {{ urldecode(request('grado')) }} (Total: {{ $participantes->total() }})
                     @else
                         Listado completo de participantes registrados
                     @endif
