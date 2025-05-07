@@ -263,9 +263,9 @@
                                 <label for="turno" class="block text-xs font-medium text-gray-800 mb-1">Turno</label>
                                 <select name="turno" id="turno" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                     <option value="" disabled selected>Seleccione</option>
-                                    <option value="Mañana">Matutino</option>
-                                    <option value="Tarde">Vespertino</option>
-                                    <option value="Noche">Sabatino</option>
+                                    <option value="Matutino">Matutino</option>
+                                    <option value="Vespertino">Vespertino</option>
+                                    <option value="Sabatino">Sabatino</option>
                                 </select>
                             </div>
 

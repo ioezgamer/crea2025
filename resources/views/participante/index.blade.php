@@ -3,7 +3,13 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-3xl font-bold text-gray-800">Gestión de Participantes</h2>
-                <p class="mt-1 text-sm text-gray-500">Listado completo de participantes registrados</p>
+                <p class="mt-1 text-sm text-gray-500">
+                    @if(request('grado'))
+                        Participantes en el grado: {{ urldecode(request('grado')) }}
+                    @else
+                        Listado completo de participantes registrados
+                    @endif
+                </p>
             </div>
             <x-crear-button 
                 onclick="window.location.href='{{ route('participante.create') }}'" >
@@ -18,41 +24,49 @@
                 <!-- Card Header with Filters -->
                 <div class="px-6 py-4 bg-white border-b border-gray-200">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <!-- Search Box -->
-                        <div class="w-full md:w-1/3">
-                            <form method="GET" action="{{ route('participante.index') }}" class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <input 
-                                    type="text" 
-                                    name="search_name" 
-                                    placeholder="Buscar por nombre..." 
-                                    value="{{ request('search_name') }}"
-                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                            </form>
-                        </div>
+                        <!-- En index.blade.php, en el formulario de búsqueda por nombre -->
+<form method="GET" action="{{ route('participante.index') }}" class="relative">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+    </div>
+    <input 
+        type="text" 
+        name="search_name" 
+        placeholder="Buscar por nombre..." 
+        value="{{ request('search_name') }}"
+        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+    @if(request('search_programa'))
+        <input type="hidden" name="search_programa" value="{{ request('search_programa') }}">
+    @endif
+    @if(request('grado'))
+        <input type="hidden" name="grado" value="{{ request('grado') }}">
+    @endif
+</form>
                         
-                        <!-- Program Filter -->
-                        <div class="w-full md:w-1/3">
-                            <form method="GET" action="{{ route('participante.index') }}">
-                                <select 
-                                    name="search_programa" 
-                                    onchange="this.form.submit()"
-                                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Todos los programas</option>
-                                    @foreach($programas as $programa)
-                                        <option value="{{ $programa }}" {{ request('search_programa') == $programa ? 'selected' : '' }}>
-                                            {{ $programa }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </form>
-                        </div>
+                        <!-- En index.blade.php, en el formulario de filtro por programa -->
+<form method="GET" action="{{ route('participante.index') }}">
+    <select 
+        name="search_programa" 
+        onchange="this.form.submit()"
+        class="block w-52 px-4 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+        <option value="">Todos los programas</option>
+        @foreach($programas as $programa)
+            <option value="{{ $programa }}" {{ request('search_programa') == $programa ? 'selected' : '' }}>
+                {{ $programa }}
+            </option>
+        @endforeach
+    </select>
+    @if(request('search_name'))
+        <input type="hidden" name="search_name" value="{{ request('search_name') }}">
+    @endif
+    @if(request('grado'))
+        <input type="hidden" name="grado" value="{{ request('grado') }}">
+    @endif
+</form>
                         
                         <!-- Place Filter (will be dynamic) -->
                         <div class="w-full md:w-1/3">

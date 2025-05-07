@@ -32,7 +32,10 @@ class ParticipanteController extends Controller
             $searchLugar = $request->input('search_lugar');
             $query->where('lugar_de_encuentro_del_programa', 'like', '%'. $searchLugar .'%');
         }
-    
+
+        if ($grado = request('grado')) {
+            $query->where('grado_p', urldecode($grado));
+        }
         // Ordenar por nombre (primer_nombre_p, primer_apellido_p) y grado (grado_p)
         $query->orderBy('grado_p', 'asc')
               ->orderBy('primer_nombre_p', 'asc');
@@ -226,5 +229,50 @@ class ParticipanteController extends Controller
     {
         $participante->delete();
         return redirect()->route('participante.index')->with('success', 'Participant deleted successfully.');
+    }
+
+
+    // En app/Http/Controllers/ParticipanteController.php
+    public function indexByGrade($grado)
+    {
+        $query = Participante::query();
+    
+        // Filter by grade
+        $query->where('grado_p', urldecode($grado));
+    
+        // Filter by name (primer_nombre_p or primer_apellido_p)
+        if ($searchName = request('search_name')) {
+            $query->where(function ($q) use ($searchName) {
+                $q->where('primer_nombre_p', 'like', '%' . $searchName . '%')
+                  ->orWhere('primer_apellido_p', 'like', '%' . $searchName . '%');
+            });
+        }
+    
+        // Filter by program
+        if ($searchPrograma = request('search_programa')) {
+            $query->where('programa', 'like', '%' . $searchPrograma . '%');
+        }
+    
+        // Filter by place
+        if ($searchLugar = request('search_lugar')) {
+            $query->where('lugar_de_encuentro_del_programa', 'like', '%' . $searchLugar . '%');
+        }
+    
+        // Sort by grade and name
+        $query->orderBy('grado_p', 'asc')
+              ->orderBy('primer_nombre_p', 'asc');
+    
+        // Get distinct programs
+        $programas = Participante::select('programa')
+            ->distinct()
+            ->pluck('programa')
+            ->filter()
+            ->sort()
+            ->values();
+    
+        // Paginate participants
+        $participantes = $query->paginate(request()->input('per_page', 15));
+    
+        return view('participante.index', compact('participantes', 'programas'));
     }
 }
