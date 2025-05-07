@@ -109,6 +109,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:manage-roles')->group(function () {
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         Route::post('/roles/{user}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{user}', [RoleController::class, 'destroy'])->name('roles.destroy');
     });
 });
 
