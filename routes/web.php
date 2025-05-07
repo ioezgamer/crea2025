@@ -112,6 +112,11 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// En web.php, dentro del grupo middleware('auth')
+Route::get('/participantes/por-grado/{grado}', [ParticipanteController::class, 'indexByGrade'])
+        ->middleware(['verified'])
+        ->name('participante.indexByGrade');
+
 Route::get('/tutores', function () {
     $selectedProgram = request('programa');
     $selectedPlace = request('lugar');

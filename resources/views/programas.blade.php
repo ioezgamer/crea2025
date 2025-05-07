@@ -71,32 +71,37 @@
 
             <!-- Detailed Breakdown -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Participants by Grade -->
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Grado</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-100">
-                                <tr class="text-xs font-medium text-gray-600 uppercase">
-                                    <th class="px-4 py-3 text-left">Grado</th>
-                                    <th class="px-4 py-3 text-right">Inscritos</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                @forelse ($participantsByGrade ?? [] as $grade => $count)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-gray-900">{{ $grade }}</td>
-                                        <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="2" class="px-4 py-3 text-gray-500 text-center">No hay datos disponibles</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- En programas.blade.php, en la sección de Participantes por Grado -->
+<div class="bg-white shadow-sm rounded-lg p-6">
+    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Grado</h3>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-100">
+                <tr class="text-xs font-medium text-gray-600 uppercase">
+                    <th class="px-4 py-3 text-left">Grado</th>
+                    <th class="px-4 py-3 text-right">Inscritos</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @forelse ($participantsByGrade ?? [] as $grade => $count)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-gray-900">
+                            <a href="{{ route('participante.indexByGrade', ['grado' => urlencode($grade), 'search_programa' => $selectedProgram]) }}"
+                               class="text-blue-600 hover:text-blue-800 hover:underline">
+                                {{ $grade }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="2" class="px-4 py-3 text-gray-500 text-center">No hay datos disponibles</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
 
                 <!-- Participants by Gender -->
                 <div class="bg-white shadow-sm rounded-lg p-6">
