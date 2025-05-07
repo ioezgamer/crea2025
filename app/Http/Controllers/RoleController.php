@@ -39,4 +39,19 @@ class RoleController extends Controller
 
         return redirect()->route('roles.index')->with('status', 'role-updated');
     }
+
+    /**
+     * Eliminar un usuario, excepto si tiene el rol de admin.
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        // Prevent deletion of admin users
+        if ($user->role === 'admin') {
+            return redirect()->route('roles.index')->with('error', 'No se puede eliminar a un usuario con rol de administrador.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('roles.index')->with('status', 'user-deleted');
+    }
 }

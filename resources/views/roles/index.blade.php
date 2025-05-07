@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Gestión de Roles') }}
+            {{ __('Gestión de roles') }}
         </h2>
     </x-slot>
 
@@ -12,6 +12,16 @@
                     @if (session('status') === 'role-updated')
                         <div class="mb-4 font-medium text-sm text-green-600">
                             {{ __('Rol actualizado correctamente.') }}
+                        </div>
+                    @endif
+                    @if (session('status') === 'user-deleted')
+                        <div class="mb-4 font-medium text-sm text-green-600">
+                            {{ __('Usuario eliminado correctamente.') }}
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="mb-4 font-medium text-sm text-red-600">
+                            {{ session('error') }}
                         </div>
                     @endif
 
@@ -31,16 +41,27 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $user->role ?? 'user' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <form action="{{ route('roles.update', $user) }}" method="POST">
-                                            @csrf
-                                            @method('POST')
-                                            <select name="role" class="border-gray-300 rounded-md">
-                                                @foreach ($roles as $role)
-                                                    <option value="{{ $role }}" {{ $user->role === $role ? 'selected' : '' }}>{{ $role }}</option>
-                                                @endforeach
-                                            </select>
-                                            <button type="submit" class="ml-2 text-indigo-600 hover:text-indigo-900">Actualizar</button>
-                                        </form>
+                                        <div class="flex items-center space-x-4">
+                                            <!-- Update Role Form -->
+                                            <form action="{{ route('roles.update', $user) }}" method="POST">
+                                                @csrf
+                                                @method('POST')
+                                                <select name="role" class="border-gray-300 rounded-md">
+                                                    @foreach ($roles as $role)
+                                                        <option value="{{ $role }}" {{ $user->role === $role ? 'selected' : '' }}>{{ $role }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <button type="submit" class="ml-2 text-indigo-600 hover:text-indigo-900">Actualizar</button>
+                                            </form>
+                                            <!-- Delete User Form (only for non-admin users) -->
+                                            @if ($user->role !== 'admin')
+                                                <form action="{{ route('roles.destroy', $user) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">Eliminar</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
