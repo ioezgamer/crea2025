@@ -22,7 +22,7 @@
                 </div>
             </x-nav-link>
 
-            <x-nav-link :href="route('participante.index')" :active="request()->routeIs('participante')" :count="$totalParticipants">
+            <x-nav-link :href="route('participante.index')" :active="request()->routeIs('participante.index')" :count="$totalParticipants">
                 <div class="flex items-center space-x-2">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -31,7 +31,7 @@
                 </div>
             </x-nav-link>
 
-            <x-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia')">
+            <x-nav-link :href="route('asistencia.create')" :active="request()->routeIs('asistencia.create')">
                 <div class="flex items-center space-x-2">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"></path>
@@ -40,7 +40,7 @@
                 </div>
             </x-nav-link>
 
-            <x-nav-link :href="route('asistencia.reporte')" :active="request()->routeIs('asistencia')" >
+            <x-nav-link :href="route('asistencia.reporte')" :active="request()->routeIs('asistencia.reporte')" >
                 <div class="flex items-center space-x-2">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Botón de menú móvil y usuario -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 ">
             <!-- Botón de menú móvil -->
             <button x-show="window.innerWidth < 768" 
                     @click="open = !open" 
@@ -93,18 +93,21 @@
             </button>
 
             <!-- Sección de usuario -->
-            <div x-show="window.innerWidth >= 768" class="relative">
+            <div x-show="window.innerWidth >= 768" class="relative" >
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="flex items-center space-x-2 text-gray-300 hover:bg-gray-700 rounded-full p-1 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white">
-                            <span class="text-xs font-medium">{{ Auth::user()->name }}</span>
+                        <button class="flex items-center space-x-2 w-full {{ request()->routeIs('profile.edit') ? 'flex items-center space-x-1 text-white bg-indigo-600 bg-opacity-75 rounded-full px-2 py-1 font-medium' : 'flex items-center space-x-1 text-gray-300 hover:bg-gray-700 hover:text-white rounded-full px-2 py-1 transition-colors duration-200' }} focus:outline-none focus:ring-2 focus:ring-white">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">{{ Auth::user()->name }}</span>
+                            <svg class="h-4 w-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
                     </x-slot>
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                    <x-slot name="content" >
+                        <x-dropdown-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065zM12 14a2 2 0 100-4 2 2 0 000 4z"></path>
                             </svg>
@@ -223,7 +226,7 @@
                         </button>
                     </x-slot>
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
+                        <x-dropdown-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')">
                             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065zM12 14a2 2 0 100-4 2 2 0 000 4z"></path>
                             </svg>
