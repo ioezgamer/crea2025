@@ -1,13 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-800">Registro de Asistencia</h2>
+            <a href="{{ route('asistencia.create') }}">
+                <h2 class="text-lg font-semibold text-gray-800">Registro de Asistencia</h2>
+            </a>
+            
             <x-boton-regresar onclick="window.location.href='{{ route('participante.index') }}'" />
         </div>
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Formulario de filtros -->
             <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
                 <form method="GET" action="{{ route('asistencia.create') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -49,20 +52,6 @@
                 </form>
             </div>
 
-            <!-- Botón para ver el reporte -->
-            @if (isset($programa) && $programa)
-                <div class="mb-6">
-                    <a href="{{ route('asistencia.reporte', [
-                        'programa' => $programa,
-                        'fecha_inicio' => $fechaInicio,
-                        'lugar_de_encuentro_del_programa' => $lugar_encuentro,
-                        'grado_p' => $grado
-                    ]) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        Ver Reporte de Asistencias
-                    </a>
-                </div>
-            @endif
-
             <!-- Mensajes -->
             @if (session('success'))
                 <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-md">{{ session('success') }}</div>
@@ -89,6 +78,7 @@
                                     <th class="px-4 py-3 text-left">Género</th>
                                     <th class="px-4 py-3 text-left">Grado</th>
                                     <th class="px-4 py-3 text-left">Programa</th>
+                                    <th class="px-4 py-3 text-left">Días esperados</th>
                                     @foreach ($diasSemana as $dia => $fecha)
                                         <th class="px-4 py-3 text-center">
                                             @php
@@ -130,6 +120,7 @@
                                             <td class="px-4 py-3 text-gray-600">{{ $participante->genero }}</td>
                                             <td class="px-4 py-3 text-gray-600">{{ $participante->grado_p ?? 'N/A' }}</td>
                                             <td class="px-4 py-3 text-gray-600">{{ $participante->programa ?? 'N/A' }}</td>
+                                            <td class="px-4 py-3 text-gray-600">{{ $participante->dias_de_asistencia_al_programa ?? 'N/A' }}</td>
                                             @foreach ($diasSemana as $dia => $fecha)
                                                 <td class="px-4 py-3 text-center">
                                                     <select name="asistencias[{{ $participante->participante_id }}][{{ $dia }}]" class="w-10 p-1 rounded-md border-gray-300 text-xs focus:border-blue-500 focus:ring-indigo-500 asistencia-select" data-participante-id="{{ $participante->participante_id }}">
@@ -160,6 +151,29 @@
                 <div class="bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No hay participantes inscritos.</div>
             @endif
         </div>
+        <div class="flex items-center justify-center">
+          
+       
+        <!-- Botón para ver el reporte -->
+        @if (isset($programa) && $programa)
+        <div class="mb-6">
+            <a href="{{ route('asistencia.reporte', [
+                'programa' => $programa,
+                'fecha_inicio' => $fechaInicio,
+                'lugar_de_encuentro_del_programa' => $lugar_encuentro,
+                'grado_p' => $grado
+            ]) }}" class="inline-flex items-center justify-center py-1 px-1  text-blue-700 text-xs rounded-2xl  transition-all duration-200 hover:-translate-y-0.5 transform focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            
+                Generar reporte de asistencia
+                <svg class="w-4 h-4 ml-1 text-gray-400 hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </a>
+            
+        </div>
+    @endif
+</div>
     </div>
 
     <script>

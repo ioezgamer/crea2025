@@ -2,6 +2,22 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-gray-800">Reporte de Asistencias</h2>
+            <div class="flex items-center space-x-2">
+                <!-- Botón para exportar a PDF -->
+                @if (isset($programa) && $programa)
+                    <a href="{{ route('asistencia.exportPdf', [
+                        'programa' => $programa,
+                        'fecha_inicio' => $fechaInicio,
+                        'lugar_de_encuentro_del_programa' => $lugar_encuentro,
+                        'grado_p' => $grado
+                    ]) }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H3a2 2 0 01-2-2V3a2 2 0 012-2h18a2 2 0 012 2v16a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Exportar a PDF
+                </a>
+                @endif
+            <h2 class="text-lg font-semibold text-gray-800">Reporte de Asistencias</h2>
             <x-boton-regresar onclick="window.location.href='{{ route('asistencia.create', [
                 'programa' => $programa,
                 'fecha_inicio' => $fechaInicio,

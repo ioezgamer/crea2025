@@ -7,6 +7,7 @@ use App\Models\Participante;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 
 class AsistenciaController extends Controller
 {
@@ -320,4 +321,113 @@ class AsistenciaController extends Controller
             'promedioAsistencia'
         ));
     }
+
+    public function exportPdf(Request $request)
+{
+    // Obtener los filtros de la solicitud
+    $programa = $request->query('programa');
+    $fechaInicio = $request->query('fecha_inicio', now()->startOfWeek()->format('Y-m-d'));
+    $lugar_encuentro = $request->query('lugar_de_encuentro_del_programa');
+    $grado = $request->query('grado_p');
+
+    // Validar que el programa esté seleccionado
+    if (!$programa) {
+        return redirect()->route('asistencia.reporte')->withErrors(['programa' => 'El programa es obligatorio']);
+    }
+
+    // Obtener participantes con los filtros aplicados
+    $query = Participante::query()->where('programa', $programa);
+
+    if ($lugar_encuentro) {
+        $query->where('lugar_de_encuentro_del_programa', $lugar_encuentro);
+    }
+
+    if ($grado) {
+        $query->where('grado_p', $grado);
+    }
+
+    $participantes = $query->get();
+
+    // Definir los días de la semana (lunes a viernes) a partir de la fecha de inicio
+    $startDate = Carbon::parse($fechaInicio)->startOfWeek();
+    $diasSemana = [];
+    for ($i = 0; $i < 5; $i++) {
+        $fecha = $startDate->copy()->addDays($i);
+        $diasSemana[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
+    }
+
+    // Log para depurar los días generados
+    \Log::info('Días de la semana en exportPdf', ['diasSemana' => $diasSemana]);
+
+    // Obtener asistencias
+    $asistencias = [];
+    $estadisticasPorDia = [];
+    foreach ($participantes as $participante) {
+        $asistencias[$participante->participante_id] = [];
+        $totalAsistido = 0;
+
+        foreach ($diasSemana as $dia => $fecha) {
+            $asistencia = Asistencia::where('participante_id', $participante->participante_id)
+                ->whereDate('fecha_asistencia', $fecha)
+                ->first();
+
+            $estado = $asistencia ? $asistencia->estado : 'Ausente';
+            $asistencias[$participante->participante_id][$dia] = $estado;
+
+            if ($estado === 'Presente') {
+                $totalAsistido++;
+            }
+
+            // Inicializar estadísticas por día
+            if (!isset($estadisticasPorDia[$dia])) {
+                $estadisticasPorDia[$dia] = [
+                    'Presente' => 0,
+                    'Ausente' => 0,
+                    'Justificado' => 0,
+                ];
+            }
+            $estadisticasPorDia[$dia][$estado]++;
+        }
+
+        $participante->totalAsistido = $totalAsistido;
+        $participante->porcentajeAsistencia = count($diasSemana) > 0 ? ($totalAsistido / count($diasSemana)) * 100 : 0;
+    }
+
+    // Calcular estadísticas generales
+    $totalParticipantes = $participantes->count();
+    $promedioAsistencia = $totalParticipantes > 0
+        ? $participantes->sum('porcentajeAsistencia') / $totalParticipantes
+        : 0;
+
+    // Generar el HTML para el PDF (usando una vista)
+    $html = view('asistencia.pdf', compact(
+        'programa',
+        'fechaInicio',
+        'lugar_encuentro',
+        'grado',
+        'participantes',
+        'diasSemana',
+        'asistencias',
+        'totalParticipantes',
+        'promedioAsistencia',
+        'estadisticasPorDia'
+    ))->render();
+
+    // Configurar mPDF
+    $mpdf = new \Mpdf\Mpdf([
+        'format' => 'A4-L', // Formato horizontal para la tabla
+        'margin_top' => 10,
+        'margin_bottom' => 10,
+        'margin_left' => 10,
+        'margin_right' => 10,
+    ]);
+
+    // Escribir el HTML en el PDF
+    $mpdf->WriteHTML($html);
+
+    // Descargar el PDF
+    $fechaFormateada = Carbon::parse($fechaInicio)->format('Y-m-d');
+    $nombreArchivo = "Reporte_Asistencias_{$programa}_{$fechaFormateada}.pdf";
+    return $mpdf->Output($nombreArchivo, 'D'); // 'D' para descargar directamente
+}
 }
