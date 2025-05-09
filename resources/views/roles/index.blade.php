@@ -7,7 +7,7 @@
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white rounded-2xl max-w-9xl shadow-md overflow-hidden border border-gray-100">
                 <div class="p-6 bg-white border-b border-gray-200">
                     @if (session('status') === 'role-updated')
                         <div class="mb-4 font-medium text-sm text-green-600">
@@ -24,7 +24,7 @@
                             {{ session('error') }}
                         </div>
                     @endif
-
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
@@ -67,6 +67,7 @@
                             @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
