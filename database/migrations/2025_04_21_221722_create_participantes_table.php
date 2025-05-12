@@ -14,7 +14,7 @@ return new class extends Migration
             $table->date('fecha_de_inscripcion');
             $table->year('ano_de_inscripcion');
             $table->string('participante');
-            $table->boolean(column: 'activo');
+            $table->boolean('activo')->default(true);
             $table->boolean('partida_de_nacimiento')->nullable();
             $table->boolean('boletin_o_diploma_2024')->nullable();
             $table->boolean('cedula_tutor')->nullable();
