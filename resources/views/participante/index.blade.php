@@ -206,23 +206,24 @@
                                                 {{ $participante->nombres_y_apellidos_tutor_principal ?? 'N/A' }}
                                             </td>
                                             <!-- Celda con el interruptor -->
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                @can('manage-roles')
-                                                    <label class="relative inline-flex items-center cursor-pointer">
-                                                        <input 
-                                                            type="checkbox" 
-                                                            class="sr-only peer toggle-activo" 
-                                                            data-participante-id="{{ $participante->participante_id }}"
-                                                            {{ $participante->activo ? 'checked' : '' }}
-                                                        >
-                                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                                    </label>
-                                                @else
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $participante->activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                        {{ $participante->activo ? 'Sí' : 'No' }}
-                                                    </span>
-                                                @endcan
-                                            </td>
+                                            <!-- Celda con el interruptor -->
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    @can('manage-roles')
+                                                        <label class="relative inline-flex items-center cursor-pointer">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                class="sr-only peer toggle-activo" 
+                                                                data-participante-id="{{ $participante->participante_id }}"
+                                                                {{ $participante->activo ? 'checked' : '' }}
+                                                            >
+                                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                        </label>
+                                                    @else
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $participante->activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                            {{ $participante->activo ? 'Sí' : 'No' }}
+                                                        </span>
+                                                    @endcan
+                                                </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 @can('manage-roles')
                                                     <div class="flex items-center justify-end space-x-2">
@@ -292,14 +293,24 @@
             </div>
         </div>
     </div>
-    @section('scripts')
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const toggles = document.querySelectorAll('.toggle-activo');
             toggles.forEach(toggle => {
                 toggle.addEventListener('change', function () {
-                    const participanteId = this.getAttribute('data-participante-id');
+                    const participanteId = parseInt(this.getAttribute('data-participante-id'), 10);
                     const activo = this.checked;
+
+                    console.log('Enviando solicitud AJAX:', {
+                        participante_id: participanteId,
+                        activo: activo,
+                        url: '{{ route('participante.toggle-activo') }}',
+                        csrf_token: '{{ csrf_token() }}'
+                    });
+
+                    toggle.disabled = true; // Deshabilitar el interruptor mientras se procesa
 
                     fetch('{{ route('participante.toggle-activo') }}', {
                         method: 'POST',
@@ -313,23 +324,36 @@
                             activo: activo
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Respuesta del servidor:', {
+                            status: response.status,
+                            ok: response.ok
+                        });
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Datos recibidos:', data);
+                        toggle.disabled = false; // Rehabilitar el interruptor
                         if (data.success) {
                             alert('Estado actualizado correctamente.');
                         } else {
-                            alert('Error al actualizar el estado: ' + data.message);
-                            this.checked = !activo; // Revertir el cambio si falla
+                            alert('Error al actualizar el estado: ' + (data.message || 'Desconocido'));
+                            toggle.checked = !activo; // Revertir el cambio
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al actualizar el estado.');
-                        this.checked = !activo; // Revertir el cambio si falla
+                        console.error('Error en la solicitud:', error);
+                        alert('Error al actualizar el estado: ' + error.message);
+                        toggle.checked = !activo; // Revertir el cambio
+                        toggle.disabled = false; // Rehabilitar el interruptor
                     });
                 });
             });
         });
     </script>
-@endsection
+
+
 </x-app-layout>

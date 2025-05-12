@@ -60,7 +60,7 @@ class Participante extends Model
     ];
 
     protected $casts = [
-        
+        'activo' => 'boolean',
     ];
     public function asistencias()
     {

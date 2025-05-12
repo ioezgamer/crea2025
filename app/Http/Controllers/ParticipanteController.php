@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Participante;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ParticipanteController extends Controller
 {
@@ -91,7 +92,7 @@ class ParticipanteController extends Controller
             'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
             'participante' => 'required|string',
             'partida_de_nacimiento' => 'required|boolean',
-            'activo' => 'nullable|boolean',
+            'activo' => 'required|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
             'cedula_tutor' => 'required|boolean',
             'cedula_participante_adulto' => 'required|boolean',
@@ -170,7 +171,7 @@ class ParticipanteController extends Controller
         'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
         'participante' => 'required|in:primaria,secundaria',
         'partida_de_nacimiento' => 'required|boolean',
-        'activo' => 'nullable|boolean',
+        'activo' => 'required|boolean',
         'boletin_o_diploma_2024' => 'required|boolean',
         'cedula_tutor' => 'required|boolean',
         'cedula_participante_adulto' => 'required|boolean',
@@ -278,23 +279,64 @@ class ParticipanteController extends Controller
         return view('participante.index', compact('participantes', 'programas'));
     }
 
-    public function toggleActivo(Request $request)
+// En ParticipanteController.php
+public function toggleActivo(Request $request)
 {
     try {
+        Log::info('Iniciando toggleActivo', [
+            'input' => $request->all(),
+            'types' => [
+                'participante_id' => gettype($request->participante_id),
+                'activo' => gettype($request->activo)
+            ]
+        ]);
+
         $request->validate([
-            'participante_id' => 'required|exists:participantes,participante_id',
+            'participante_id' => 'required|integer|exists:participantes,participante_id',
             'activo' => 'required|boolean'
         ]);
 
-        $participante = Participante::findOrFail($request->participante_id);
-        $participante->activo = $request->activo;
-        $participante->save();
+        $updated = Participante::where('participante_id', $request->participante_id)
+            ->update(['activo' => $request->activo]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estado actualizado correctamente.'
+        Log::info('Resultado de update', [
+            'participante_id' => $request->participante_id,
+            'activo' => $request->activo,
+            'updated' => $updated
         ]);
+
+        if ($updated) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado actualizado correctamente.'
+            ]);
+        } else {
+            Log::warning('No se actualizó ningún registro', [
+                'participante_id' => $request->participante_id
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró el participante o no se pudo actualizar.'
+            ], 404);
+        }
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Error de validación en toggleActivo', [
+            'errors' => $e->errors(),
+            'input' => $request->all(),
+            'types' => [
+                'participante_id' => gettype($request->participante_id),
+                'activo' => gettype($request->activo)
+            ]
+        ]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación: ' . json_encode($e->errors())
+        ], 422);
     } catch (\Exception $e) {
+        Log::error('Error en toggleActivo', [
+            'error' => $e->getMessage(),
+            'input' => $request->all()
+        ]);
         return response()->json([
             'success' => false,
             'message' => 'Error al actualizar el estado: ' . $e->getMessage()
