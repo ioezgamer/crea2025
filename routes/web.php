@@ -98,6 +98,7 @@ Route::get('/asistencia/reporte/pdf', [AsistenciaController::class, 'exportPdf']
     Route::middleware('can:manage-roles')->group(function () {
         Route::put('/participante/{participante}', [ParticipanteController::class, 'update'])->name('participante.update');
         Route::delete('/participante/{participante}', [ParticipanteController::class, 'destroy'])->name('participante.destroy');
+Route::post('/participante/toggle-activo', [ParticipanteController::class, 'toggleActivo'])->name('participante.toggle-activo')->middleware('can:manage-roles');
     });
 
     // Rutas de asistencia

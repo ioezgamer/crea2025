@@ -91,6 +91,7 @@ class ParticipanteController extends Controller
             'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
             'participante' => 'required|string',
             'partida_de_nacimiento' => 'required|boolean',
+            'activo' => 'nullable|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
             'cedula_tutor' => 'required|boolean',
             'cedula_participante_adulto' => 'required|boolean',
@@ -169,6 +170,7 @@ class ParticipanteController extends Controller
         'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
         'participante' => 'required|in:primaria,secundaria',
         'partida_de_nacimiento' => 'required|boolean',
+        'activo' => 'nullable|boolean',
         'boletin_o_diploma_2024' => 'required|boolean',
         'cedula_tutor' => 'required|boolean',
         'cedula_participante_adulto' => 'required|boolean',
@@ -275,4 +277,28 @@ class ParticipanteController extends Controller
     
         return view('participante.index', compact('participantes', 'programas'));
     }
+
+    public function toggleActivo(Request $request)
+{
+    try {
+        $request->validate([
+            'participante_id' => 'required|exists:participantes,participante_id',
+            'activo' => 'required|boolean'
+        ]);
+
+        $participante = Participante::findOrFail($request->participante_id);
+        $participante->activo = $request->activo;
+        $participante->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado actualizado correctamente.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar el estado: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

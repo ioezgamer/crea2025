@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use phpDocumentor\Reflection\Types\Nullable;
 
 return new class extends Migration
 {
@@ -13,6 +14,7 @@ return new class extends Migration
             $table->date('fecha_de_inscripcion');
             $table->year('ano_de_inscripcion');
             $table->string('participante');
+            $table->boolean(column: 'activo')->nullable();
             $table->boolean('partida_de_nacimiento')->nullable();
             $table->boolean('boletin_o_diploma_2024')->nullable();
             $table->boolean('cedula_tutor')->nullable();

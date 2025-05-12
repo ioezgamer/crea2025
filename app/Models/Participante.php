@@ -55,6 +55,7 @@ class Participante extends Model
         'telefono_tutor_secundario',
         'asiste_a_otros_programas', 
         'otros_programas',
+        'activo',
         'dias_asiste_a_otros_programas',
     ];
 

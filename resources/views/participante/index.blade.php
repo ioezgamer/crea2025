@@ -127,6 +127,7 @@
             </div>
         </div>
                         <div class="overflow-x-auto rounded-lg border border-gray-200">
+                           <!-- En index.blade.php, dentro de <table> -->
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -138,6 +139,8 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Programa</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lugar</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutor</th>
+                                        <!-- Nueva columna para el interruptor -->
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
                                         @can('manage-roles')
                                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                         @endcan
@@ -152,7 +155,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">
                                                     <a href="{{ route('participante.show', $participante) }}" 
-                                                       class="flex items-center hover:text-blue-600 transition-colors">
+                                                    class="flex items-center hover:text-blue-600 transition-colors">
                                                         {{ $participante->primer_nombre_p ?? 'N/A' }} {{ $participante->segundo_nombre_p ?? '' }} 
                                                         {{ $participante->primer_apellido_p ?? 'N/A' }} {{ $participante->segundo_apellido_p ?? '' }}
                                                         <svg class="w-4 h-4 ml-1 text-gray-400 hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +195,6 @@
                                                         default => 'text-gray-800 bg-gray-100'
                                                     };
                                                 @endphp
-                                                
                                                 <span class="px-2 py-1 text-xs font-semibold leading-5 rounded-full {{ $colorClasses }}">
                                                     {{ $programa }}
                                                 </span>
@@ -202,6 +204,24 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $participante->nombres_y_apellidos_tutor_principal ?? 'N/A' }}
+                                            </td>
+                                            <!-- Celda con el interruptor -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                @can('manage-roles')
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            class="sr-only peer toggle-activo" 
+                                                            data-participante-id="{{ $participante->participante_id }}"
+                                                            {{ $participante->activo ? 'checked' : '' }}
+                                                        >
+                                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                    </label>
+                                                @else
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $participante->activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                        {{ $participante->activo ? 'Sí' : 'No' }}
+                                                    </span>
+                                                @endcan
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 @can('manage-roles')
@@ -231,7 +251,6 @@
                                                         </form>
                                                     </div>
                                                 @endcan
-                                            </td>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -273,4 +292,44 @@
             </div>
         </div>
     </div>
+    @section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggles = document.querySelectorAll('.toggle-activo');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('change', function () {
+                    const participanteId = this.getAttribute('data-participante-id');
+                    const activo = this.checked;
+
+                    fetch('{{ route('participante.toggle-activo') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            participante_id: participanteId,
+                            activo: activo
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Estado actualizado correctamente.');
+                        } else {
+                            alert('Error al actualizar el estado: ' + data.message);
+                            this.checked = !activo; // Revertir el cambio si falla
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar el estado.');
+                        this.checked = !activo; // Revertir el cambio si falla
+                    });
+                });
+            });
+        });
+    </script>
+@endsection
 </x-app-layout>
