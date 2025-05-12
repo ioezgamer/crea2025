@@ -94,6 +94,7 @@ Route::get('/asistencia/reporte/pdf', [AsistenciaController::class, 'exportPdf']
     Route::post('/participante/store', [ParticipanteController::class, 'store'])->name('participante.store');
     Route::get('/participante', [ParticipanteController::class, 'index'])->name('participante.index');
     Route::get('/participante/{participante}', [ParticipanteController::class, 'show'])->name('participante.show');
+    Route::get('/participante/{id}/pdf', [ParticipanteController::class, 'exportPdf'])->name('participante.pdf');
     Route::get('/participante/{participante}/edit', [ParticipanteController::class, 'edit'])->name('participante.edit')->middleware('can:manage-roles');
     Route::middleware('can:manage-roles')->group(function () {
         Route::put('/participante/{participante}', [ParticipanteController::class, 'update'])->name('participante.update');

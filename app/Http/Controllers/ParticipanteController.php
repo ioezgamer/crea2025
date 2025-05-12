@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Participante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Mpdf\Mpdf;
 
 class ParticipanteController extends Controller
 {
@@ -157,6 +158,36 @@ class ParticipanteController extends Controller
         return view('participante.show', compact('participante'));
     }
 
+// Nuevo método para exportar el PDF
+    public function exportPdf($id)
+    {
+        // Configurar idioma
+        \Carbon\Carbon::setLocale('es');
+
+        // Obtener el participante
+        $participante = Participante::findOrFail($id);
+
+        // Generar el HTML para el PDF
+        $html = view('participante.pdf', compact('participante'))->render();
+
+        // Configurar mPDF
+        $mpdf = new Mpdf([
+            'format' => 'Letter', // Formato vertical, más adecuado para una ficha
+            'margin_top' => 2.5,
+            'margin_bottom' => 2.5,
+            'margin_left' => 2,
+            'margin_right' => 2,
+        ]);
+
+        // Escribir el HTML en el PDF
+        $mpdf->WriteHTML($html);
+
+        // Descargar el PDF
+        $nombreArchivo = "Ficha_Participante_{$participante->primer_nombre_p}_{$participante->primer_apellido_p}.pdf";
+        return $mpdf->Output($nombreArchivo, 'D'); // 'D' para descargar directamente
+    }
+
+    
     public function edit(Participante $participante)
 {
     $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort();
