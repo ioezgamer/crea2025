@@ -1,23 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-bold text-2xl text-gray-900">
+            <x-boton-regresar onclick="window.location.href='{{ route('participante.index') }}'">Volver</x-boton-regresar>
+            <h2 class="font-bold text-2xl text-gray-900 text-center">
                 Ficha de Inscripción
             </h2>
-            <a href="{{ route('participante.index') }}"
-               class="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Volver
-            </a>
-            <a href="{{ route('participante.pdf', $participante->participante_id) }}"
-                   class="inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Descargar PDF
-            </a>
+            
+             <x-boton-guardar onclick="window.location.href='{{ route('participante.pdf', $participante->participante_id) }}'">Volver</x-boton-guardar>
         </div>
     </x-slot>
 
