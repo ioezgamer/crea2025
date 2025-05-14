@@ -3,246 +3,55 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\RoleController;
-use Illuminate\Support\Facades\Route;
-use App\Models\Asistencia;
-use Carbon\Carbon;
 use App\Http\Controllers\AsistenciaController;
-use App\Models\Participante;
+use App\Http\Controllers\DashboardController; // <-- Importar
+use App\Http\Controllers\EstadisticasProgramaController; // <-- Importar
+use App\Http\Controllers\EstadisticasTutorController; // <-- Importar
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    $totalParticipants = Participante::count();
-    $participantsByProgram = Participante::groupBy('programa')
-        ->selectRaw('programa, count(*) as count')
-        ->pluck('count', 'programa')
-        ->toArray();
-    $participantsByPlace = Participante::groupBy('lugar_de_encuentro_del_programa')
-        ->selectRaw('lugar_de_encuentro_del_programa, count(*) as count')
-        ->pluck('count', 'lugar_de_encuentro_del_programa')
-        ->toArray();
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/programas', [EstadisticasProgramaController::class, 'index'])->name('programas');
+    Route::get('/tutores', [EstadisticasTutorController::class, 'estadisticas'])->name('tutores');
+    Route::get('/tutores-participantes', [EstadisticasTutorController::class, 'participantesPorTutor'])->name('tutores_participantes');
 
-    return view('dashboard', compact('totalParticipants', 'participantsByProgram', 'participantsByPlace'));
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/programas', function () {
-    $selectedProgram = request('programa');
-    $query = Participante::query();
-
-    $programs = Participante::distinct()->pluck('programa')->toArray();
-
-    if ($selectedProgram) {
-        $query->where('programa', $selectedProgram);
-    }
-
-    $totalParticipants = $query->count();
-    $participantsByProgram = Participante::groupBy('programa')
-        ->selectRaw('programa, count(*) as count')
-        ->pluck('count', 'programa')
-        ->toArray();
-    $participantsByGrade = $query->clone()->groupBy('grado_p')
-        ->selectRaw('grado_p, count(*) as count')
-        ->pluck('count', 'grado_p')
-        ->toArray();
-    $participantsByGender = $query->clone()->groupBy('genero')
-        ->selectRaw('genero, count(*) as count')
-        ->pluck('count', 'genero')
-        ->toArray();
-    $averageAge = $query->avg('edad_p');
-    $participantsByAgeGroup = $query->clone()->selectRaw('
-        CASE 
-            WHEN edad_p < 10 THEN \'Menor a 10 años\'
-            WHEN edad_p BETWEEN 10 AND 14 THEN \'10-14 años\'
-            WHEN edad_p BETWEEN 15 AND 18 THEN \'15-18 años\'
-            ELSE \'Mayor a 18 años\'
-        END as age_group, 
-        count(*) as count')
-        ->groupByRaw('
-        CASE 
-            WHEN edad_p < 10 THEN \'Menor a 10 años\'
-            WHEN edad_p BETWEEN 10 AND 14 THEN \'10-14 años\'
-            WHEN edad_p BETWEEN 15 AND 18 THEN \'15-18 años\'
-            ELSE \'Mayor a 18 años\'
-        END')
-        ->pluck('count', 'age_group')
-        ->toArray();
-
-    return view('programas', compact(
-        'totalParticipants',
-        'participantsByProgram',
-        'participantsByGrade',
-        'participantsByGender',
-        'averageAge',
-        'participantsByAgeGroup',
-        'programs',
-        'selectedProgram'
-    ));
-})->middleware(['auth', 'verified'])->name('programas');
-
-Route::middleware('auth')->group(function () {
-    // Rutas de perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::middleware('can:manage-roles')->group(function () {
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    });
-Route::get('/asistencia/reporte/pdf', [AsistenciaController::class, 'exportPdf'])->name('asistencia.exportPdf');
-    // Rutas de participantes
+
     Route::get('/participante/create', [ParticipanteController::class, 'create'])->name('participante.create');
     Route::post('/participante/store', [ParticipanteController::class, 'store'])->name('participante.store');
     Route::get('/participante', [ParticipanteController::class, 'index'])->name('participante.index');
+    Route::get('/participante/por-grado/{grado}', [ParticipanteController::class, 'indexByGrade'])->name('participante.indexByGrade');
     Route::get('/participante/{participante}', [ParticipanteController::class, 'show'])->name('participante.show');
     Route::get('/participante/{id}/pdf', [ParticipanteController::class, 'exportPdf'])->name('participante.pdf');
-    Route::get('/participante/{participante}/edit', [ParticipanteController::class, 'edit'])->name('participante.edit')->middleware('can:manage-roles');
-    Route::middleware('can:manage-roles')->group(function () {
-        Route::put('/participante/{participante}', [ParticipanteController::class, 'update'])->name('participante.update');
-        Route::delete('/participante/{participante}', [ParticipanteController::class, 'destroy'])->name('participante.destroy');
-Route::post('/participante/toggle-activo', [ParticipanteController::class, 'toggleActivo'])->name('participante.toggle-activo');
-    });
 
-    // Rutas de asistencia
     Route::get('/asistencia', [AsistenciaController::class, 'create'])->name('asistencia.create');
     Route::post('/asistencia', [AsistenciaController::class, 'store'])->name('asistencia.store');
+     Route::get('/asistencia', [App\Http\Controllers\AsistenciaController::class, 'create'])->name('asistencia.create');
+    // NUEVA RUTA para guardar asistencia individual (AJAX)
+    Route::post('/asistencia/guardar-individual', [App\Http\Controllers\AsistenciaController::class, 'storeIndividual'])->name('asistencia.storeIndividual');
+    
+    // NUEVAS RUTAS para obtener opciones de filtro dinámicas
+    Route::get('/asistencia/opciones/lugares', [App\Http\Controllers\AsistenciaController::class, 'getLugaresEncuentro'])->name('asistencia.opciones.lugares');
+    Route::get('/asistencia/opciones/grados', [App\Http\Controllers\AsistenciaController::class, 'getGrados'])->name('asistencia.opciones.grados');
+    Route::get('/asistencia/opciones/participantes', [App\Http\Controllers\AsistenciaController::class, 'getParticipantesFiltrados'])->name('asistencia.opciones.participantes');
     Route::get('/asistencia/reporte', [AsistenciaController::class, 'reporte'])->name('asistencia.reporte');
+    Route::get('/asistencia/reporte/pdf', [AsistenciaController::class, 'exportPdf'])->name('asistencia.exportPdf');
 
-    // Rutas de roles (solo para admins)
     Route::middleware('can:manage-roles')->group(function () {
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/participante/{participante}/edit', [ParticipanteController::class, 'edit'])->name('participante.edit');
+        Route::put('/participante/{participante}', [ParticipanteController::class, 'update'])->name('participante.update');
+        Route::delete('/participante/{participante}', [ParticipanteController::class, 'destroy'])->name('participante.destroy');
+        Route::post('/participante/toggle-activo', [ParticipanteController::class, 'toggleActivo'])->name('participante.toggle-activo');
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-        Route::post('/roles/{user}', [RoleController::class, 'update'])->name('roles.update');
+        Route::post('/roles/{user}', [RoleController::class, 'update'])->name('roles.update'); 
         Route::delete('/roles/{user}', [RoleController::class, 'destroy'])->name('roles.destroy');
     });
 });
-
-// En web.php, dentro del grupo middleware('auth')
-Route::get('/participantes/por-grado/{grado}', [ParticipanteController::class, 'indexByGrade'])
-        ->middleware(['verified'])
-        ->name('participante.indexByGrade');
-
-Route::get('/tutores', function () {
-    $selectedProgram = request('programa');
-    $selectedPlace = request('lugar');
-    $query = Participante::query();
-
-    // Aplicar filtros
-    if ($selectedProgram) {
-        $query->where('programa', $selectedProgram);
-    }
-    if ($selectedPlace) {
-        $query->where('lugar_de_encuentro_del_programa', $selectedPlace);
-    }
-
-    // Obtener programas y lugares distintos
-    $programs = Participante::distinct()->pluck('programa')->filter()->sort()->toArray();
-    $places = Participante::distinct()->pluck('lugar_de_encuentro_del_programa')->filter()->sort()->toArray();
-
-    // Total de tutores únicos (basado en numero_de_cedula_tutor)
-    $totalTutors = $query->clone()->distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
-
-    // Tutores por programa
-    $tutorsByProgram = $query->clone()->groupBy('programa')
-        ->selectRaw('programa, count(distinct numero_de_cedula_tutor) as count')
-        ->pluck('count', 'programa')
-        ->toArray();
-
-    // Tutores por sector económico
-    $tutorsBySector = $query->clone()->groupBy('sector_economico_tutor')
-        ->selectRaw('sector_economico_tutor, count(distinct numero_de_cedula_tutor) as count')
-        ->pluck('count', 'sector_economico_tutor')
-        ->toArray();
-
-    // Tutores por nivel de educación
-    $tutorsByEducationLevel = $query->clone()->groupBy('nivel_de_educacion_formal_adquirido_tutor')
-        ->selectRaw('nivel_de_educacion_formal_adquirido_tutor, count(distinct numero_de_cedula_tutor) as count')
-        ->pluck('count', 'nivel_de_educacion_formal_adquirido_tutor')
-        ->toArray();
-
-    // Tutores por comunidad
-    $tutorsByCommunity = $query->clone()->groupBy('comunidad_tutor')
-        ->selectRaw('comunidad_tutor, count(distinct numero_de_cedula_tutor) as count')
-        ->pluck('count', 'comunidad_tutor')
-        ->toArray();
-
-    // Promedio de participantes por tutor
-    $totalParticipants = $query->clone()->count();
-    $averageParticipantsPerTutor = $totalTutors > 0 ? $totalParticipants / $totalTutors : 0;
-
-    return view('tutores', compact(
-        'totalTutors',
-        'tutorsByProgram',
-        'tutorsBySector',
-        'tutorsByEducationLevel',
-        'tutorsByCommunity',
-        'averageParticipantsPerTutor',
-        'programs',
-        'places',
-        'selectedProgram',
-        'selectedPlace'
-    ));
-})->middleware(['auth', 'verified'])->name('tutores');
-
-Route::get('/tutores-participantes', function () {
-    $selectedProgram = request('programa');
-    $selectedPlace = request('lugar');
-    $query = Participante::query();
-
-    // Aplicar filtros
-    if ($selectedProgram) {
-        $query->where('programa', $selectedProgram);
-    }
-    if ($selectedPlace) {
-        $query->where('lugar_de_encuentro_del_programa', $selectedPlace);
-    }
-
-    // Obtener programas y lugares distintos
-    $programs = Participante::distinct()->pluck('programa')->filter()->sort()->toArray();
-    $places = Participante::distinct()->pluck('lugar_de_encuentro_del_programa')->filter()->sort()->toArray();
-
-    // Obtener todos los participantes con los datos necesarios
-    $participantes = $query->select([
-        'tutor_principal',
-        'nombres_y_apellidos_tutor_principal',
-        'programa',
-        'primer_nombre_p',
-        'primer_apellido_p',
-        'grado_p'
-    ])->get();
-
-    // Agrupar participantes por tutor
-    $tutors = [];
-    foreach ($participantes as $participante) {
-        $tutorKey = $participante->numero_de_cedula_tutor ?? $participante->nombres_y_apellidos_tutor_principal;
-        if (!isset($tutors[$tutorKey])) {
-            $tutors[$tutorKey] = [
-                'nombres_y_apellidos_tutor_principal' => $participante->nombres_y_apellidos_tutor_principal,
-                'tutor_principal' => [], // Inicializar como arreglo para almacenar tipos
-                'programa' => $participante->programa,
-                'participantes' => []
-            ];
-        }
-        // Agregar el tipo de tutor al arreglo, si no está ya
-        $tipoTutor = $participante->tutor_principal ?: 'No especificado';
-        if (!in_array($tipoTutor, $tutors[$tutorKey]['tutor_principal'])) {
-            $tutors[$tutorKey]['tutor_principal'][] = $tipoTutor;
-        }
-        // Agregar participante
-        $tutors[$tutorKey]['participantes'][] = [
-            'primer_nombre_p' => $participante->primer_nombre_p,
-            'primer_apellido_p' => $participante->primer_apellido_p,
-            'grado_p' => $participante->grado_p
-        ];
-    }
-    // Convertir $tutors a un arreglo indexado para la vista
-    $tutors = array_values($tutors);
-
-    return view('tutores_participantes', compact(
-        'tutors',
-        'programs',
-        'places',
-        'selectedProgram',
-        'selectedPlace'
-    ));
-})->middleware(['auth', 'verified'])->name('tutores_participantes');
 
 require __DIR__.'/auth.php';

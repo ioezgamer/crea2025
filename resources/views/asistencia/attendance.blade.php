@@ -1,222 +1,361 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <a href="{{ route('asistencia.create') }}">
-                <h2 class="text-lg font-semibold text-gray-800">Registro de Asistencia</h2>
-            </a>
-            
-            <x-boton-regresar onclick="window.location.href='{{ route('participante.index') }}'" />
+            <h2 class="text-lg font-semibold text-gray-800">Registro de Asistencia Interactivo</h2>
+            <x-boton-regresar onclick="window.location.href='{{ route('dashboard') }}'" />
         </div>
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Formulario de filtros -->
-            <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
-                <form method="GET" action="{{ route('asistencia.create') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="max-w-full mx-auto px-2 sm:px-4 lg:px-6"> {{-- max-w-full y padding reducido --}}
+            <div class="bg-white shadow-sm rounded-lg p-4 mb-6"> {{-- padding reducido --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"> {{-- gap reducido --}}
                     <div>
-                        <label class="block text-xs font-medium text-gray-700">Programa <span class="text-red-500">*</span></label>
-                        <select name="programa" id="programa" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
-                            <option value="">Seleccione...</option>
-                            @foreach (['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'] as $prog)
-                                <option value="{{ $prog }}" {{ $programa == $prog ? 'selected' : '' }}>{{ $prog }}</option>
+                        <label for="filtro_programa" class="block text-xs font-medium text-gray-700">Programa <span class="text-red-500">*</span></label>
+                        <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Seleccione Programa...</option>
+                            @foreach ($programOptions as $prog)
+                                <option value="{{ $prog }}" {{ $selectedPrograma == $prog ? 'selected' : '' }}>{{ $prog }}</option>
                             @endforeach
                         </select>
-                        @error('programa') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700">Lugar</label>
-                        <select name="lugar_de_encuentro_del_programa" id="lugar_de_encuentro_del_programa" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
-                            <option value="">Todos...</option>
-                            @foreach ($lugares_encuentro ?? [] as $lugar)
-                                <option value="{{ $lugar }}" {{ $lugar_encuentro == $lugar ? 'selected' : '' }}>{{ $lugar }}</option>
+                        <label for="filtro_lugar" class="block text-xs font-medium text-gray-700">Lugar <span class="text-red-500">*</span></label>
+                        <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
+                            <option value="">Seleccione Lugar...</option>
+                            @foreach ($lugarOptions as $lugar) {{-- Para carga inicial si aplica --}}
+                                <option value="{{ $lugar }}" {{ $selectedLugar == $lugar ? 'selected' : '' }}>{{ $lugar }}</option>
                             @endforeach
                         </select>
-                        @error('lugar_de_encuentro_del_programa') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-700">Semana (Lunes) <span class="text-red-500">*</span></label>
-                        <input type="date" name="fecha_inicio" id="fecha_inicio" value="{{ $fechaInicio ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
-                        @error('fecha_inicio') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700">Grado</label>
-                        <select name="grado_p" id="grado_p" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" onchange="this.form.submit()">
-                            <option value="">Seleccione...</option>
-                            @foreach ($grados ?? [] as $grado_item)
-                                <option value="{{ $grado_item }}" {{ $grado == $grado_item ? 'selected' : '' }}>{{ $grado_item }}</option>
+                        <label for="filtro_grado" class="block text-xs font-medium text-gray-700">Grado <span class="text-red-500">*</span></label>
+                        <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
+                            <option value="">Seleccione Grado...</option>
+                             @foreach ($gradoOptions as $grado) {{-- Para carga inicial si aplica --}}
+                                <option value="{{ $grado }}" {{ $selectedGrado == $grado ? 'selected' : '' }}>{{ $grado }}</option>
                             @endforeach
                         </select>
-                        @error('grado_p') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                     </div>
-                </form>
+                    <div>
+                        <label for="filtro_fecha_inicio" class="block text-xs font-medium text-gray-700">Semana (Lunes) <span class="text-red-500">*</span></label>
+                        <input type="date" name="fecha_inicio" id="filtro_fecha_inicio" value="{{ $fechaInicio ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="mt-3 text-right">
+                    <button type="button" id="btn_cargar_participantes" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
+                        <svg id="spinner_cargar" class="animate-spin -ml-0.5 mr-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Cargar Participantes
+                    </button>
+                </div>
             </div>
 
-            <!-- Mensajes -->
-            @if (session('success'))
-                <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-md">{{ session('success') }}</div>
-            @endif
+            <div id="global_feedback_messages" class="mb-4"></div>
             @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-6 rounded-md">
-                    <p class="font-bold">Errores:</p>
-                    <ul class="list-disc ml-4">
+                <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-4 rounded-md text-xs">
+                    <p class="font-bold">Por favor corrige los siguientes errores:</p>
+                    <ul class="list-disc ml-5 mt-1">
                         @foreach ($errors->all() as $error)
-                            <li class="text-sm">{{ $error }}</li>
+                            <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
             @endif
-
-            <!-- Tabla -->
-            @if (isset($programa) && $programa && $participantes->isNotEmpty())
-                <div class="bg-transparent p-6">
-                    <div class="overflow-x-auto rounded-2xl border-x-2 border-y-2 shadow-lg">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="bg-gray-200">
-                                <tr class="text-xs font-medium text-gray-600">
-                                    <th class="px-4 py-3 text-left">Nombres y apellidos</th>
-                                    <th class="px-4 py-3 text-left">Género</th>
-                                    <th class="px-4 py-3 text-left">Grado</th>
-                                    <th class="px-4 py-3 text-left">Programa</th>
-                                    <th class="px-4 py-3 text-left">Días esperados</th>
-                                    @foreach ($diasSemana as $dia => $fecha)
-                                        <th class="px-4 py-3 text-center">
-                                            @php
-                                                $abreviaturas = [
-                                                    'Lunes' => 'Lun',
-                                                    'Martes' => 'Mar',
-                                                    'Miércoles' => 'Mié',
-                                                    'Jueves' => 'Jue',
-                                                    'Viernes' => 'Vie',
-                                                    'Sábado' => 'Sáb',
-                                                    'Domingo' => 'Dom',
-                                                ];
-                                                $diaAbreviado = $abreviaturas[$dia] ?? mb_substr($dia, 0, 3, 'UTF-8');
-                                            @endphp
-                                            {{ $diaAbreviado }} {{ \Carbon\Carbon::parse($fecha)->format('d') }}
-                                        </th>
-                                    @endforeach
-                                    <th class="px-4 py-3 text-center">Total</th>
-                                    <th class="px-4 py-3 text-center">%</th>
-                                    <th class="px-4 py-3 text-center">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 rounded-2xl">
-                                @foreach ($participantes as $participante)
-                                    <tr class="hover:bg-sky-100">
-                                        <!-- Formulario por participante -->
-                                        <form method="POST" action="{{ route('asistencia.store') }}">
-                                            @csrf
-                                            <input type="hidden" name="programa" value="{{ $programa }}">
-                                            <input type="hidden" name="fecha_inicio" value="{{ $fechaInicio }}">
-                                            <input type="hidden" name="lugar_de_encuentro_del_programa" value="{{ $lugar_encuentro }}">
-                                            <input type="hidden" name="grado_p" value="{{ $grado }}">
-                                            <input type="hidden" name="participante_id" value="{{ $participante->participante_id }}">
-
-                                            <td class="px-4 py-3 text-gray-900">
-                                                {{ $participante->primer_nombre_p }} {{ $participante->segundo_nombre_p ?? '' }} {{ $participante->primer_apellido_p }} {{ $participante->segundo_apellido_p ?? '' }}
-                                                <span class="save-message text-green-600 text-xs hidden">¡Asistencia guardada!</span>
-                                            </td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $participante->genero }}</td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $participante->grado_p ?? 'N/A' }}</td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $participante->programa ?? 'N/A' }}</td>
-                                            <td class="px-4 py-3 text-gray-600">{{ $participante->dias_de_asistencia_al_programa ?? 'N/A' }}</td>
-                                            @foreach ($diasSemana as $dia => $fecha)
-                                                <td class="px-4 py-3 text-center">
-                                                    <select name="asistencias[{{ $participante->participante_id }}][{{ $dia }}]" class="w-10 p-1 rounded-md border-gray-300 text-xs focus:border-blue-500 focus:ring-indigo-500 asistencia-select" data-participante-id="{{ $participante->participante_id }}">
-                                                        <option value="Presente" {{ $asistencias[$participante->participante_id][$dia] == 'Presente' ? 'selected' : '' }}>P</option>
-                                                        <option value="Ausente" {{ $asistencias[$participante->participante_id][$dia] == 'Ausente' ? 'selected' : '' }}>A</option>
-                                                        <option value="Justificado" {{ $asistencias[$participante->participante_id][$dia] == 'Justificado' ? 'selected' : '' }}>J</option>
-                                                    </select>
-                                                </td>
-                                            @endforeach
-                                            <td class="px-4 py-3 text-center total-asistido" data-participante-id="{{ $participante->participante_id }}">{{ $participante->totalAsistido ?? 0 }}</td>
-                                            <td class="px-4 py-3 text-center porcentaje-asistencia" data-participante-id="{{ $participante->participante_id }}">{{ $participante->porcentajeAsistencia ?? 0 }}%</td>
-                                            <td class="px-4 py-3 text-center">
-                                                @if ($participante->hasAsistenciasGuardadas)
-                                                    <span class="text-green-600 mr-2" title="Asistencia registrada">&#10003;</span>
-                                                    <x-boton-guardar type="submit" class="bg-gray-400 hover:bg-gray-500">Editar</x-boton-guardar>
-                                                @else
-                                                    <x-boton-guardar type="submit">Guardar</x-boton-guardar>
-                                                @endif
-                                            </td>
-                                        </form>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+             @if (session('success'))
+                <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-md text-xs">
+                    {{ session('success') }}
                 </div>
-            @elseif (isset($programa) && $programa)
-                <div class="bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No hay participantes inscritos.</div>
             @endif
-        </div>
-        <div class="flex items-center justify-center">
-          
-       
-        <!-- Botón para ver el reporte -->
-        @if (isset($programa) && $programa)
-        <div class="mb-6">
-            <a href="{{ route('asistencia.reporte', [
-                'programa' => $programa,
-                'fecha_inicio' => $fechaInicio,
-                'lugar_de_encuentro_del_programa' => $lugar_encuentro,
-                'grado_p' => $grado
-            ]) }}" class="inline-flex items-center justify-center py-1 px-1  text-blue-700 text-xs rounded-2xl  transition-all duration-200 hover:-translate-y-0.5 transform focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+
+
+            <div id="tabla_asistencia_container">
+                 {{-- Incluir la tabla parcial si hay datos iniciales (opcional, o cargar siempre con AJAX) --}}
+                 @if ($participantes->isNotEmpty())
+                    @include('asistencia.partials.tabla_asistencia', [
+                        'participantes' => $participantes,
+                        'diasSemana' => $diasSemana,
+                        'asistencias' => $asistencias,
+                        'selectedPrograma' => $selectedPrograma,
+                        'fechaInicioInput' => $fechaInicio, // o $fechaInicioInput si lo pasas así
+                        'selectedLugar' => $selectedLugar,
+                        'selectedGrado' => $selectedGrado
+                    ])
+                @else
+                    <div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">
+                        Seleccione todos los filtros (Programa, Lugar, Grado y Semana) y presione "Cargar Participantes".
+                    </div>
+                @endif
+            </div>
             
-                Generar reporte de asistencia
-                <svg class="w-4 h-4 ml-1 text-gray-400 hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-            </a>
-            
+            <div id="report_button_container" class="mt-6 text-center {{ !$selectedPrograma ? 'hidden' : '' }}">
+                 <a href="#" id="link_generar_reporte" class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Generar Reporte de Asistencia
+                </a>
+            </div>
+
         </div>
-    @endif
-</div>
     </div>
 
-    <script>
-        const updateAttendance = (participanteId) => {
-            const selects = document.querySelectorAll(`select[name^="asistencias[${participanteId}]"]`);
-            let totalAsistido = 0;
-            selects.forEach(sel => { if (sel.value === 'Presente') totalAsistido++; });
-            const porcentaje = selects.length > 0 ? ((totalAsistido / selects.length) * 100).toFixed(0) : 0;
-            document.querySelector(`.total-asistido[data-participante-id="${participanteId}"]`).textContent = totalAsistido;
-            document.querySelector(`.porcentaje-asistencia[data-participante-id="${participanteId}"]`).textContent = `${porcentaje}%`;
-        };
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const filtroPrograma = document.getElementById('filtro_programa');
+    const filtroLugar = document.getElementById('filtro_lugar');
+    const filtroGrado = document.getElementById('filtro_grado');
+    const filtroFechaInicio = document.getElementById('filtro_fecha_inicio');
+    const btnCargarParticipantes = document.getElementById('btn_cargar_participantes');
+    const tablaAsistenciaContainer = document.getElementById('tabla_asistencia_container');
+    const spinnerCargar = document.getElementById('spinner_cargar');
+    const globalFeedback = document.getElementById('global_feedback_messages');
+    const reportButtonContainer = document.getElementById('report_button_container');
+    const linkGenerarReporte = document.getElementById('link_generar_reporte');
 
+    function checkFiltersAndEnableButton() {
+        const programaSelected = filtroPrograma.value !== "";
+        const lugarSelected = filtroLugar.value !== "";
+        const gradoSelected = filtroGrado.value !== "";
+        const fechaSelected = filtroFechaInicio.value !== "";
+        
+        btnCargarParticipantes.disabled = !(programaSelected && lugarSelected && gradoSelected && fechaSelected);
+        if (programaSelected && lugarSelected && gradoSelected && fechaSelected) {
+            reportButtonContainer.classList.remove('hidden');
+            const reporteUrl = `{{ route('asistencia.reporte') }}?programa=${encodeURIComponent(filtroPrograma.value)}&lugar_de_encuentro_del_programa=${encodeURIComponent(filtroLugar.value)}&grado_p=${encodeURIComponent(filtroGrado.value)}&fecha_inicio=${encodeURIComponent(filtroFechaInicio.value)}`;
+            linkGenerarReporte.href = reporteUrl;
+        } else {
+            reportButtonContainer.classList.add('hidden');
+        }
+    }
+
+    function populateSelect(selectElement, options, selectedValue = "", placeholder = "Seleccione...") {
+        selectElement.innerHTML = `<option value="">${placeholder}</option>`; // Limpiar y añadir placeholder
+        options.forEach(optionValue => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue;
+            if (optionValue === selectedValue) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
+        });
+        selectElement.disabled = options.length === 0;
+    }
+
+    filtroPrograma.addEventListener('change', function () {
+        const programa = this.value;
+        filtroLugar.innerHTML = '<option value="">Cargando lugares...</option>';
+        filtroLugar.disabled = true;
+        filtroGrado.innerHTML = '<option value="">Seleccione Lugar primero...</option>';
+        filtroGrado.disabled = true;
+        checkFiltersAndEnableButton();
+
+        if (programa) {
+            fetch(`{{ route('asistencia.opciones.lugares') }}?programa=${encodeURIComponent(programa)}`)
+                .then(response => response.json())
+                .then(data => {
+                    populateSelect(filtroLugar, data, '{{ $selectedLugar ?? '' }}', 'Seleccione Lugar...');
+                    // Si había un lugar seleccionado previamente y existe en las nuevas opciones, disparar change
+                    if (filtroLugar.value) filtroLugar.dispatchEvent(new Event('change')); 
+                })
+                .catch(error => {
+                    console.error('Error cargando lugares:', error);
+                    filtroLugar.innerHTML = '<option value="">Error al cargar</option>';
+                });
+        } else {
+            populateSelect(filtroLugar, [], '', 'Seleccione Programa primero...');
+            populateSelect(filtroGrado, [], '', 'Seleccione Programa primero...');
+        }
+    });
+
+    filtroLugar.addEventListener('change', function () {
+        const programa = filtroPrograma.value;
+        const lugar = this.value;
+        filtroGrado.innerHTML = '<option value="">Cargando grados...</option>';
+        filtroGrado.disabled = true;
+        checkFiltersAndEnableButton();
+
+        if (programa && lugar) {
+            fetch(`{{ route('asistencia.opciones.grados') }}?programa=${encodeURIComponent(programa)}&lugar_de_encuentro_del_programa=${encodeURIComponent(lugar)}`)
+                .then(response => response.json())
+                .then(data => {
+                    populateSelect(filtroGrado, data, '{{ $selectedGrado ?? '' }}', 'Seleccione Grado...');
+                })
+                .catch(error => {
+                    console.error('Error cargando grados:', error);
+                    filtroGrado.innerHTML = '<option value="">Error al cargar</option>';
+                });
+        } else {
+             populateSelect(filtroGrado, [], '', 'Seleccione Lugar primero...');
+        }
+    });
+    
+    filtroGrado.addEventListener('change', checkFiltersAndEnableButton);
+    filtroFechaInicio.addEventListener('change', checkFiltersAndEnableButton);
+
+    // Cargar participantes con AJAX
+    btnCargarParticipantes.addEventListener('click', function () {
+        const programa = filtroPrograma.value;
+        const lugar = filtroLugar.value;
+        const grado = filtroGrado.value;
+        const fechaInicio = filtroFechaInicio.value;
+
+        if (!programa || !lugar || !grado || !fechaInicio) {
+            showGlobalFeedback('Por favor, complete todos los filtros.', 'error');
+            return;
+        }
+        
+        spinnerCargar.classList.remove('hidden');
+        this.disabled = true;
+        tablaAsistenciaContainer.innerHTML = '<div class="text-center py-10"><p class="text-gray-500">Cargando participantes...</p></div>';
+        globalFeedback.innerHTML = '';
+
+        const params = new URLSearchParams({ programa, lugar_de_encuentro_del_programa: lugar, grado_p: grado, fecha_inicio: fechaInicio });
+        fetch(`{{ route('asistencia.opciones.participantes') }}?${params.toString()}`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || `Error ${response.status}`) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.html) {
+                    tablaAsistenciaContainer.innerHTML = data.html;
+                    initializeAsistenciaSelects(); // Re-inicializar listeners para los nuevos selects
+                } else if (data.error) {
+                     showGlobalFeedback(data.error, 'error');
+                     tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-red-500">${data.error}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar participantes:', error);
+                showGlobalFeedback(`Error al cargar participantes: ${error.message}`, 'error');
+                tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-red-500">Error al cargar participantes. Intente de nuevo.</div>`;
+            })
+            .finally(() => {
+                spinnerCargar.classList.add('hidden');
+                this.disabled = false;
+                checkFiltersAndEnableButton(); // Actualizar estado del botón de reporte
+            });
+    });
+
+    function showGlobalFeedback(message, type = 'success') {
+        const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+        globalFeedback.innerHTML = `<div class="${bgColor} border-l-4 p-3 rounded-md text-xs mb-3">${message}</div>`;
+        setTimeout(() => { globalFeedback.innerHTML = ''; }, 5000);
+    }
+    
+    function showRowFeedback(row, message, type = 'success') {
+        const feedbackEl = row.querySelector('.save-feedback');
+        if (!feedbackEl) return;
+
+        feedbackEl.textContent = message;
+        feedbackEl.className = 'save-feedback ml-2 text-xs'; // Reset classes
+        if (type === 'success') {
+            feedbackEl.classList.add('text-green-600');
+        } else {
+            feedbackEl.classList.add('text-red-600');
+        }
+        feedbackEl.classList.remove('hidden');
+        
+        // Efecto visual en la fila
+        const originalBg = row.style.backgroundColor;
+        row.style.backgroundColor = type === 'success' ? '#D1FAE5' : '#FEE2E2'; // Tailwind green-100 or red-100
+
+        setTimeout(() => {
+            feedbackEl.classList.add('hidden');
+            feedbackEl.textContent = '';
+            row.style.backgroundColor = originalBg;
+        }, 3000);
+    }
+
+    // Guardado de asistencia individual y actualización de totales
+    function initializeAsistenciaSelects() {
         document.querySelectorAll('.asistencia-select').forEach(select => {
-            select.addEventListener('change', () => updateAttendance(select.dataset.participanteId));
-        });
+            select.addEventListener('change', function () {
+                const participanteId = this.dataset.participanteId;
+                const fechaAsistencia = this.dataset.fechaAsistencia;
+                const estado = this.value;
+                const row = this.closest('tr');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.asistencia-select').forEach(select => updateAttendance(select.dataset.participanteId));
-        });
-
-        // Validación y mejoras visuales al enviar el formulario
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', (e) => {
-                const selects = form.querySelectorAll('.asistencia-select');
-                for (const select of selects) {
-                    if (!['Presente', 'Ausente', 'Justificado'].includes(select.value)) {
-                        e.preventDefault();
-                        alert('Error: Estado de asistencia inválido.');
-                        return;
+                // Guardar asistencia vía AJAX
+                fetch('{{ route('asistencia.storeIndividual') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        participante_id: participanteId,
+                        fecha_asistencia: fechaAsistencia,
+                        estado: estado
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showRowFeedback(row, 'Guardado!', 'success');
+                    } else {
+                        showRowFeedback(row, data.message || 'Error', 'error');
+                        // Opcional: revertir el select al valor anterior si falla el guardado
+                        // this.value = valorAnterior; (necesitarías guardar el valor anterior)
                     }
-                }
-                // Indicador visual: cambio de color y mensaje
-                if (!e.defaultPrevented) {
-                    const row = form.closest('tr');
-                    const saveMessage = row.querySelector('.save-message');
-                    row.classList.add('bg-green-100');
-                    saveMessage.classList.remove('hidden');
-                    setTimeout(() => {
-                        row.classList.remove('bg-green-100');
-                        saveMessage.classList.add('hidden');
-                    }, 2000);
-                }
+                })
+                .catch(error => {
+                    console.error('Error guardando asistencia:', error);
+                    showRowFeedback(row, 'Error red', 'error');
+                });
+
+                // Actualizar totales en la fila (cliente)
+                updateTotalsForParticipant(participanteId);
             });
         });
-    </script>
+        // Calcular totales iniciales para la tabla recién cargada
+        document.querySelectorAll('.total-asistido').forEach(el => {
+            updateTotalsForParticipant(el.dataset.participanteId);
+        });
+    }
+    
+    function updateTotalsForParticipant(participanteId) {
+        const selectsInRow = document.querySelectorAll(`#fila-participante-${participanteId} .asistencia-select`);
+        let presentes = 0;
+        selectsInRow.forEach(sel => {
+            if (sel.value === 'Presente') {
+                presentes++;
+            }
+        });
+        const totalDias = selectsInRow.length;
+        const porcentaje = totalDias > 0 ? Math.round((presentes / totalDias) * 100) : 0;
+
+        const totalEl = document.querySelector(`#fila-participante-${participanteId} .total-asistido`);
+        const porcentajeEl = document.querySelector(`#fila-participante-${participanteId} .porcentaje-asistencia`);
+        if(totalEl) totalEl.textContent = presentes;
+        if(porcentajeEl) porcentajeEl.textContent = `${porcentaje}%`;
+    }
+
+    // Inicializar filtros y listeners si hay datos iniciales
+    if (filtroPrograma.value) {
+        filtroPrograma.dispatchEvent(new Event('change')); // Para cargar lugares si hay programa seleccionado
+    }
+    checkFiltersAndEnableButton(); // Estado inicial del botón de cargar y reporte
+    initializeAsistenciaSelects(); // Para la tabla cargada inicialmente (si la hay)
+
+});
+</script>
+<style>
+    .text-xxs { font-size: 0.65rem; line-height: 0.85rem; }
+    /* Estilo para la columna fija de nombres */
+    .sticky.left-0 {
+        position: -webkit-sticky; /* Para Safari */
+        position: sticky;
+        left: 0;
+        z-index: 10; /* Asegurar que esté por encima de otras celdas */
+    }
+    /* Para que el fondo del thead también se superponga correctamente */
+     thead th.sticky.left-0 {
+        z-index: 20 !important;
+    }
+</style>
 </x-app-layout>

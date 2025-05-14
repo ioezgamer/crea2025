@@ -590,24 +590,25 @@
                                         @enderror
                                     </div>
                                     <div id="dias-otros-section" class="{{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) ? '' : 'hidden' }} lg:col-span-2">
-                                        <label class="block text-xs font-medium text-gray-800 mb-1">Días que Asiste a Otros Programas</label>
-                                        <div class="flex flex-wrap gap-3">
-                                            @php
-                                                $diasOtrosSeleccionados = old('dias_asiste_a_otros_programas', explode(',', $participante->dias_asiste_a_otros_programas));
-                                            @endphp
-                                            @foreach (['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
-                                                <label class="flex items-center">
-                                                    <input type="checkbox" value="{{ $dia }}" class="dias-otros h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ in_array($dia, $diasOtrosSeleccionados) ? 'checked' : '' }}>
-                                                    <span class="ml-1.5 text-xs text-gray-600">{{ $dia }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                        <input type="hidden" name="dias_asiste_a_otros_programas" id="dias_asiste_a_otros_programas" value="{{ count($diasOtrosSeleccionados) }}">
-                                        <p class="text-xs text-gray-500 mt-1">Total días: <span id="total-dias-otros">{{ count($diasOtrosSeleccionados) }}</span></p>
-                                        @error('dias_asiste_a_otros_programas')
-                                            <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+    <label class="block text-xs font-medium text-gray-800 mb-1">Días que Asiste a Otros Programas</label>
+    <div class="flex flex-wrap gap-3">
+        @php
+            // Priorizar los valores de old() si existen, de lo contrario usar los datos del participante
+            $diasOtrosSeleccionados = old('dias_asiste_a_otros_programas', $participante->dias_asiste_a_otros_programas ?? []);
+        @endphp
+        @foreach (['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
+            <label class="flex items-center">
+                <input type="checkbox" value="{{ $dia }}" name="dias_asiste_a_otros_programas[]" class="dias-otros h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ in_array($dia, (array)$diasOtrosSeleccionados) ? 'checked' : '' }}>
+                <span class="ml-1.5 text-xs text-gray-600">{{ $dia }}</span>
+            </label>
+        @endforeach
+    </div>
+    <input type="hidden" name="total_dias_asiste_a_otros_programas" id="dias_asiste_a_otros_programas" value="{{ count((array)$diasOtrosSeleccionados) }}">
+    <p class="text-xs text-gray-500 mt-1">Total días: <span id="total-dias-otros">{{ count((array)$diasOtrosSeleccionados) }}</span></p>
+    @error('dias_asiste_a_otros_programas')
+        <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
+    @enderror
+</div>
                                 </div>
                             </div>
 

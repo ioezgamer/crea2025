@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participante;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // Necesario para index, indexByGrade, getLugaresByPrograma, toggleActivo
+use App\Http\Requests\StoreParticipanteRequest;
+use App\Http\Requests\UpdateParticipanteRequest;
 use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 
@@ -11,367 +13,211 @@ class ParticipanteController extends Controller
 {
     public function index(Request $request)
     {
-        // Iniciar la consulta
-        $query = Participante::query();
-    
-        // Filtrar por nombre (primer_nombre_p o primer_apellido_p)
-        if ($request->filled('search_name')) {
-            $searchName = $request->input('search_name');
-            $query->where(function ($q) use ($searchName) {
-                $q->where('primer_nombre_p', 'like', '%'. $searchName .'%')
-                  ->orWhere('primer_apellido_p', 'like', '%'. $searchName .'%');
-            });
-        }
-    
-        // Filtrar por programa
-        if ($request->filled('search_programa')) {
-            $searchPrograma = $request->input('search_programa');
-            $query->where('programa', 'like', '%'. $searchPrograma .'%');
-        }
-    
-        // Filtrar por lugar de encuentro
-        if ($request->filled('search_lugar')) {
-            $searchLugar = $request->input('search_lugar');
-            $query->where('lugar_de_encuentro_del_programa', 'like', '%'. $searchLugar .'%');
+        $search_name = $request->input('search_name');
+        $search_programa = $request->input('search_programa');
+        $search_lugar = $request->input('search_lugar');
+        $grado_filter = $request->input('grado'); // Puede ser null
+
+        $query = Participante::query()
+            ->filterByName($search_name)
+            ->filterByPrograma($search_programa) // Scope modificado para CSV/LIKE
+            ->filterByLugar($search_lugar);
+
+        if ($grado_filter) {
+            $query->filterByGrado(urldecode($grado_filter));
         }
 
-        if ($grado = request('grado')) {
-            $query->where('grado_p', urldecode($grado));
-        }
-        // Ordenar por nombre (primer_nombre_p, primer_apellido_p) y grado (grado_p)
-        $query->orderBy('grado_p', 'asc')
-              ->orderBy('primer_nombre_p', 'asc');
+        $query->orderBy('grado_p', 'asc')->orderBy('primer_nombre_p', 'asc');
+            
+        $participantes = $query->paginate($request->input('per_page', 15));
+        
+        // Usar el método del modelo para obtener las opciones de programa
+        $programOptions = Participante::getDistinctProgramasOptions();
     
-        // Obtener todos los programas distintos
-        $programas = Participante::select('programa')
+        return view('participante.index', compact('participantes'))
+                ->with('programas', $programOptions) // Opciones para el desplegable de filtro
+                ->with('search_name', $search_name)
+                ->with('search_programa', $search_programa)
+                ->with('search_lugar', $search_lugar)
+                ->with('grado', $grado_filter); // Pasar el grado original (sin decodificar) para el input hidden
+    }
+
+    public function indexByGrade(Request $request, $gradoParam) // $gradoParam es el de la URL
+    {
+        $decodedGrado = urldecode($gradoParam);
+
+        $search_name = $request->input('search_name');
+        $search_programa = $request->input('search_programa');
+        $search_lugar = $request->input('search_lugar');
+
+        $query = Participante::query()
+            ->filterByGrado($decodedGrado) // Filtro principal por grado de la URL
+            ->filterByName($search_name)
+            ->filterByPrograma($search_programa)
+            ->filterByLugar($search_lugar);
+    
+        $query->orderBy('primer_nombre_p', 'asc'); 
+    
+        $participantes = $query->paginate($request->input('per_page', 15));
+
+        // Usar el método del modelo para obtener las opciones de programa
+        $programOptions = Participante::getDistinctProgramasOptions();
+    
+        return view('participante.index', compact('participantes'))
+                ->with('programas', $programOptions)
+                ->with('search_name', $search_name)
+                ->with('search_programa', $search_programa)
+                ->with('search_lugar', $search_lugar)
+                ->with('grado', $gradoParam); // Pasar el grado original de la URL
+    }
+    
+    public function getLugaresByPrograma(Request $request)
+    {
+        $programaFilter = $request->query('programa');
+        
+        $query = Participante::query();
+        if ($programaFilter) {
+            // Asumiendo que $programaFilter es un valor único que se busca dentro del CSV 'programa'
+            // $query->whereRaw('FIND_IN_SET(?, programa)', [$programaFilter]); // Para MySQL
+            $query->where('programa', 'like', '%'. $programaFilter .'%'); // Alternativa general
+        }
+        
+        $lugares = $query->select('lugar_de_encuentro_del_programa')
+            ->whereNotNull('lugar_de_encuentro_del_programa')
             ->distinct()
-            ->pluck('programa')
-            ->filter()
+            ->pluck('lugar_de_encuentro_del_programa')
             ->sort()
             ->values();
-    
-        // Obtener los participantes paginados
-        $participantes = $query->paginate(request()->input('per_page', 15));
 
-    
-        return view('participante.index', compact('participantes', 'programas'));
+        return response()->json($lugares);
     }
-
-    public function getLugaresByPrograma(Request $request)
-{
-    $programa = $request->query('programa');
-    
-    $lugares = Participante::when($programa, function($query) use ($programa) {
-            return $query->where('programa', $programa);
-        })
-        ->select('lugar_de_encuentro_del_programa')
-        ->distinct()
-        ->pluck('lugar_de_encuentro_del_programa')
-        ->filter()
-        ->sort()
-        ->values();
-
-    return response()->json($lugares);
-}
 
     public function create()
-{
-    $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort();
-    $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort();
-    $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort();
-    $tipos_tutor = Participante::distinct()->pluck('tutor_principal')->filter()->sort();
-    $tipos_tutor_estaticos = ['Otro'];
-    $tipos_tutor = $tipos_tutor->merge($tipos_tutor_estaticos)->unique()->sort();
-
-    return view('participante.create', compact('comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion'));
-}
-
-    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'fecha_de_inscripcion' => 'required|date',
-            'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
-            'participante' => 'required|string',
-            'partida_de_nacimiento' => 'required|boolean',
-            'activo' => 'required|boolean',
-            'boletin_o_diploma_2024' => 'required|boolean',
-            'cedula_tutor' => 'required|boolean',
-            'cedula_participante_adulto' => 'required|boolean',
-            'programa' => 'required|array|min:1',
-            'programa.*' => 'in:Exito Academico,Desarrollo Juvenil,Biblioteca',
-            'programas' => 'required|array|min:1',
-            'programas.*' => 'in:RAC,RACREA,CLC,CLCREA,DJ,BM,CLM',
-            'lugar_de_encuentro_del_programa' => 'required|string',
-            'primer_nombre_p' => 'required|string|max:255',
-            'segundo_nombre_p' => 'nullable|string|max:255',
-            'primer_apellido_p' => 'required|string|max:255',
-            'segundo_apellido_p' => 'nullable|string|max:255',
-            'ciudad_p' => 'nullable|string|max:255',
-            'departamento_p' => 'nullable|string|max:255',
-            'fecha_de_nacimiento_p' => 'required|date',
-            'edad_p' => 'required|integer|min:0',
-            'cedula_participante_adulto_str' => 'nullable|string|max:255',
-            'genero' => 'required|string|max:255',
-            'comunidad_p' => 'required|string|max:255',
-            'escuela_p' => 'required|string|max:255',
-            'comunidad_escuela' => 'required|string|max:255',
-            'grado_p' => 'required|string|max:255',
-            'turno' => 'nullable|string|max:255',
-            'repite_grado' => 'nullable|boolean',
-            'dias_de_asistencia_al_programa' => 'required|array|min:1',
-            'dias_de_asistencia_al_programa.*' => 'in:Lunes,Martes,Miércoles,Jueves,Viernes',
-            'tutor_principal' => 'required|string|max:255',
-            'nombres_y_apellidos_tutor_principal' => 'required|string|max:255',
-            'numero_de_cedula_tutor' => 'nullable|string|max:255',
-            'comunidad_tutor' => 'nullable|string|max:255',
-            'direccion_tutor' => 'nullable|string|max:255',
-            'telefono_tutor' => 'nullable|string|max:20',
-            'sector_economico_tutor' => 'nullable|string|max:30',
-            'nivel_de_educacion_formal_adquirido_tutor' => 'nullable|string|max:255',
-            'expectativas_del_programa_tutor_principal' => 'nullable|string|max:255',
-            'tutor_secundario' => 'nullable|string|max:255',
-            'nombres_y_apellidos_tutor_secundario' => 'nullable|string|max:255',
-            'numero_de_cedula_tutor_secundario' => 'nullable|string|max:255',
-            'comunidad_tutor_secundario' => 'nullable|string|max:255',
-            'telefono_tutor_secundario' => 'nullable|string|max:255',
-            'asiste_a_otros_programas' => 'nullable|boolean',
-            'otros_programas' => 'nullable|string',
-            'dias_asiste_a_otros_programas' => 'nullable|integer|min:0',
-        ]);
-    
-        // Convertir el array a string antes de guardar
+        $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort()->values();
+        $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
+        $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
+        $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
+        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro']; 
+        $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
+
+        $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca']; // Para selects de programa principal
+        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM']; // Para selects de sub-programas
+        $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']; // Para selects de días
+
+        return view('participante.create', compact(
+            'comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion',
+            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList'
+        ));
+    }
+
+    public function store(StoreParticipanteRequest $request)
+    {
+        $validated = $request->validated();
         $validated['dias_de_asistencia_al_programa'] = implode(',', $validated['dias_de_asistencia_al_programa']);
-        $validated['programas'] = implode(',', $request->input('programas', []));
+        $validated['programas'] = implode(',', $validated['programas']); 
         $validated['programa'] = implode(',', $validated['programa']);
-
-
         Participante::create($validated);
-    
         return redirect()->route('participante.index')
-        ->with('success', 'Participante creado exitosamente.');
+                         ->with('success', 'Participante creado exitosamente.');
     }
     
-
-    public function show($id)
+    public function show(Participante $participante)
     {
-        $participante = Participante::findOrFail($id);
+        // Convertir CSVs a arrays para mostrar en la vista si es necesario
+        $participante->dias_de_asistencia_al_programa_array = !empty($participante->dias_de_asistencia_al_programa) ? explode(',', $participante->dias_de_asistencia_al_programa) : [];
+        $participante->programas_array = !empty($participante->programas) ? explode(',', $participante->programas) : [];
+        $participante->programa_array = !empty($participante->programa) ? explode(',', $participante->programa) : [];
         return view('participante.show', compact('participante'));
     }
 
-// Nuevo método para exportar el PDF
-    public function exportPdf($id)
+    public function exportPdf($id) 
     {
-        // Configurar idioma
         \Carbon\Carbon::setLocale('es');
-
-        // Obtener el participante
         $participante = Participante::findOrFail($id);
+        // Convertir CSVs a arrays para el PDF si es necesario mostrar como lista
+        $participante->dias_de_asistencia_al_programa_array = !empty($participante->dias_de_asistencia_al_programa) ? explode(',', $participante->dias_de_asistencia_al_programa) : [];
+        $participante->programas_array = !empty($participante->programas) ? explode(',', $participante->programas) : [];
+        $participante->programa_array = !empty($participante->programa) ? explode(',', $participante->programa) : [];
 
-        // Generar el HTML para el PDF
         $html = view('participante.pdf', compact('participante'))->render();
-
-        // Configurar mPDF
         $mpdf = new Mpdf([
-            'format' => 'Letter', // Formato vertical, más adecuado para una ficha
-            'margin_top' => 2.5,
-            'margin_bottom' => 2.5,
-            'margin_left' => 2,
-            'margin_right' => 2,
+            'format' => 'Letter','margin_top' => 10,'margin_bottom' => 10,
+            'margin_left' => 15,'margin_right' => 15,
         ]);
-
-        // Escribir el HTML en el PDF
         $mpdf->WriteHTML($html);
-
-        // Descargar el PDF
         $nombreArchivo = "Ficha_Participante_{$participante->primer_nombre_p}_{$participante->primer_apellido_p}.pdf";
-        return $mpdf->Output($nombreArchivo, 'D'); // 'D' para descargar directamente
+        return $mpdf->Output($nombreArchivo, 'D');
     }
-
     
     public function edit(Participante $participante)
-{
-    $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort();
-    $tipos_tutor = Participante::distinct()->pluck('tutor_principal')->filter()->sort();
-    return view('participante.edit', compact('participante', 'comunidades', 'tipos_tutor'));
-}
+    {
+        $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort()->values();
+        $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
+        $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
+        $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
+        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro'];
+        $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
+        
+        // Convertir CSVs de la BD a arrays para los selects múltiples del formulario
+        $participante->dias_de_asistencia_al_programa = !empty($participante->dias_de_asistencia_al_programa) ? explode(',', $participante->dias_de_asistencia_al_programa) : [];
+        $participante->programas = !empty($participante->programas) ? explode(',', $participante->programas) : [];
+        $participante->programa = !empty($participante->programa) ? explode(',', $participante->programa) : [];
 
-    public function update(Request $request, Participante $participante)
-{
-    $validated = $request->validate([
-        'fecha_de_inscripcion' => 'required|date',
-        'ano_de_inscripcion' => 'required|integer|min:1900|max:9999',
-        'participante' => 'required|in:primaria,secundaria',
-        'partida_de_nacimiento' => 'required|boolean',
-        'activo' => 'required|boolean',
-        'boletin_o_diploma_2024' => 'required|boolean',
-        'cedula_tutor' => 'required|boolean',
-        'cedula_participante_adulto' => 'required|boolean',
-        'programa' => 'required|array|min:1',
-        'programa.*' => 'in:Exito Academico,Desarrollo Juvenil,Biblioteca',
-        'programas' => 'required|array|min:1',
-        'programas.*' => 'in:RAC,RACREA,CLC,CLCREA,DJ,BM,CLM',
-        'lugar_de_encuentro_del_programa' => 'required|string',
-        'primer_nombre_p' => 'required|string|max:255',
-        'segundo_nombre_p' => 'nullable|string|max:255',
-        'primer_apellido_p' => 'required|string|max:255',
-        'segundo_apellido_p' => 'nullable|string|max:255',
-        'ciudad_p' => 'nullable|string|max:255',
-        'departamento_p' => 'nullable|string|max:255',
-        'fecha_de_nacimiento_p' => 'required|date',
-        'edad_p' => 'required|integer|min:0',
-        'cedula_participante_adulto_str' => 'nullable|string|max:255',
-        'genero' => 'required|string|max:255',
-        'comunidad_p' => 'required|string|max:255',
-        'escuela_p' => 'required|string|max:255',
-        'comunidad_escuela' => 'required|string|max:255',
-        'grado_p' => 'required|string|max:255',
-        'turno' => 'nullable|string|max:255',
-        'repite_grado' => 'nullable|boolean',
-        'dias_de_asistencia_al_programa' => 'required|array|min:1',
-        'dias_de_asistencia_al_programa.*' => 'in:Lunes,Martes,Miércoles,Jueves,Viernes',
-        'tutor_principal' => 'required|string|max:255',
-        'nombres_y_apellidos_tutor_principal' => 'required|string|max:255',
-        'numero_de_cedula_tutor' => 'nullable|string|max:255',
-        'comunidad_tutor' => 'nullable|string|max:255',
-        'direccion_tutor' => 'nullable|string|max:255',
-        'telefono_tutor' => 'nullable|string|max:20',
-        'sector_economico_tutor' => 'nullable|string|max:30',
-        'nivel_de_educacion_formal_adquirido_tutor' => 'nullable|string|max:255',
-        'expectativas_del_programa_tutor_principal' => 'nullable|string|max:255',
-        'tutor_secundario' => 'nullable|string|max:255',
-        'nombres_y_apellidos_tutor_secundario' => 'nullable|string|max:255',
-        'numero_de_cedula_tutor_secundario' => 'nullable|string|max:255',
-        'comunidad_tutor_secundario' => 'nullable|string|max:255',
-        'telefono_tutor_secundario' => 'nullable|string|max:255',
-        'asiste_a_otros_programas' => 'nullable|boolean',
-        'otros_programas' => 'nullable|string',
-        'dias_asiste_a_otros_programas' => 'nullable|integer|min:0',
-    ]);
+        $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'];
+        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'];
+        $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
-    // Convertir arrays a strings
-    $validated['dias_de_asistencia_al_programa'] = implode(',', $request->input('dias_de_asistencia_al_programa', []));
-    $validated['programas'] = implode(',', $request->input('programas', []));
-    $validated['programa'] = implode(',', $request->input('programa', []));
+        return view('participante.edit', compact(
+            'participante', 'comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion',
+            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList'
+        ));
+    }
 
-    $participante->update($validated);
-
-    return redirect()->route('participante.index')->with('success', 'Participante actualizado correctamente.');
-}
-
+    public function update(UpdateParticipanteRequest $request, Participante $participante)
+    {
+        $validated = $request->validated();
+        $validated['dias_de_asistencia_al_programa'] = implode(',', $validated['dias_de_asistencia_al_programa']);
+        $validated['programas'] = implode(',', $validated['programas']);
+        $validated['programa'] = implode(',', $validated['programa']);
+        $participante->update($validated);
+        return redirect()->route('participante.index')->with('success', 'Participante actualizado correctamente.');
+    }
 
     public function destroy(Participante $participante)
     {
         $participante->delete();
-        return redirect()->route('participante.index')->with('success', 'Participant deleted successfully.');
+        return redirect()->route('participante.index')->with('success', 'Participante eliminado exitosamente.');
     }
 
-
-    // En app/Http/Controllers/ParticipanteController.php
-    public function indexByGrade($grado)
+    public function toggleActivo(Request $request)
     {
-        $query = Participante::query();
-    
-        // Filter by grade
-        $query->where('grado_p', urldecode($grado));
-    
-        // Filter by name (primer_nombre_p or primer_apellido_p)
-        if ($searchName = request('search_name')) {
-            $query->where(function ($q) use ($searchName) {
-                $q->where('primer_nombre_p', 'like', '%' . $searchName . '%')
-                  ->orWhere('primer_apellido_p', 'like', '%' . $searchName . '%');
-            });
-        }
-    
-        // Filter by program
-        if ($searchPrograma = request('search_programa')) {
-            $query->where('programa', 'like', '%' . $searchPrograma . '%');
-        }
-    
-        // Filter by place
-        if ($searchLugar = request('search_lugar')) {
-            $query->where('lugar_de_encuentro_del_programa', 'like', '%' . $searchLugar . '%');
-        }
-    
-        // Sort by grade and name
-        $query->orderBy('grado_p', 'asc')
-              ->orderBy('primer_nombre_p', 'asc');
-    
-        // Get distinct programs
-        $programas = Participante::select('programa')
-            ->distinct()
-            ->pluck('programa')
-            ->filter()
-            ->sort()
-            ->values();
-    
-        // Paginate participants
-        $participantes = $query->paginate(request()->input('per_page', 15));
-    
-        return view('participante.index', compact('participantes', 'programas'));
-    }
-
-// En ParticipanteController.php
-public function toggleActivo(Request $request)
-{
-    try {
-        Log::info('Iniciando toggleActivo', [
-            'input' => $request->all(),
-            'types' => [
-                'participante_id' => gettype($request->participante_id),
-                'activo' => gettype($request->activo)
-            ]
-        ]);
-
-        $request->validate([
+        $validated = $request->validate([
             'participante_id' => 'required|integer|exists:participantes,participante_id',
             'activo' => 'required|boolean'
         ]);
-
-        $updated = Participante::where('participante_id', $request->participante_id)
-            ->update(['activo' => $request->activo]);
-
-        Log::info('Resultado de update', [
-            'participante_id' => $request->participante_id,
-            'activo' => $request->activo,
-            'updated' => $updated
-        ]);
-
-        if ($updated) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Estado actualizado correctamente.'
+        try {
+            Log::info('Iniciando toggleActivo', ['input' => $validated]);
+            $participanteToToggle = Participante::findOrFail($validated['participante_id']); // Renombrada para evitar conflicto
+            $participanteToToggle->activo = $validated['activo'];
+            $updated = $participanteToToggle->save();
+            Log::info('Resultado de update', [
+                'participante_id' => $validated['participante_id'],
+                'activo' => $validated['activo'],
+                'updated_status' => $updated
             ]);
-        } else {
-            Log::warning('No se actualizó ningún registro', [
-                'participante_id' => $request->participante_id
-            ]);
-            return response()->json([
-                'success' => false,
-                'message' => 'No se encontró el participante o no se pudo actualizar.'
-            ], 404);
+            if ($updated) {
+                return response()->json(['success' => true,'message' => 'Estado actualizado correctamente.']);
+            } else {
+                Log::warning('No se actualizó ningún registro o el estado no cambió', ['participante_id' => $validated['participante_id']]);
+                return response()->json(['success' => false,'message' => 'No se pudo actualizar el participante o el estado ya era el mismo.'], 422);
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Participante no encontrado en toggleActivo', ['error' => $e->getMessage(), 'input' => $validated]);
+            return response()->json(['success' => false, 'message' => 'Participante no encontrado.'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error en toggleActivo', ['error' => $e->getMessage(),'input' => $validated]);
+            return response()->json(['success' => false,'message' => 'Error al actualizar el estado: ' . $e->getMessage()], 500);
         }
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Error de validación en toggleActivo', [
-            'errors' => $e->errors(),
-            'input' => $request->all(),
-            'types' => [
-                'participante_id' => gettype($request->participante_id),
-                'activo' => gettype($request->activo)
-            ]
-        ]);
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación: ' . json_encode($e->errors())
-        ], 422);
-    } catch (\Exception $e) {
-        Log::error('Error en toggleActivo', [
-            'error' => $e->getMessage(),
-            'input' => $request->all()
-        ]);
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al actualizar el estado: ' . $e->getMessage()
-        ], 500);
     }
-}
 }

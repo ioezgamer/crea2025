@@ -7,19 +7,23 @@
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Program Filter -->
             <div class="mb-6">
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <p class="text-gray-900 text-sm mb-4 sm:mb-0">
-                            {{ $selectedProgram ? "Métricas para el programa: $selectedProgram" : 'Resumen de métricas de los programas activos' }}
+                            {{-- Usar la variable correcta enviada desde el controlador --}}
+                            {{ $selectedProgramFilter ? "Métricas para el programa: " . $selectedProgramFilter : 'Resumen de métricas de los programas activos' }}
                         </p>
                         <div class="flex items-center">
-                            <label for="programa" class="mr-2 text-sm text-gray-600">Filtrar por programa:</label>
-                            <select id="programa" name="programa" onchange="window.location.href='?programa='+encodeURIComponent(this.value)" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <label for="programa_filter_select" class="mr-2 text-sm text-gray-600">Filtrar por programa:</label>
+                            {{-- El id del select puede ser más descriptivo --}}
+                            <select id="programa_filter_select" name="programa" onchange="window.location.href='?programa='+encodeURIComponent(this.value)" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <option value="">Todos los programas</option>
-                                @foreach ($programs ?? [] as $program)
-                                    <option value="{{ $program }}" {{ $selectedProgram === $program ? 'selected' : '' }}>{{ $program }}</option>
+                                {{-- Iterar sobre la variable correcta ($programOptions) y usar una variable de bucle diferente si es necesario --}}
+                                @foreach ($programOptions ?? [] as $programOption)
+                                    <option value="{{ $programOption }}" {{ ($selectedProgramFilter ?? null) === $programOption ? 'selected' : '' }}>
+                                        {{ $programOption }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -27,9 +31,7 @@
                 </div>
             </div>
 
-            <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Total Programs -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,12 +39,12 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Total Programas</h3>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $selectedProgram ? 1 : count($participantsByProgram ?? []) }}</p>
+                        <h3 class="text-sm font-medium text-gray-600">Total Programas Activos/Seleccionados</h3>
+                        {{-- Ajustar la lógica de conteo si es necesario basado en $selectedProgramFilter --}}
+                        <p class="text-2xl font-semibold text-gray-900">{{ $selectedProgramFilter ? 1 : count($programOptions ?? []) }}</p>
                     </div>
                 </div>
 
-                <!-- Total Participants -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,12 +52,12 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Total Inscritos</h3>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $totalParticipants ?? 0 }}</p>
+                        <h3 class="text-sm font-medium text-gray-600">Total Inscritos (en filtro)</h3>
+                        {{-- Esta variable es totalParticipantsInFilter desde el controlador --}}
+                        <p class="text-2xl font-semibold text-gray-900">{{ $totalParticipantsInFilter ?? 0 }}</p>
                     </div>
                 </div>
 
-                <!-- Average Age -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,47 +65,45 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Edad Promedio</h3>
+                        <h3 class="text-sm font-medium text-gray-600">Edad Promedio (en filtro)</h3>
                         <p class="text-2xl font-semibold text-gray-900">{{ number_format($averageAge ?? 0, 1) }} años</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Detailed Breakdown -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- En programas.blade.php, en la sección de Participantes por Grado -->
-<div class="bg-white shadow-sm rounded-lg p-6">
-    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Grado</h3>
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-100">
-                <tr class="text-xs font-medium text-gray-600 uppercase">
-                    <th class="px-4 py-3 text-left">Grado</th>
-                    <th class="px-4 py-3 text-right">Inscritos</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse ($participantsByGrade ?? [] as $grade => $count)
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-gray-900">
-                            <a href="{{ route('participante.indexByGrade', ['grado' => urlencode($grade), 'search_programa' => $selectedProgram]) }}"
-                               class="text-blue-600 hover:text-blue-800 hover:underline">
-                                {{ $grade }}
-                            </a>
-                        </td>
-                        <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="2" class="px-4 py-3 text-gray-500 text-center">No hay datos disponibles</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Grado</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-100">
+                                <tr class="text-xs font-medium text-gray-600 uppercase">
+                                    <th class="px-4 py-3 text-left">Grado</th>
+                                    <th class="px-4 py-3 text-right">Inscritos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($participantsByGrade ?? [] as $grade => $count)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-gray-900">
+                                            {{-- Asegurarse que la ruta y los parámetros sean correctos --}}
+                                            <a href="{{ route('participante.indexByGrade', ['grado' => urlencode($grade), 'search_programa' => $selectedProgramFilter ?? '']) }}"
+                                               class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ $grade }}
+                                            </a>
+                                        </td>
+                                        <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-3 text-gray-500 text-center">No hay datos disponibles</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <!-- Participants by Gender -->
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Género</h3>
                     <div class="overflow-x-auto">
@@ -130,7 +130,6 @@
                     </div>
                 </div>
 
-                <!-- Participants by Age Group -->
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Grupo de Edad</h3>
                     <div class="overflow-x-auto">
@@ -156,6 +155,36 @@
                         </table>
                     </div>
                 </div>
+
+                {{-- Nueva sección para mostrar participantes por sub-programa --}}
+                @if(isset($participantsBySubProgram) && !empty($participantsBySubProgram))
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h3 class="text-sm font-medium text-gray-600 mb-4">Detalle por Código/Sub-Programa (del filtro actual)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-100">
+                                <tr class="text-xs font-medium text-gray-600 uppercase">
+                                    <th class="px-4 py-3 text-left">Código/Sub-Programa</th>
+                                    <th class="px-4 py-3 text-right">Inscritos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($participantsBySubProgram as $subProgram => $count)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-gray-900">{{ $subProgram }}</td>
+                                        <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-4 py-3 text-gray-500 text-center">No hay datos de sub-programas disponibles para este filtro.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endif
+
             </div>
         </div>
     </div>

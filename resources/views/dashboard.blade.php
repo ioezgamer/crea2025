@@ -7,16 +7,13 @@
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Welcome Message -->
             <div class="mb-6">
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <p class="text-gray-900 text-sm">¡Bienvenido! Aquí tienes un resumen de los datos de inscripción.</p>
                 </div>
             </div>
 
-            <!-- Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <!-- Total Participants -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +26,6 @@
                     </div>
                 </div>
 
-                <!-- Programs Count -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,12 +33,12 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Programas Activos</h3>
-                        <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByProgram ?? []) }}</p>
+                        <h3 class="text-sm font-medium text-gray-600">Programas Distintos</h3>
+                        {{-- Contar las claves del array procesado para programas --}}
+                        <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByProgramData ?? []) }}</p>
                     </div>
                 </div>
 
-                <!-- Meeting Places Count -->
                 <div class="bg-white shadow-sm rounded-lg p-6 flex items-center">
                     <div class="flex-shrink-0">
                         <svg class="h-10 w-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,16 +48,33 @@
                     </div>
                     <div class="ml-4">
                         <h3 class="text-sm font-medium text-gray-600">Lugares de Encuentro</h3>
-                        <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByPlace ?? []) }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByPlaceData ?? []) }}</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Detailed Breakdown -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Participants by Program -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Programa</h3>
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por Programa</h3>
+                    {{-- Contenedor para el gráfico de programas --}}
+                    <div style="height: 300px;"> {{-- Ajusta la altura según necesites --}}
+                        <canvas id="participantsByProgramChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por Lugar de Encuentro</h3>
+                     {{-- Contenedor para el gráfico de lugares --}}
+                    <div style="height: 300px;"> {{-- Ajusta la altura según necesites --}}
+                        <canvas id="participantsByPlaceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h3 class="text-sm font-medium text-gray-600 mb-4">Tabla: Participantes por Programa</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-100">
@@ -71,7 +84,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                @forelse ($participantsByProgram ?? [] as $program => $count)
+                                @forelse ($participantsByProgramForTable ?? [] as $program => $count)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-3 text-gray-900">{{ $program }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
@@ -86,9 +99,8 @@
                     </div>
                 </div>
 
-                <!-- Participants by Meeting Place -->
                 <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="text-sm font-medium text-gray-600 mb-4">Participantes por Lugar de Encuentro</h3>
+                    <h3 class="text-sm font-medium text-gray-600 mb-4">Tabla: Participantes por Lugar de Encuentro</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-100">
@@ -98,7 +110,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                @forelse ($participantsByPlace ?? [] as $place => $count)
+                                @forelse ($participantsByPlaceForTable ?? [] as $place => $count)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-3 text-gray-900">{{ $place }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600">{{ $count }}</td>
@@ -115,4 +127,115 @@
             </div>
         </div>
     </div>
+
+    {{-- Incluir Chart.js desde CDN al final del body o en el stack de scripts de tu layout --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Datos para el gráfico de Participantes por Programa
+            const programData = @json($participantsByProgramData ?? []);
+            const programLabels = Object.keys(programData);
+            const programCounts = Object.values(programData);
+
+            const programCtx = document.getElementById('participantsByProgramChart');
+            if (programCtx) {
+                new Chart(programCtx, {
+                    type: 'bar', // Puedes cambiar a 'pie', 'doughnut', 'line', etc.
+                    data: {
+                        labels: programLabels,
+                        datasets: [{
+                            label: 'Nº de Participantes',
+                            data: programCounts,
+                            backgroundColor: [ // Colores para las barras/segmentos
+                                'rgba(54, 162, 235, 0.6)', // Azul
+                                'rgba(75, 192, 192, 0.6)', // Verde
+                                'rgba(255, 206, 86, 0.6)', // Amarillo
+                                'rgba(153, 102, 255, 0.6)',// Púrpura
+                                'rgba(255, 159, 64, 0.6)', // Naranja
+                                'rgba(255, 99, 132, 0.6)',  // Rojo
+                                'rgba(201, 203, 207, 0.6)'  // Gris
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(201, 203, 207, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Importante para que el div controle el tamaño
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    // Asegurar que solo se muestren enteros en el eje Y si los conteos son bajos
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true, // O false si solo hay un dataset y el título del gráfico es suficiente
+                                position: 'top',
+                            },
+                            title: {
+                                display: false, // El título ya está en el H3
+                                text: 'Participantes por Programa'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Datos para el gráfico de Participantes por Lugar de Encuentro
+            const placeData = @json($participantsByPlaceData ?? []);
+            const placeLabels = Object.keys(placeData);
+            const placeCounts = Object.values(placeData);
+
+            const placeCtx = document.getElementById('participantsByPlaceChart');
+            if (placeCtx) {
+                new Chart(placeCtx, {
+                    type: 'doughnut', // 'pie' es otra buena opción
+                    data: {
+                        labels: placeLabels,
+                        datasets: [{
+                            label: 'Nº de Participantes',
+                            data: placeCounts,
+                            backgroundColor: [ // Diferentes colores para el gráfico de torta/dona
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(100, 100, 100, 0.7)',
+                                'rgba(120, 180, 90, 0.7)'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top', // O 'right', 'left', 'bottom'
+                            },
+                            title: {
+                                display: false,
+                                text: 'Participantes por Lugar de Encuentro'
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </x-app-layout>
