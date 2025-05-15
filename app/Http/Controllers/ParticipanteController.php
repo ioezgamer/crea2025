@@ -8,59 +8,58 @@ use App\Http\Requests\StoreParticipanteRequest;
 use App\Http\Requests\UpdateParticipanteRequest;
 use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
+use App\Exports\ParticipantesExport;
+use App\Imports\ParticipantesImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ParticipanteController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $search_name = $request->input('search_name');
         $search_programa = $request->input('search_programa');
         $search_lugar = $request->input('search_lugar');
-        $grado_filter = $request->input('grado'); // Puede ser null
+        $grado_filter = $request->input('grado'); 
 
         $query = Participante::query()
             ->filterByName($search_name)
-            ->filterByPrograma($search_programa) // Scope modificado para CSV/LIKE
+            ->filterByPrograma($search_programa) 
             ->filterByLugar($search_lugar);
 
         if ($grado_filter) {
             $query->filterByGrado(urldecode($grado_filter));
         }
 
-        $query->orderBy('grado_p', 'asc')->orderBy('primer_nombre_p', 'asc');
+        $query->orderBy('grado_p', 'asc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
             
         $participantes = $query->paginate($request->input('per_page', 15));
         
-        // Usar el método del modelo para obtener las opciones de programa
-        $programOptions = Participante::getDistinctProgramasOptions();
+        // Asegúrate que este método exista en tu modelo Participante y funcione correctamente
+        $programOptions = Participante::getDistinctProgramasOptions(); 
     
         return view('participante.index', compact('participantes'))
-                ->with('programas', $programOptions) // Opciones para el desplegable de filtro
+                ->with('programas', $programOptions) 
                 ->with('search_name', $search_name)
                 ->with('search_programa', $search_programa)
                 ->with('search_lugar', $search_lugar)
-                ->with('grado', $grado_filter); // Pasar el grado original (sin decodificar) para el input hidden
+                ->with('grado', $grado_filter);
     }
-
-    public function indexByGrade(Request $request, $gradoParam) // $gradoParam es el de la URL
+    
+    public function indexByGrade(Request $request, $gradoParam)
     {
         $decodedGrado = urldecode($gradoParam);
-
         $search_name = $request->input('search_name');
         $search_programa = $request->input('search_programa');
         $search_lugar = $request->input('search_lugar');
 
         $query = Participante::query()
-            ->filterByGrado($decodedGrado) // Filtro principal por grado de la URL
+            ->filterByGrado($decodedGrado) 
             ->filterByName($search_name)
             ->filterByPrograma($search_programa)
             ->filterByLugar($search_lugar);
     
-        $query->orderBy('primer_nombre_p', 'asc'); 
-    
+        $query->orderBy('primer_apellido_p')->orderBy('primer_nombre_p'); 
         $participantes = $query->paginate($request->input('per_page', 15));
-
-        // Usar el método del modelo para obtener las opciones de programa
         $programOptions = Participante::getDistinctProgramasOptions();
     
         return view('participante.index', compact('participantes'))
@@ -68,28 +67,68 @@ class ParticipanteController extends Controller
                 ->with('search_name', $search_name)
                 ->with('search_programa', $search_programa)
                 ->with('search_lugar', $search_lugar)
-                ->with('grado', $gradoParam); // Pasar el grado original de la URL
+                ->with('grado', $gradoParam); 
     }
-    
+
+    /**
+     * Obtiene los lugares de encuentro basados en el programa seleccionado.
+     * Esta función es llamada por AJAX desde la vista de índice de participantes.
+     */
     public function getLugaresByPrograma(Request $request)
     {
         $programaFilter = $request->query('programa');
-        
-        $query = Participante::query();
-        if ($programaFilter) {
-            // Asumiendo que $programaFilter es un valor único que se busca dentro del CSV 'programa'
-            // $query->whereRaw('FIND_IN_SET(?, programa)', [$programaFilter]); // Para MySQL
-            $query->where('programa', 'like', '%'. $programaFilter .'%'); // Alternativa general
-        }
-        
-        $lugares = $query->select('lugar_de_encuentro_del_programa')
-            ->whereNotNull('lugar_de_encuentro_del_programa')
-            ->distinct()
-            ->pluck('lugar_de_encuentro_del_programa')
-            ->sort()
-            ->values();
+        Log::info('[getLugaresByPrograma] Iniciando búsqueda de lugares.', ['programa_solicitado' => $programaFilter]);
 
-        return response()->json($lugares);
+        if (empty($programaFilter)) {
+            Log::warning('[getLugaresByPrograma] No se proporcionó filtro de programa. Devolviendo array vacío.');
+            return response()->json([]);
+        }
+
+        try {
+            // Obtener todos los participantes que podrían tener el programa (usando LIKE para campos CSV)
+            // y que tengan un lugar de encuentro no nulo y no vacío.
+            $participantesConPosiblePrograma = Participante::where('programa', 'LIKE', '%' . $programaFilter . '%')
+                                                ->whereNotNull('lugar_de_encuentro_del_programa')
+                                                ->where('lugar_de_encuentro_del_programa', '!=', '')
+                                                ->select('programa', 'lugar_de_encuentro_del_programa') // Solo campos necesarios
+                                                ->get();
+            
+            Log::info('[getLugaresByPrograma] Participantes preliminares encontrados con LIKE:', [
+                'count' => $participantesConPosiblePrograma->count(),
+                'programa_filtro' => $programaFilter
+            ]);
+
+            $lugaresFiltrados = collect();
+
+            foreach ($participantesConPosiblePrograma as $participante) {
+                // Convertir el campo 'programa' (CSV) del participante a un array de programas individuales
+                $programasDelParticipante = array_map('trim', explode(',', $participante->programa ?? ''));
+                
+                // Verificar si el programa solicitado está exactamente en la lista de programas del participante
+                if (in_array($programaFilter, $programasDelParticipante)) {
+                    $lugaresFiltrados->push($participante->lugar_de_encuentro_del_programa);
+                }
+            }
+            
+            // Obtener lugares únicos, ordenarlos y devolverlos
+            $lugares = $lugaresFiltrados->unique()->filter()->sort()->values();
+
+            Log::info('[getLugaresByPrograma] Lugares finales procesados:', [
+                'count' => $lugares->count(), 
+                'lugares' => $lugares->toArray()
+            ]);
+            return response()->json($lugares);
+
+        } catch (\Exception $e) {
+            Log::error('[getLugaresByPrograma] Excepción durante la búsqueda de lugares:', [
+                'mensaje_error' => $e->getMessage(),
+                'programa_solicitado' => $programaFilter,
+                'archivo_error' => $e->getFile(),
+                'linea_error' => $e->getLine(),
+                // 'traza_completa' => $e->getTraceAsString(), // Descomentar solo para depuración muy detallada
+            ]);
+            return response()->json(['error' => 'Error interno del servidor al cargar lugares.'], 500);
+        }
     }
 
     public function create()
@@ -218,6 +257,63 @@ class ParticipanteController extends Controller
         } catch (\Exception $e) {
             Log::error('Error en toggleActivo', ['error' => $e->getMessage(),'input' => $validated]);
             return response()->json(['success' => false,'message' => 'Error al actualizar el estado: ' . $e->getMessage()], 500);
+        }
+    }
+
+     public function exportParticipantes(Request $request)
+    {
+        // Obtener filtros de la request para pasarlos al export
+        $filters = $request->only(['search_name', 'search_programa', 'search_lugar', 'grado']);
+
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        return Excel::download(new ParticipantesExport($filters), "participantes_{$timestamp}.xlsx");
+        // Para CSV: return Excel::download(new ParticipantesExport($filters), "participantes_{$timestamp}.csv", \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    public function showImportForm()
+    {
+        // Simplemente muestra una vista con un formulario para subir el archivo
+        return view('participante.import_form'); // Debes crear esta vista
+    }
+
+    public function importParticipantes(Request $request)
+    {
+        $request->validate([
+            'participantes_file' => 'required|mimes:xlsx,xls,csv|max:20480' // Max 20MB
+        ]);
+
+        $file = $request->file('participantes_file');
+
+        try {
+            $import = new ParticipantesImport;
+            Excel::import($import, $file);
+
+            $failures = $import->failures(); // Obtener filas que fallaron la validación
+
+            if (count($failures) > 0) {
+                $errorMessages = [];
+                foreach ($failures as $failure) {
+                    $errorMessages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors()) . " (Valores: " . json_encode($failure->values()) . ")";
+                }
+                return redirect()->route('participantes.import.form')
+                             ->with('warning', 'Importación completada con algunos errores.')
+                             ->with('import_errors', $errorMessages);
+            }
+
+            return redirect()->route('participante.index')->with('success', 'Participantes importados exitosamente.');
+
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+             $failures = $e->failures();
+             $errorMessages = [];
+             foreach ($failures as $failure) {
+                 $errorMessages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors()) . " (Valores: " . json_encode($failure->values()) . ")";
+             }
+             return redirect()->route('participantes.import.form')
+                             ->with('error', 'Error de validación durante la importación.')
+                             ->with('import_errors', $errorMessages);
+        } catch (\Exception $e) {
+            \Log::error('Error importando participantes: ' . $e->getMessage());
+            return redirect()->route('participantes.import.form')->with('error', 'Ocurrió un error durante la importación: ' . $e->getMessage());
         }
     }
 }
