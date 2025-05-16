@@ -22,7 +22,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Total Inscritos</h3>
+                        <h3 class="text-sm font-medium text-gray-600">Total inscritos</h3>
                         <p class="text-2xl font-semibold text-gray-900">{{ $totalParticipants ?? 0 }}</p>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Programas Distintos</h3>
+                        <h3 class="text-sm font-medium text-gray-600">Programas activos</h3>
                         <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByProgramData ?? []) }}</p>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-600">Lugares de Encuentro</h3>
+                        <h3 class="text-sm font-medium text-gray-600">Lugares de encuentro</h3>
                         <p class="text-2xl font-semibold text-gray-900">{{ count($participantsByPlaceData ?? []) }}</p>
                     </div>
                 </div>
@@ -55,15 +55,15 @@
 
             {{-- Sección de Gráficos --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por Programa</h3>
+                <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por programa</h3>
                     <div style="height: 300px;">
                         <canvas id="participantsByProgramChart"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por Lugar de Encuentro</h3>
+                <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-6">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Participantes por lugar de encuentro</h3>
                     <div style="height: 300px;">
                         <canvas id="participantsByPlaceChart"></canvas>
                     </div>
