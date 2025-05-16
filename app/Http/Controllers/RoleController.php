@@ -1,29 +1,22 @@
 <?php
 
-// Contenido de app/Http/Controllers/RoleController.php
-// No se realizaron cambios funcionales en este archivo, ya que la estructura del método store() es correcta.
-// Se añaden comentarios para enfatizar puntos de depuración.
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate; // Asegúrate que Gate está correctamente configurado en AuthServiceProvider
+use Illuminate\Support\Facades\Gate; 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; // Para depuración
+use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
 {
     public function __construct()
     {
-        // Este middleware se aplica a TODOS los métodos en este controlador.
-        // Si hay un problema con la Gate 'manage-roles', podría causar errores inesperados.
-        // Asegúrate que la lógica en app/Providers/AuthServiceProvider.php para 'manage-roles' es correcta
-        // y no lanza excepciones no controladas.
+        \Log::info('Entrando al constructor de RoleController', ['user' => auth()->user()]);
         $this->middleware('can:manage-roles');
     }
 
@@ -52,26 +45,18 @@ class RoleController extends Controller
         return view('roles.index', compact('users', 'roles'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
-        // Este método muestra el formulario. Si puedes ver el formulario,
-        // la Gate 'manage-roles' permitió el acceso hasta aquí para la solicitud GET.
+        if (Gate::denies('create-user')) {
+            return redirect()->route('roles.index')->with('error', 'No tienes permiso para crear usuarios.');
+        }
         $roles = ['admin', 'editor', 'gestor', 'user'];
         return view('roles.create_user', compact('roles')); 
     }
 
     public function store(Request $request): RedirectResponse
     {
-        // Si obtienes un 404 aquí, significa que la solicitud POST a '/roles/users'
-        // no está siendo manejada correctamente por esta ruta/método.
-        // Pasos de depuración cruciales:
-        // 1. Limpiar caché de rutas: `php artisan route:clear`
-        // 2. Revisar logs de Laravel: `storage/logs/laravel.log` para errores detallados.
-        // 3. Verificar la configuración del servidor web (.htaccess para Apache, config de Nginx).
-        // 4. Asegurar que no haya errores en la lógica de la Gate 'manage-roles'.
-
-        // Puedes añadir un log para verificar si la solicitud llega aquí:
-        Log::info('RoleController@store: Solicitud recibida para crear usuario.', $request->all());
+        \Log::info('RoleController@store: Solicitud recibida para crear usuario.', $request->all());
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -97,8 +82,7 @@ class RoleController extends Controller
             'role' => $request->role,
             'approved_at' => $approvedAt,
         ]);
-       dd($request->all()); // Esto mostrará los datos de la solicitud y detendrá la ejecución
-        Log::info('RoleController@store: Usuario creado exitosamente.', ['user_id' => $user->id]);
+        \Log::info('RoleController@store: Usuario creado exitosamente.', ['user_id' => $user->id]);
 
         return redirect()->route('roles.index')->with('status', 'user-created');
     }

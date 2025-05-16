@@ -2,12 +2,14 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
             <h2 class="text-xl lg:text-2xl font-semibold text-gray-800 leading-tight">
-                {{ __('Gestión de Roles y Usuarios') }}
+                {{ __('Gestión de roles y usuarios') }}
             </h2>
-            <a href="{{ route('roles.user.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                Nuevo Usuario
-            </a>
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0">
+            <h2 class="text-xs lg:text-lg text-blue-600/50 leading-tight mr-4">
+                Crear nuevo usuario
+            </h2>
+             <x-crear-button onclick="window.location.href='{{ route('roles.user.create') }}'"/>
+            </div>
         </div>
     </x-slot>
 

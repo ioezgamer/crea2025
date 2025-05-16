@@ -13,17 +13,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// Grupo principal de rutas que requieren autenticación y correo verificado
+Route::middleware(['auth', 'can:manage-roles'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/programas', [EstadisticasProgramaController::class, 'index'])->name('programas');
     Route::get('/tutores', [EstadisticasTutorController::class, 'estadisticas'])->name('tutores');
     Route::get('/tutores-participantes', [EstadisticasTutorController::class, 'participantesPorTutor'])->name('tutores_participantes');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); 
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // --- GRUPO DE RUTAS PARA PARTICIPANTES ---
+    // Estas rutas son para usuarios autenticados y verificados en general
     Route::get('/participante/create', [ParticipanteController::class, 'create'])->name('participante.create');
     Route::post('/participante/store', [ParticipanteController::class, 'store'])->name('participante.store');
     Route::get('/participante', [ParticipanteController::class, 'index'])->name('participante.index');
@@ -33,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/participante/{id}/pdf', [ParticipanteController::class, 'exportPdf'])->name('participante.pdf');
 
     // --- RUTAS DE ASISTENCIA ---
+    // Estas rutas son para usuarios autenticados y verificados en general
     Route::get('/asistencia', [AsistenciaController::class, 'create'])->name('asistencia.create');
     Route::post('/asistencia', [AsistenciaController::class, 'store'])->name('asistencia.store');
     Route::post('/asistencia/guardar-individual', [AsistenciaController::class, 'storeIndividual'])->name('asistencia.storeIndividual');
@@ -42,7 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/asistencia/reporte', [AsistenciaController::class, 'reporte'])->name('asistencia.reporte');
     Route::get('/asistencia/reporte/pdf', [AsistenciaController::class, 'exportPdf'])->name('asistencia.exportPdf');
     
-    // --- RUTAS PROTEGIDAS POR 'can:manage-roles' ---
+    // --- RUTAS PROTEGIDAS ADICIONALMENTE POR 'can:manage-roles' ---
+    // Para estas rutas, el usuario debe estar autenticado, verificado Y tener el rol de administrador
     Route::middleware('can:manage-roles')->group(function () {
         // Rutas de participante que requieren 'manage-roles'
         Route::get('/participante/{participante}/edit', [ParticipanteController::class, 'edit'])->name('participante.edit');
@@ -50,14 +54,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/participante/{participante}', [ParticipanteController::class, 'destroy'])->name('participante.destroy');
         Route::post('/participante/toggle-activo', [ParticipanteController::class, 'toggleActivo'])->name('participante.toggle-activo');
         
+        // **Rutas para crear usuarios (colocadas correctamente aquí)**
+        Route::get('/roles/users/create', [RoleController::class, 'create'])->name('roles.user.create');
+        Route::post('/roles/users', [RoleController::class, 'store'])->name('roles.user.store');
+
         // Rutas para gestión de roles y usuarios
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         Route::post('/roles/{user}', [RoleController::class, 'update'])->name('roles.update'); 
         Route::delete('/roles/{user}', [RoleController::class, 'destroy'])->name('roles.destroy');
         
-        // Rutas para crear usuarios, agrupadas conceptualmente con roles
-        Route::get('/roles/users/create', [RoleController::class, 'create'])->name('roles.user.create');
-        Route::post('/roles/users', [RoleController::class, 'store'])->name('roles.user.store');       
+
         
         // NUEVAS RUTAS PARA APROBACIÓN DE USUARIOS
         Route::patch('/roles/users/{user}/approve', [RoleController::class, 'approve'])->name('roles.user.approve');
