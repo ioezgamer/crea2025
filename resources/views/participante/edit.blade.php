@@ -39,13 +39,12 @@
                         @method('PUT')
 
                         <div class="space-y-8">
-                            <!-- Fecha de Inscripción y Año -->
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Fecha de Inscripción</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label for="fecha_de_inscripcion" class="block text-xs font-medium text-gray-800 mb-1">Fecha de inscripción</label>
-                                        <input type="date" name="fecha_de_inscripcion" id="fecha_de_inscripcion" value="{{ old('fecha_de_inscripcion', $participante->fecha_de_inscripcion) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                        <input type="date" name="fecha_de_inscripcion" id="fecha_de_inscripcion" value="{{ old('fecha_de_inscripcion', $participante->fecha_de_inscripcion instanceof \Carbon\Carbon ? $participante->fecha_de_inscripcion->format('Y-m-d') : $participante->fecha_de_inscripcion) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                         @error('fecha_de_inscripcion')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
@@ -60,7 +59,6 @@
                                 </div>
                             </div>
 
-                            <!-- Documentos Requeridos -->
                             <div class="border-t border-gray-200 pt-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Documentos Requeridos</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -68,11 +66,11 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-1">Copia de partida de nacimiento</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="partida_de_nacimiento" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('partida_de_nacimiento', $participante->partida_de_nacimiento) ? 'checked' : '' }} required>
+                                                <input type="radio" name="partida_de_nacimiento" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('partida_de_nacimiento', $participante->partida_de_nacimiento) == 1 ? 'checked' : '' }} required>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="partida_de_nacimiento" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('partida_de_nacimiento', $participante->partida_de_nacimiento) ? '' : 'checked' }}>
+                                                <input type="radio" name="partida_de_nacimiento" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('partida_de_nacimiento', $participante->partida_de_nacimiento) == 0 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -84,11 +82,11 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-1">Copia boletín o diploma (2024)</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="boletin_o_diploma_2024" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('boletin_o_diploma_2024', $participante->boletin_o_diploma_2024) ? 'checked' : '' }} required>
+                                                <input type="radio" name="boletin_o_diploma_2024" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('boletin_o_diploma_2024', $participante->boletin_o_diploma_2024) == 1 ? 'checked' : '' }} required>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="boletin_o_diploma_2024" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('boletin_o_diploma_2024', $participante->boletin_o_diploma_2024) ? '' : 'checked' }}>
+                                                <input type="radio" name="boletin_o_diploma_2024" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('boletin_o_diploma_2024', $participante->boletin_o_diploma_2024) == 0 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -100,11 +98,11 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-1">Copia de cédula del tutor</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="cedula_tutor" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_tutor', $participante->cedula_tutor) ? 'checked' : '' }} required>
+                                                <input type="radio" name="cedula_tutor" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_tutor', $participante->cedula_tutor) == 1 ? 'checked' : '' }} required>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="cedula_tutor" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_tutor', $participante->cedula_tutor) ? '' : 'checked' }}>
+                                                <input type="radio" name="cedula_tutor" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_tutor', $participante->cedula_tutor) == 0 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -116,11 +114,11 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-1">Copia de cédula (participante adulto)</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="cedula_participante_adulto" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_participante_adulto', $participante->cedula_participante_adulto) ? 'checked' : '' }} required>
+                                                <input type="radio" name="cedula_participante_adulto" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_participante_adulto', $participante->cedula_participante_adulto) == 1 ? 'checked' : '' }} required>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="cedula_participante_adulto" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_participante_adulto', $participante->cedula_participante_adulto) ? '' : 'checked' }}>
+                                                <input type="radio" name="cedula_participante_adulto" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('cedula_participante_adulto', $participante->cedula_participante_adulto) == 0 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -131,18 +129,17 @@
                                 </div>
                             </div>
 
-                            <!-- Información del Participante -->
                             <div class="border-t border-gray-200 pt-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Información del Participante</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
-                                        <label for="participante" class="block text-xs font-medium text-gray-800 mb-1">Participante</label>
-                                        <select name="participante" id="participante" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                        <label for="participante_tipo" class="block text-xs font-medium text-gray-800 mb-1">Nivel del Participante</label> {{-- Cambiado el id y name a participante_tipo para evitar conflicto con el objeto $participante --}}
+                                        <select name="participante" id="participante_tipo" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                             <option value="" disabled>Seleccione</option>
-                                            <option value="primaria" {{ old('participante', $participante->participante) == 'Primaria' ? 'selected' : '' }}>Primaria</option>
-                                            <option value="secundaria" {{ old('participante', $participante->participante) == 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
-                                            <option value="preescolar" {{ old('participante', $participante->participante) == 'Preescolar' ? 'selected' : '' }}>Preescolar (o menos)</option>
-                                            <option value="adulto" {{ old('participante', $participante->participante) == 'Adulto' ? 'selected' : '' }}>Adulto</option>
+                                            <option value="Primaria" {{ old('participante', $participante->participante) == 'Primaria' ? 'selected' : '' }}>Primaria</option>
+                                            <option value="Secundaria" {{ old('participante', $participante->participante) == 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
+                                            <option value="Preescolar" {{ old('participante', $participante->participante) == 'Preescolar' ? 'selected' : '' }}>Preescolar (o menos)</option>
+                                            <option value="Adulto" {{ old('participante', $participante->participante) == 'Adulto' ? 'selected' : '' }}>Adulto</option>
                                         </select>
                                         @error('participante')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -185,7 +182,7 @@
                                     </div>
                                     <div>
                                         <label for="fecha_de_nacimiento_p" class="block text-xs font-medium text-gray-800 mb-1">Fecha de Nacimiento</label>
-                                        <input type="date" name="fecha_de_nacimiento_p" id="fecha_de_nacimiento_p" value="{{ old('fecha_de_nacimiento_p', $participante->fecha_de_nacimiento_p) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                        <input type="date" name="fecha_de_nacimiento_p" id="fecha_de_nacimiento_p" value="{{ old('fecha_de_nacimiento_p', $participante->fecha_de_nacimiento_p instanceof \Carbon\Carbon ? $participante->fecha_de_nacimiento_p->format('Y-m-d') : $participante->fecha_de_nacimiento_p) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                         @error('fecha_de_nacimiento_p')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
@@ -247,7 +244,6 @@
                                 </div>
                             </div>
 
-                            <!-- Información Educativa -->
                             <div class="border-t border-gray-200 pt-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Información Educativa</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -285,7 +281,7 @@
                                         <select name="grado_p" id="grado_p" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                             <option value="" disabled>Seleccione</option>
                                             @foreach (range(0, 11) as $grado)
-                                                <option value="{{ $grado }}" {{ old('grado_p', $participante->grado_p) == $grado ? 'selected' : '' }}>{{ $grado }}</option>
+                                                <option value="{{ $grado }}" {{ old('grado_p', $participante->grado_p) == $grado ? 'selected' : '' }}>{{ $grado == 0 ? 'Preescolar' : $grado }}</option>
                                             @endforeach
                                         </select>
                                         @error('grado_p')
@@ -294,11 +290,12 @@
                                     </div>
                                     <div>
                                         <label for="turno" class="block text-xs font-medium text-gray-800 mb-1">Turno</label>
-                                        <select name="turno" id="turno" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione</option>
-                                            <option value="Mañana" {{ old('turno', $participante->turno) == 'Mañana' ? 'selected' : '' }}>Matutino</option>
-                                            <option value="Tarde" {{ old('turno', $participante->turno) == 'Tarde' ? 'selected' : '' }}>Vespertino</option>
-                                            <option value="Noche" {{ old('turno', $participante->turno) == 'Noche' ? 'selected' : '' }}>Sabatino</option>
+                                        <select name="turno" id="turno" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
+                                            <option value="" {{ old('turno', $participante->turno) == '' ? 'selected' : '' }}>Seleccione (Opcional)</option>
+                                            <option value="Matutino" {{ old('turno', $participante->turno) == 'Matutino' ? 'selected' : '' }}>Matutino</option>
+                                            <option value="Vespertino" {{ old('turno', $participante->turno) == 'Vespertino' ? 'selected' : '' }}>Vespertino</option>
+                                            <option value="Sabatino" {{ old('turno', $participante->turno) == 'Sabatino' ? 'selected' : '' }}>Sabatino</option>
+                                            <option value="Dominical" {{ old('turno', $participante->turno) == 'Dominical' ? 'selected' : '' }}>Dominical</option>
                                         </select>
                                         @error('turno')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -308,11 +305,11 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-1">¿Repite Grado?</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="repite_grado" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('repite_grado', $participante->repite_grado) ? 'checked' : '' }} required>
+                                                <input type="radio" name="repite_grado" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('repite_grado', $participante->repite_grado) == 1 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="repite_grado" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('repite_grado', $participante->repite_grado) ? '' : 'checked' }}>
+                                                <input type="radio" name="repite_grado" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('repite_grado', $participante->repite_grado) == 0 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -323,41 +320,52 @@
                                 </div>
                             </div>
 
-                            <!-- Detalles del Programa -->
                             <div class="border-t border-gray-200 pt-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Detalles del Programa</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-800 mb-2">Programa <span class="text-red-500">*</span></label>
-                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <label class="block text-xs font-medium text-gray-800 mb-2">Programa Principal <span class="text-red-500">*</span></label>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             @php
-                                                $programaSeleccionados = old('programa', explode(',', $participante->programa));
+                                                // $participante->programa ya es un array debido al controlador
+                                                $programaSeleccionados = old('programa', $participante->programa);
                                             @endphp
-                                            @foreach (['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'] as $programa)
+                                            @foreach ($programaOptionsList as $programaOption)
                                                 <label class="flex items-center text-sm text-gray-600">
-                                                    <input type="checkbox" name="programa[]" value="{{ $programa }}" @if(in_array($programa, $programaSeleccionados)) checked @endif class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
-                                                    {{ $programa }}
+                                                    <input type="checkbox" name="programa[]" value="{{ $programaOption }}" 
+                                                           @if(is_array($programaSeleccionados) && in_array($programaOption, $programaSeleccionados)) checked @endif 
+                                                           class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                    {{ $programaOption }}
                                                 </label>
                                             @endforeach
                                         </div>
                                         @error('programa')
                                             <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
                                         @enderror
+                                        @error('programa.*')
+                                            <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
+                                        @enderror
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-gray-800 mb-2">Subprogramas <span class="text-red-500">*</span></label>
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <label class="block text-xs font-medium text-gray-800 mb-2">Subprogramas/Códigos <span class="text-red-500">*</span></label>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             @php
-                                                $programasSeleccionados = old('programas', explode(',', $participante->programas));
+                                                // $participante->programas ya es un array debido al controlador
+                                                $programasCodigosSeleccionados = old('programas', $participante->programas);
                                             @endphp
-                                            @foreach (['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'] as $subprograma)
+                                            @foreach ($subProgramaOptionsList as $subprogramaOption)
                                                 <label class="flex items-center text-sm text-gray-600">
-                                                    <input type="checkbox" name="programas[]" value="{{ $subprograma }}" @if(in_array($subprograma, $programasSeleccionados)) checked @endif class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
-                                                    {{ $subprograma }}
+                                                    <input type="checkbox" name="programas[]" value="{{ $subprogramaOption }}" 
+                                                           @if(is_array($programasCodigosSeleccionados) && in_array($subprogramaOption, $programasCodigosSeleccionados)) checked @endif 
+                                                           class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                    {{ $subprogramaOption }}
                                                 </label>
                                             @endforeach
                                         </div>
                                         @error('programas')
+                                            <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
+                                        @enderror
+                                        @error('programas.*')
                                             <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
@@ -381,25 +389,30 @@
                                         <label class="block text-xs font-medium text-gray-800 mb-2">Días de Asistencia Esperados <span class="text-red-500">*</span></label>
                                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             @php
-                                                $diasSeleccionados = old('dias_de_asistencia_al_programa', explode(',', $participante->dias_de_asistencia_al_programa));
+                                                // $participante->dias_de_asistencia_al_programa ya es un array debido al controlador
+                                                $diasSeleccionados = old('dias_de_asistencia_al_programa', $participante->dias_de_asistencia_al_programa);
                                             @endphp
-                                            @foreach (['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
+                                            @foreach ($diasOptionsList as $diaOption)
                                                 <label class="flex items-center text-sm text-gray-600">
-                                                    <input type="checkbox" name="dias_de_asistencia_al_programa[]" value="{{ $dia }}" @if(in_array($dia, $diasSeleccionados)) checked @endif class="dias-asistencia h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
-                                                    {{ $dia }}
+                                                    <input type="checkbox" name="dias_de_asistencia_al_programa[]" value="{{ $diaOption }}" 
+                                                           @if(is_array($diasSeleccionados) && in_array($diaOption, $diasSeleccionados)) checked @endif 
+                                                           class="dias-asistencia h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mr-2">
+                                                    {{ $diaOption }}
                                                 </label>
                                             @endforeach
                                         </div>
-                                        <input type="hidden" name="dias_de_asistencia_al_programa_count" id="dias_de_asistencia_al_programa" value="{{ count($diasSeleccionados) }}" required>
-                                        <p class="text-sm text-gray-500 mt-1">Total días: <span id="total-dias-asistencia">{{ count($diasSeleccionados) }}</span></p>
+                                        <input type="hidden" name="dias_de_asistencia_al_programa_count" id="dias_de_asistencia_al_programa_count_input" value="{{ is_array($diasSeleccionados) ? count($diasSeleccionados) : 0 }}">
+                                        <p class="text-sm text-gray-500 mt-1">Total días: <span id="total-dias-asistencia">{{ is_array($diasSeleccionados) ? count($diasSeleccionados) : 0 }}</span></p>
                                         @error('dias_de_asistencia_al_programa')
+                                            <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
+                                        @enderror
+                                        @error('dias_de_asistencia_al_programa.*')
                                             <p class="mt-2 text-sm text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tutor Principal -->
                             <div class="border-t border-gray-200 pt-4">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-3">Tutor Principal</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -407,15 +420,9 @@
                                         <label for="tutor_principal" class="block text-xs font-medium text-gray-800 mb-1">Tipo de Tutor</label>
                                         <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
                                             <option value="" disabled>Seleccione</option>
-                                            <option value="Madre" {{ old('tutor_principal', $participante->tutor_principal) == 'Madre' ? 'selected' : '' }}>Madre</option>
-                                            <option value="Padre" {{ old('tutor_principal', $participante->tutor_principal) == 'Padre' ? 'selected' : '' }}>Padre</option>
-                                            <option value="Abuelo" {{ old('tutor_principal', $participante->tutor_principal) == 'Abuelo' ? 'selected' : '' }}>Abuelo</option>
-                                            <option value="Abuela" {{ old('tutor_principal', $participante->tutor_principal) == 'Abuela' ? 'selected' : '' }}>Abuela</option>
-                                            <option value="Tío" {{ old('tutor_principal', $participante->tutor_principal) == 'Tío' ? 'selected' : '' }}>Tío</option>
-                                            <option value="Tía" {{ old('tutor_principal', $participante->tutor_principal) == 'Tía' ? 'selected' : '' }}>Tía</option>
-                                            <option value="Hermano" {{ old('tutor_principal', $participante->tutor_principal) == 'Hermano' ? 'selected' : '' }}>Hermano</option>
-                                            <option value="Hermana" {{ old('tutor_principal', $participante->tutor_principal) == 'Hermana' ? 'selected' : '' }}>Hermana</option>
-                                            <option value="Otro" {{ old('tutor_principal', $participante->tutor_principal) == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                            @foreach($tipos_tutor as $tipo)
+                                            <option value="{{ $tipo }}" {{ old('tutor_principal', $participante->tutor_principal) == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                                            @endforeach
                                         </select>
                                         @error('tutor_principal')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -430,20 +437,18 @@
                                     </div>
                                     <div>
                                         <label for="numero_de_cedula_tutor" class="block text-xs font-medium text-gray-800 mb-1">Número de Cédula</label>
-                                        <input type="text" name="numero_de_cedula_tutor" id="numero_de_cedula_tutor" value="{{ old('numero_de_cedula_tutor', $participante->numero_de_cedula_tutor) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                        <input type="text" name="numero_de_cedula_tutor" id="numero_de_cedula_tutor" value="{{ old('numero_de_cedula_tutor', $participante->numero_de_cedula_tutor) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
                                         @error('numero_de_cedula_tutor')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
                                     <div>
                                         <label for="comunidad_tutor" class="block text-xs font-medium text-gray-800 mb-1">Comunidad</label>
-                                        <select name="comunidad_tutor" id="comunidad_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione</option>
-                                            <option value="Centro" {{ old('comunidad_tutor', $participante->comunidad_tutor) == 'Centro' ? 'selected' : '' }}>Centro</option>
-                                            <option value="Norte" {{ old('comunidad_tutor', $participante->comunidad_tutor) == 'Norte' ? 'selected' : '' }}>Norte</option>
-                                            <option value="Sur" {{ old('comunidad_tutor', $participante->comunidad_tutor) == 'Sur' ? 'selected' : '' }}>Sur</option>
-                                            <option value="Este" {{ old('comunidad_tutor', $participante->comunidad_tutor) == 'Este' ? 'selected' : '' }}>Este</option>
-                                            <option value="Oeste" {{ old('comunidad_tutor', $participante->comunidad_tutor) == 'Oeste' ? 'selected' : '' }}>Oeste</option>
+                                        <select name="comunidad_tutor" id="comunidad_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
+                                            <option value="" {{ old('comunidad_tutor', $participante->comunidad_tutor) == '' ? 'selected' : '' }}>Seleccione (Opcional)</option>
+                                            @foreach($comunidades as $comunidad)
+                                            <option value="{{ $comunidad }}" {{ old('comunidad_tutor', $participante->comunidad_tutor) == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
+                                            @endforeach
                                         </select>
                                         @error('comunidad_tutor')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -451,7 +456,7 @@
                                     </div>
                                     <div>
                                         <label for="direccion_tutor" class="block text-xs font-medium text-gray-800 mb-1">Dirección</label>
-                                        <input type="text" name="direccion_tutor" id="direccion_tutor" value="{{ old('direccion_tutor', $participante->direccion_tutor) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
+                                        <input type="text" name="direccion_tutor" id="direccion_tutor" value="{{ old('direccion_tutor', $participante->direccion_tutor) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
                                         @error('direccion_tutor')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
@@ -465,14 +470,11 @@
                                     </div>
                                     <div>
                                         <label for="sector_economico_tutor" class="block text-xs font-medium text-gray-800 mb-1">Sector Económico</label>
-                                        <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione</option>
-                                            <option value="Agricultura" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Agricultura' ? 'selected' : '' }}>Agricultura</option>
-                                            <option value="Comercio" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Comercio' ? 'selected' : '' }}>Comercio</option>
-                                            <option value="Educación" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Educación' ? 'selected' : '' }}>Educación</option>
-                                            <option value="Salud" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Salud' ? 'selected' : '' }}>Salud</option>
-                                            <option value="Tecnología" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Tecnología' ? 'selected' : '' }}>Tecnología</option>
-                                            <option value="Otro" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                        <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
+                                            <option value="" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == '' ? 'selected' : '' }}>Seleccione (Opcional)</option>
+                                            @foreach($sector_economico as $sector)
+                                            <option value="{{ $sector }}" {{ old('sector_economico_tutor', $participante->sector_economico_tutor) == $sector ? 'selected' : '' }}>{{ $sector }}</option>
+                                            @endforeach
                                         </select>
                                         @error('sector_economico_tutor')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -480,13 +482,11 @@
                                     </div>
                                     <div>
                                         <label for="nivel_de_educacion_formal_adquirido_tutor" class="block text-xs font-medium text-gray-800 mb-1">Nivel de Educación</label>
-                                        <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione</option>
-                                            <option value="Primaria" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == 'Primaria' ? 'selected' : '' }}>Primaria</option>
-                                            <option value="Secundaria" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == 'Secundaria' ? 'selected' : '' }}>Secundaria</option>
-                                            <option value="Técnico" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == 'Técnico' ? 'selected' : '' }}>Técnico</option>
-                                            <option value="Universidad" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == 'Universidad' ? 'selected' : '' }}>Universidad</option>
-                                            <option value="Ninguno" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == 'Ninguno' ? 'selected' : '' }}>Ninguno</option>
+                                        <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
+                                            <option value="" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == '' ? 'selected' : '' }}>Seleccione (Opcional)</option>
+                                            @foreach($nivel_educacion as $nivel)
+                                            <option value="{{ $nivel }}" {{ old('nivel_de_educacion_formal_adquirido_tutor', $participante->nivel_de_educacion_formal_adquirido_tutor) == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
+                                            @endforeach
                                         </select>
                                         @error('nivel_de_educacion_formal_adquirido_tutor')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -494,7 +494,7 @@
                                     </div>
                                     <div class="lg:col-span-3">
                                         <label for="expectativas_del_programa_tutor_principal" class="block text-xs font-medium text-gray-800 mb-1">Expectativas del Programa</label>
-                                        <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" >{{ old('expectativas_del_programa_tutor_principal', $participante->expectativas_del_programa_tutor_principal) }}</textarea>
+                                        <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" rows="2" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" >{{ old('expectativas_del_programa_tutor_principal', $participante->expectativas_del_programa_tutor_principal) }}</textarea>
                                         @error('expectativas_del_programa_tutor_principal')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
@@ -502,23 +502,16 @@
                                 </div>
                             </div>
 
-                            <!-- Tutor Secundario -->
                             <div class="border-t border-gray-200 pt-4">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Tutor Secundario</h3>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Tutor Secundario (Opcional)</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label for="tutor_secundario" class="block text-xs font-medium text-gray-800 mb-1">Tipo de Tutor</label>
                                         <select name="tutor_secundario" id="tutor_secundario" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
                                             <option value="" {{ old('tutor_secundario', $participante->tutor_secundario) == '' ? 'selected' : '' }}>Seleccione</option>
-                                            <option value="Madre" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Madre' ? 'selected' : '' }}>Madre</option>
-                                            <option value="Padre" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Padre' ? 'selected' : '' }}>Padre</option>
-                                            <option value="Abuelo" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Abuelo' ? 'selected' : '' }}>Abuelo</option>
-                                            <option value="Abuela" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Abuela' ? 'selected' : '' }}>Abuela</option>
-                                            <option value="Tío" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Tío' ? 'selected' : '' }}>Tío</option>
-                                            <option value="Tía" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Tía' ? 'selected' : '' }}>Tía</option>
-                                            <option value="Hermano" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Hermano' ? 'selected' : '' }}>Hermano</option>
-                                            <option value="Hermana" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Hermana' ? 'selected' : '' }}>Hermana</option>
-                                            <option value="Otro" {{ old('tutor_secundario', $participante->tutor_secundario) == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                            @foreach($tipos_tutor as $tipo)
+                                            <option value="{{ $tipo }}" {{ old('tutor_secundario', $participante->tutor_secundario) == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                                            @endforeach
                                         </select>
                                         @error('tutor_secundario')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -542,11 +535,9 @@
                                         <label for="comunidad_tutor_secundario" class="block text-xs font-medium text-gray-800 mb-1">Comunidad</label>
                                         <select name="comunidad_tutor_secundario" id="comunidad_tutor_secundario" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
                                             <option value="" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == '' ? 'selected' : '' }}>Seleccione</option>
-                                            <option value="Centro" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == 'Centro' ? 'selected' : '' }}>Centro</option>
-                                            <option value="Norte" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == 'Norte' ? 'selected' : '' }}>Norte</option>
-                                            <option value="Sur" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == 'Sur' ? 'selected' : '' }}>Sur</option>
-                                            <option value="Este" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == 'Este' ? 'selected' : '' }}>Este</option>
-                                            <option value="Oeste" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == 'Oeste' ? 'selected' : '' }}>Oeste</option>
+                                             @foreach($comunidades as $comunidad)
+                                            <option value="{{ $comunidad }}" {{ old('comunidad_tutor_secundario', $participante->comunidad_tutor_secundario) == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
+                                            @endforeach
                                         </select>
                                         @error('comunidad_tutor_secundario')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
@@ -562,19 +553,18 @@
                                 </div>
                             </div>
 
-                            <!-- Otros Programas -->
                             <div class="border-t border-gray-200 pt-4">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Otros Programas</h3>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Otros Programas (Opcional)</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label class="block text-xs font-medium text-gray-800 mb-1">¿Asiste a Otros Programas?</label>
                                         <div class="flex items-center space-x-3">
                                             <label class="flex items-center">
-                                                <input type="radio" name="asiste_a_otros_programas" value="1" class="asiste-otros-radio h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) ? 'checked' : '' }} required>
+                                                <input type="radio" name="asiste_a_otros_programas" value="1" class="asiste-otros-radio h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) == 1 ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">Sí</span>
                                             </label>
                                             <label class="flex items-center">
-                                                <input type="radio" name="asiste_a_otros_programas" value="0" class="asiste-otros-radio h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) ? '' : 'checked' }}>
+                                                <input type="radio" name="asiste_a_otros_programas" value="0" class="asiste-otros-radio h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) == 0 || is_null(old('asiste_a_otros_programas', $participante->asiste_a_otros_programas)) ? 'checked' : '' }}>
                                                 <span class="ml-1.5 text-xs text-gray-600">No</span>
                                             </label>
                                         </div>
@@ -582,37 +572,43 @@
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div id="otros-programas-section" class="{{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) ? '' : 'hidden' }}">
-                                        <label for="otros_programas" class="block text-xs font-medium text-gray-800 mb-1">Otros Programas</label>
+                                    <div id="otros-programas-section" class="{{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) == 1 ? '' : 'hidden' }}">
+                                        <label for="otros_programas" class="block text-xs font-medium text-gray-800 mb-1">Nombres Otros Programas</label>
                                         <input type="text" name="otros_programas" id="otros_programas" value="{{ old('otros_programas', $participante->otros_programas) }}" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
                                         @error('otros_programas')
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div id="dias-otros-section" class="{{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) ? '' : 'hidden' }} lg:col-span-2">
-    <label class="block text-xs font-medium text-gray-800 mb-1">Días que Asiste a Otros Programas</label>
-    <div class="flex flex-wrap gap-3">
-        @php
-            // Priorizar los valores de old() si existen, de lo contrario usar los datos del participante
-            $diasOtrosSeleccionados = old('dias_asiste_a_otros_programas', $participante->dias_asiste_a_otros_programas ?? []);
-        @endphp
-        @foreach (['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
-            <label class="flex items-center">
-                <input type="checkbox" value="{{ $dia }}" name="dias_asiste_a_otros_programas[]" class="dias-otros h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ in_array($dia, (array)$diasOtrosSeleccionados) ? 'checked' : '' }}>
-                <span class="ml-1.5 text-xs text-gray-600">{{ $dia }}</span>
-            </label>
-        @endforeach
-    </div>
-    <input type="hidden" name="total_dias_asiste_a_otros_programas" id="dias_asiste_a_otros_programas" value="{{ count((array)$diasOtrosSeleccionados) }}">
-    <p class="text-xs text-gray-500 mt-1">Total días: <span id="total-dias-otros">{{ count((array)$diasOtrosSeleccionados) }}</span></p>
-    @error('dias_asiste_a_otros_programas')
-        <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
-    @enderror
-</div>
+                                    <div id="dias-otros-section" class="{{ old('asiste_a_otros_programas', $participante->asiste_a_otros_programas) == 1 ? '' : 'hidden' }} lg:col-span-2">
+                                        <label class="block text-xs font-medium text-gray-800 mb-1">Días que Asiste a Otros Programas</label>
+                                        <input type="number" name="dias_asiste_a_otros_programas" id="dias_asiste_a_otros_programas_input" value="{{ old('dias_asiste_a_otros_programas', $participante->dias_asiste_a_otros_programas) }}" min="0" max="7" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
+                                        @error('dias_asiste_a_otros_programas')
+                                            <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="border-t border-gray-200 pt-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3">Estado</h3>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-800 mb-1">Activo</label>
+                                    <div class="flex items-center space-x-3">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="activo" value="1" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('activo', $participante->activo) == 1 ? 'checked' : '' }} required>
+                                            <span class="ml-1.5 text-xs text-gray-600">Sí</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="activo" value="0" class="h-4 w-4 text-indigo-600 border-gray-200 focus:ring-indigo-600" {{ old('activo', $participante->activo) == 0 ? 'checked' : '' }}>
+                                            <span class="ml-1.5 text-xs text-gray-600">No</span>
+                                        </label>
+                                    </div>
+                                    @error('activo')
+                                        <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
 
-                            <!-- Botones -->
+
                             <div class="pt-8 flex justify-between items-center">
                                 <x-boton-regresar onclick="window.location.href='{{ route('participante.index') }}'">Volver</x-boton-regresar>
                                 <x-boton-flotante type="submit">Actualizar Participante</x-boton-flotante>
@@ -624,62 +620,98 @@
         </div>
     </div>
 
-    <!-- JavaScript para funcionalidad -->
     <script>
-        // Calcular Año de Inscripción basado en Fecha de Inscripción
-        document.getElementById('fecha_de_inscripcion').addEventListener('change', function () {
-            const fechaInscripcion = new Date(this.value);
-            const anoInscripcion = fechaInscripcion.getFullYear();
-            document.getElementById('ano_de_inscripcion').value = anoInscripcion;
-        });
-
-        // Calcular Edad basado en Fecha de Nacimiento
-        document.getElementById('fecha_de_nacimiento_p').addEventListener('change', function () {
-            const birthDate = new Date(this.value);
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            document.getElementById('edad_p').value = age >= 0 ? age : 0;
-        });
-
-        // Días de Asistencia al Programa
-        document.querySelectorAll('.dias-asistencia').forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const checkedCount = document.querySelectorAll('.dias-asistencia:checked').length;
-                document.getElementById('dias_de_asistencia_al_programa').value = checkedCount;
-                document.getElementById('total-dias-asistencia').textContent = checkedCount;
-            });
-        });
-
-        // Alternar visibilidad de Otros Programas y Días que Asiste a Otros Programas
-        document.querySelectorAll('.asiste-otros-radio').forEach(radio => {
-            radio.addEventListener('change', function () {
-                const otrosProgramasSection = document.getElementById('otros-programas-section');
-                const diasOtrosSection = document.getElementById('dias-otros-section');
-                if (this.value === '1') {
-                    otrosProgramasSection.classList.remove('hidden');
-                    diasOtrosSection.classList.remove('hidden');
-                } else {
-                    otrosProgramasSection.classList.add('hidden');
-                    diasOtrosSection.classList.add('hidden');
-                    document.getElementById('otros_programas').value = '';
-                    document.querySelectorAll('.dias-otros').forEach(checkbox => checkbox.checked = false);
-                    document.getElementById('dias_asiste_a_otros_programas').value = '0';
-                    document.getElementById('total-dias-otros').textContent = '0';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calcular Año de Inscripción basado en Fecha de Inscripción
+            const fechaInscripcionInput = document.getElementById('fecha_de_inscripcion');
+            const anoInscripcionInput = document.getElementById('ano_de_inscripcion');
+            if(fechaInscripcionInput && anoInscripcionInput) {
+                fechaInscripcionInput.addEventListener('change', function () {
+                    if(this.value) {
+                        const fechaInscripcion = new Date(this.value);
+                        const anoInscripcion = fechaInscripcion.getFullYear();
+                        anoInscripcionInput.value = anoInscripcion;
+                    } else {
+                        anoInscripcionInput.value = '';
+                    }
+                });
+                 // Trigger change on load if value exists, to populate year
+                if(fechaInscripcionInput.value) {
+                    fechaInscripcionInput.dispatchEvent(new Event('change'));
                 }
-            });
-        });
+            }
 
-        // Días que Asiste a Otros Programas
-        document.querySelectorAll('.dias-otros').forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const checkedCount = document.querySelectorAll('.dias-otros:checked').length;
-                document.getElementById('dias_asiste_a_otros_programas').value = checkedCount;
-                document.getElementById('total-dias-otros').textContent = checkedCount;
+            // Calcular Edad basado en Fecha de Nacimiento
+            const fechaNacimientoInput = document.getElementById('fecha_de_nacimiento_p');
+            const edadInput = document.getElementById('edad_p');
+            if(fechaNacimientoInput && edadInput) {
+                fechaNacimientoInput.addEventListener('change', function () {
+                    if(this.value) {
+                        const birthDate = new Date(this.value);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const monthDiff = today.getMonth() - birthDate.getMonth();
+                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                            age--;
+                        }
+                        edadInput.value = age >= 0 ? age : 0;
+                    } else {
+                        edadInput.value = '';
+                    }
+                });
+                // Trigger change on load if value exists, to populate age
+                if(fechaNacimientoInput.value) {
+                    fechaNacimientoInput.dispatchEvent(new Event('change'));
+                }
+            }
+
+
+            // Días de Asistencia al Programa
+            const diasAsistenciaCheckboxes = document.querySelectorAll('.dias-asistencia');
+            const diasAsistenciaCountInput = document.getElementById('dias_de_asistencia_al_programa_count_input'); // Corrected ID
+            const totalDiasAsistenciaSpan = document.getElementById('total-dias-asistencia');
+
+            function updateTotalDiasAsistencia() {
+                if(diasAsistenciaCountInput && totalDiasAsistenciaSpan) {
+                    const checkedCount = document.querySelectorAll('.dias-asistencia:checked').length;
+                    diasAsistenciaCountInput.value = checkedCount;
+                    totalDiasAsistenciaSpan.textContent = checkedCount;
+                }
+            }
+            diasAsistenciaCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotalDiasAsistencia);
             });
+            // Initial count on page load
+            updateTotalDiasAsistencia();
+
+
+            // Alternar visibilidad de Otros Programas y Días que Asiste a Otros Programas
+            const asisteOtrosRadios = document.querySelectorAll('.asiste-otros-radio');
+            const otrosProgramasSection = document.getElementById('otros-programas-section');
+            const diasOtrosSection = document.getElementById('dias-otros-section');
+            const otrosProgramasInput = document.getElementById('otros_programas');
+            // const diasOtrosCheckboxes = document.querySelectorAll('.dias-otros'); // Not needed directly here
+            const diasAsisteOtrosProgramasInput = document.getElementById('dias_asiste_a_otros_programas_input'); // Corrected ID for number input
+            // const totalDiasOtrosSpan = document.getElementById('total-dias-otros'); // Not needed for number input
+
+            function toggleOtrosProgramasVisibility() {
+                const asiste = document.querySelector('.asiste-otros-radio:checked');
+                if (asiste && asiste.value === '1') {
+                    if(otrosProgramasSection) otrosProgramasSection.classList.remove('hidden');
+                    if(diasOtrosSection) diasOtrosSection.classList.remove('hidden');
+                } else {
+                    if(otrosProgramasSection) otrosProgramasSection.classList.add('hidden');
+                    if(diasOtrosSection) diasOtrosSection.classList.add('hidden');
+                    if(otrosProgramasInput) otrosProgramasInput.value = '';
+                    if(diasAsisteOtrosProgramasInput) diasAsisteOtrosProgramasInput.value = '0'; // Reset number input
+                }
+            }
+
+            asisteOtrosRadios.forEach(radio => {
+                radio.addEventListener('change', toggleOtrosProgramasVisibility);
+            });
+            // Initial state on page load
+            toggleOtrosProgramasVisibility();
         });
     </script>
 </x-app-layout>
