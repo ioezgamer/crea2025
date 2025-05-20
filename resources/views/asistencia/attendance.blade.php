@@ -7,9 +7,9 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-full mx-auto px-2 sm:px-4 lg:px-6"> {{-- max-w-full y padding reducido --}}
-            <div class="bg-white shadow-sm rounded-lg p-4 mb-6"> {{-- padding reducido --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"> {{-- gap reducido --}}
+        <div class="max-w-full mx-auto px-2 sm:px-4 lg:px-6">
+            <div class="bg-white shadow-sm rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     <div>
                         <label for="filtro_programa" class="block text-xs font-medium text-gray-700">Programa <span class="text-red-500">*</span></label>
                         <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -23,7 +23,7 @@
                         <label for="filtro_lugar" class="block text-xs font-medium text-gray-700">Lugar <span class="text-red-500">*</span></label>
                         <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
                             <option value="">Seleccione Lugar...</option>
-                            @foreach ($lugarOptions as $lugar) {{-- Para carga inicial si aplica --}}
+                            @foreach ($lugarOptions as $lugar)
                                 <option value="{{ $lugar }}" {{ $selectedLugar == $lugar ? 'selected' : '' }}>{{ $lugar }}</option>
                             @endforeach
                         </select>
@@ -32,14 +32,21 @@
                         <label for="filtro_grado" class="block text-xs font-medium text-gray-700">Grado <span class="text-red-500">*</span></label>
                         <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
                             <option value="">Seleccione Grado...</option>
-                             @foreach ($gradoOptions as $grado) {{-- Para carga inicial si aplica --}}
+                             @foreach ($gradoOptions as $grado)
                                 <option value="{{ $grado }}" {{ $selectedGrado == $grado ? 'selected' : '' }}>{{ $grado }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="filtro_fecha_inicio" class="block text-xs font-medium text-gray-700">Semana (Lunes) <span class="text-red-500">*</span></label>
-                        <input type="date" name="fecha_inicio" id="filtro_fecha_inicio" value="{{ $fechaInicio ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="filtro_tipo_asistencia" class="block text-xs font-medium text-gray-700">Tipo Asistencia <span class="text-red-500">*</span></label>
+                        <select name="tipo_asistencia" id="filtro_tipo_asistencia" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="semanal" {{ ($selectedTipoAsistencia ?? 'semanal') == 'semanal' ? 'selected' : '' }}>Semanal</option>
+                            <option value="diaria" {{ ($selectedTipoAsistencia ?? 'semanal') == 'diaria' ? 'selected' : '' }}>Diaria</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filtro_fecha" class="block text-xs font-medium text-gray-700"><span id="label_fecha">Semana (Lunes)</span> <span class="text-red-500">*</span></label>
+                        <input type="date" name="fecha" id="filtro_fecha" value="{{ $fechaInput ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                 </div>
                 <div class="mt-3 text-right">
@@ -70,22 +77,21 @@
                 </div>
             @endif
 
-
             <div id="tabla_asistencia_container">
-                 {{-- Incluir la tabla parcial si hay datos iniciales (opcional, o cargar siempre con AJAX) --}}
                  @if ($participantes->isNotEmpty())
                     @include('asistencia.partials.tabla_asistencia', [
                         'participantes' => $participantes,
-                        'diasSemana' => $diasSemana,
+                        'diasSemana' => $diasSemana, // Esta variable contendrá los días correctos (1 o 5)
                         'asistencias' => $asistencias,
                         'selectedPrograma' => $selectedPrograma,
-                        'fechaInicioInput' => $fechaInicio, // o $fechaInicioInput si lo pasas así
+                        'fechaInput' => $fechaInput,
                         'selectedLugar' => $selectedLugar,
-                        'selectedGrado' => $selectedGrado
+                        'selectedGrado' => $selectedGrado,
+                        'selectedTipoAsistencia' => $selectedTipoAsistencia ?? 'semanal'
                     ])
                 @else
                     <div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">
-                        Seleccione todos los filtros (Programa, Lugar, Grado y Semana) y presione "Cargar Participantes".
+                        Seleccione todos los filtros (Programa, Lugar, Grado, Tipo Asistencia y Fecha) y presione "Cargar Participantes".
                     </div>
                 @endif
             </div>
@@ -96,7 +102,6 @@
                     Generar Reporte de Asistencia
                 </a>
             </div>
-
         </div>
     </div>
 
@@ -105,7 +110,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const filtroPrograma = document.getElementById('filtro_programa');
     const filtroLugar = document.getElementById('filtro_lugar');
     const filtroGrado = document.getElementById('filtro_grado');
-    const filtroFechaInicio = document.getElementById('filtro_fecha_inicio');
+    const filtroTipoAsistencia = document.getElementById('filtro_tipo_asistencia');
+    const filtroFecha = document.getElementById('filtro_fecha');
+    const labelFecha = document.getElementById('label_fecha');
     const btnCargarParticipantes = document.getElementById('btn_cargar_participantes');
     const tablaAsistenciaContainer = document.getElementById('tabla_asistencia_container');
     const spinnerCargar = document.getElementById('spinner_cargar');
@@ -113,16 +120,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const reportButtonContainer = document.getElementById('report_button_container');
     const linkGenerarReporte = document.getElementById('link_generar_reporte');
 
+    function updateFechaLabel() {
+        if (filtroTipoAsistencia.value === 'diaria') {
+            labelFecha.textContent = 'Fecha';
+        } else {
+            labelFecha.textContent = 'Semana (Lunes)';
+        }
+    }
+
     function checkFiltersAndEnableButton() {
         const programaSelected = filtroPrograma.value !== "";
         const lugarSelected = filtroLugar.value !== "";
         const gradoSelected = filtroGrado.value !== "";
-        const fechaSelected = filtroFechaInicio.value !== "";
+        const fechaSelected = filtroFecha.value !== "";
+        const tipoAsistenciaSelected = filtroTipoAsistencia.value !== "";
         
-        btnCargarParticipantes.disabled = !(programaSelected && lugarSelected && gradoSelected && fechaSelected);
-        if (programaSelected && lugarSelected && gradoSelected && fechaSelected) {
+        btnCargarParticipantes.disabled = !(programaSelected && lugarSelected && gradoSelected && fechaSelected && tipoAsistenciaSelected);
+        
+        if (programaSelected && lugarSelected && gradoSelected && fechaSelected && tipoAsistenciaSelected) {
             reportButtonContainer.classList.remove('hidden');
-            const reporteUrl = `{{ route('asistencia.reporte') }}?programa=${encodeURIComponent(filtroPrograma.value)}&lugar_de_encuentro_del_programa=${encodeURIComponent(filtroLugar.value)}&grado_p=${encodeURIComponent(filtroGrado.value)}&fecha_inicio=${encodeURIComponent(filtroFechaInicio.value)}`;
+            const reporteUrl = `{{ route('asistencia.reporte') }}?programa=${encodeURIComponent(filtroPrograma.value)}&lugar_de_encuentro_del_programa=${encodeURIComponent(filtroLugar.value)}&grado_p=${encodeURIComponent(filtroGrado.value)}&fecha=${encodeURIComponent(filtroFecha.value)}&tipo_asistencia=${encodeURIComponent(filtroTipoAsistencia.value)}`;
             linkGenerarReporte.href = reporteUrl;
         } else {
             reportButtonContainer.classList.add('hidden');
@@ -130,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function populateSelect(selectElement, options, selectedValue = "", placeholder = "Seleccione...") {
-        selectElement.innerHTML = `<option value="">${placeholder}</option>`; // Limpiar y añadir placeholder
+        selectElement.innerHTML = `<option value="">${placeholder}</option>`;
         options.forEach(optionValue => {
             const option = document.createElement('option');
             option.value = optionValue;
@@ -140,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             selectElement.appendChild(option);
         });
-        selectElement.disabled = options.length === 0;
+        selectElement.disabled = options.length === 0 && !selectedValue; // Mantener habilitado si hay un valor seleccionado
+         if (options.length === 0 && !selectedValue){
+             selectElement.innerHTML = `<option value="">No hay opciones disponibles</option>`;
+         }
     }
 
     filtroPrograma.addEventListener('change', function () {
@@ -156,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     populateSelect(filtroLugar, data, '{{ $selectedLugar ?? '' }}', 'Seleccione Lugar...');
-                    // Si había un lugar seleccionado previamente y existe en las nuevas opciones, disparar change
                     if (filtroLugar.value) filtroLugar.dispatchEvent(new Event('change')); 
                 })
                 .catch(error => {
@@ -181,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     populateSelect(filtroGrado, data, '{{ $selectedGrado ?? '' }}', 'Seleccione Grado...');
+                     checkFiltersAndEnableButton(); // Volver a chequear por si este era el último filtro
                 })
                 .catch(error => {
                     console.error('Error cargando grados:', error);
@@ -192,16 +212,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     filtroGrado.addEventListener('change', checkFiltersAndEnableButton);
-    filtroFechaInicio.addEventListener('change', checkFiltersAndEnableButton);
+    filtroFecha.addEventListener('change', checkFiltersAndEnableButton);
+    filtroTipoAsistencia.addEventListener('change', function() {
+        updateFechaLabel();
+        checkFiltersAndEnableButton();
+    });
 
-    // Cargar participantes con AJAX
     btnCargarParticipantes.addEventListener('click', function () {
         const programa = filtroPrograma.value;
         const lugar = filtroLugar.value;
         const grado = filtroGrado.value;
-        const fechaInicio = filtroFechaInicio.value;
+        const fecha = filtroFecha.value;
+        const tipoAsistencia = filtroTipoAsistencia.value;
 
-        if (!programa || !lugar || !grado || !fechaInicio) {
+        if (!programa || !lugar || !grado || !fecha || !tipoAsistencia) {
             showGlobalFeedback('Por favor, complete todos los filtros.', 'error');
             return;
         }
@@ -211,7 +235,14 @@ document.addEventListener('DOMContentLoaded', function () {
         tablaAsistenciaContainer.innerHTML = '<div class="text-center py-10"><p class="text-gray-500">Cargando participantes...</p></div>';
         globalFeedback.innerHTML = '';
 
-        const params = new URLSearchParams({ programa, lugar_de_encuentro_del_programa: lugar, grado_p: grado, fecha_inicio: fechaInicio });
+        const params = new URLSearchParams({ 
+            programa, 
+            lugar_de_encuentro_del_programa: lugar, 
+            grado_p: grado, 
+            fecha: fecha, // Cambiado de fecha_inicio a fecha
+            tipo_asistencia: tipoAsistencia
+        });
+
         fetch(`{{ route('asistencia.opciones.participantes') }}?${params.toString()}`)
             .then(response => {
                 if (!response.ok) {
@@ -222,10 +253,12 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.html) {
                     tablaAsistenciaContainer.innerHTML = data.html;
-                    initializeAsistenciaSelects(); // Re-inicializar listeners para los nuevos selects
+                    initializeAsistenciaSelects();
                 } else if (data.error) {
                      showGlobalFeedback(data.error, 'error');
                      tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-red-500">${data.error}</div>`;
+                } else {
+                    tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No se encontraron participantes con los filtros seleccionados.</div>`;
                 }
             })
             .catch(error => {
@@ -235,8 +268,8 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .finally(() => {
                 spinnerCargar.classList.add('hidden');
-                this.disabled = false;
-                checkFiltersAndEnableButton(); // Actualizar estado del botón de reporte
+                this.disabled = false; // Re-habilitar el botón
+                checkFiltersAndEnableButton();
             });
     });
 
@@ -251,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!feedbackEl) return;
 
         feedbackEl.textContent = message;
-        feedbackEl.className = 'save-feedback ml-2 text-xs'; // Reset classes
+        feedbackEl.className = 'save-feedback ml-2 text-xs';
         if (type === 'success') {
             feedbackEl.classList.add('text-green-600');
         } else {
@@ -259,9 +292,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         feedbackEl.classList.remove('hidden');
         
-        // Efecto visual en la fila
         const originalBg = row.style.backgroundColor;
-        row.style.backgroundColor = type === 'success' ? '#D1FAE5' : '#FEE2E2'; // Tailwind green-100 or red-100
+        row.style.backgroundColor = type === 'success' ? '#D1FAE5' : '#FEE2E2';
 
         setTimeout(() => {
             feedbackEl.classList.add('hidden');
@@ -270,7 +302,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 
-    // Guardado de asistencia individual y actualización de totales
     function initializeAsistenciaSelects() {
         document.querySelectorAll('.asistencia-select').forEach(select => {
             select.addEventListener('change', function () {
@@ -279,7 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const estado = this.value;
                 const row = this.closest('tr');
 
-                // Guardar asistencia vía AJAX
                 fetch('{{ route('asistencia.storeIndividual') }}', {
                     method: 'POST',
                     headers: {
@@ -299,62 +329,76 @@ document.addEventListener('DOMContentLoaded', function () {
                         showRowFeedback(row, 'Guardado!', 'success');
                     } else {
                         showRowFeedback(row, data.message || 'Error', 'error');
-                        // Opcional: revertir el select al valor anterior si falla el guardado
-                        // this.value = valorAnterior; (necesitarías guardar el valor anterior)
                     }
                 })
                 .catch(error => {
                     console.error('Error guardando asistencia:', error);
                     showRowFeedback(row, 'Error red', 'error');
                 });
-
-                // Actualizar totales en la fila (cliente)
                 updateTotalsForParticipant(participanteId);
             });
         });
-        // Calcular totales iniciales para la tabla recién cargada
         document.querySelectorAll('.total-asistido').forEach(el => {
-            updateTotalsForParticipant(el.dataset.participanteId);
+            if(el.dataset.participanteId) { // Asegurarse que el dataset exista
+                 updateTotalsForParticipant(el.dataset.participanteId);
+            }
         });
     }
     
     function updateTotalsForParticipant(participanteId) {
-        const selectsInRow = document.querySelectorAll(`#fila-participante-${participanteId} .asistencia-select`);
+        const fila = document.querySelector(`#fila-participante-${participanteId}`);
+        if (!fila) return; // Si la fila no existe (ej. después de un filtro que la elimina)
+
+        const selectsInRow = fila.querySelectorAll(`.asistencia-select`);
         let presentes = 0;
         selectsInRow.forEach(sel => {
             if (sel.value === 'Presente') {
                 presentes++;
             }
         });
-        const totalDias = selectsInRow.length;
-        const porcentaje = totalDias > 0 ? Math.round((presentes / totalDias) * 100) : 0;
+        const totalDiasProgramados = selectsInRow.length; // Días visibles en la tabla para este participante
+        const porcentaje = totalDiasProgramados > 0 ? Math.round((presentes / totalDiasProgramados) * 100) : 0;
 
-        const totalEl = document.querySelector(`#fila-participante-${participanteId} .total-asistido`);
-        const porcentajeEl = document.querySelector(`#fila-participante-${participanteId} .porcentaje-asistencia`);
+        const totalEl = fila.querySelector(`.total-asistido`);
+        const porcentajeEl = fila.querySelector(`.porcentaje-asistencia`);
         if(totalEl) totalEl.textContent = presentes;
         if(porcentajeEl) porcentajeEl.textContent = `${porcentaje}%`;
     }
 
-    // Inicializar filtros y listeners si hay datos iniciales
+    // Inicializaciones al cargar la página
+    updateFechaLabel(); // Ajustar etiqueta de fecha según el tipo de asistencia seleccionado
     if (filtroPrograma.value) {
-        filtroPrograma.dispatchEvent(new Event('change')); // Para cargar lugares si hay programa seleccionado
+         // Si hay un programa seleccionado, disparamos el evento change para cargar lugares y grados si aplica
+        if ('{{ $selectedLugar }}' && '{{ $selectedGrado }}') {
+             // Si todos los filtros principales están, no disparamos change para evitar recargas innecesarias
+             // pero sí chequeamos el botón.
+        } else if ('{{ $selectedLugar }}') {
+            filtroPrograma.dispatchEvent(new Event('change')); // Carga grados
+        } else {
+            filtroPrograma.dispatchEvent(new Event('change')); // Carga lugares
+        }
     }
-    checkFiltersAndEnableButton(); // Estado inicial del botón de cargar y reporte
-    initializeAsistenciaSelects(); // Para la tabla cargada inicialmente (si la hay)
+    checkFiltersAndEnableButton();
+    initializeAsistenciaSelects();
+    
+    // Si hay filtros preseleccionados y la tabla se carga inicialmente, asegurar que los totales se calculen
+    if (document.querySelectorAll('.asistencia-select').length > 0) {
+        const participanteIds = new Set();
+        document.querySelectorAll('.asistencia-select').forEach(sel => participanteIds.add(sel.dataset.participanteId));
+        participanteIds.forEach(id => updateTotalsForParticipant(id));
+    }
 
 });
 </script>
 <style>
     .text-xxs { font-size: 0.65rem; line-height: 0.85rem; }
-    /* Estilo para la columna fija de nombres */
     .sticky.left-0 {
-        position: -webkit-sticky; /* Para Safari */
+        position: -webkit-sticky;
         position: sticky;
         left: 0;
-        z-index: 10; /* Asegurar que esté por encima de otras celdas */
+        z-index: 10; 
     }
-    /* Para que el fondo del thead también se superponga correctamente */
-     thead th.sticky.left-0 {
+    thead th.sticky.left-0 {
         z-index: 20 !important;
     }
 </style>
