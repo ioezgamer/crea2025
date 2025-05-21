@@ -3,56 +3,86 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participante;
-use Illuminate\Http\Request; // No se usa directamente aquí, pero puede ser útil para futuras expansiones
+use App\Models\User; // Asegúrate de que el modelo User exista y esté en la ruta correcta
+use Illuminate\Http\Request; 
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB; // Para consultas directas a la BD si son necesarias
 
 class DashboardController extends Controller
 {
     public function index(): View
     {
+        // --- Estadísticas de Participantes (código existente) ---
         $totalParticipants = Participante::count();
 
-        // --- Datos para el gráfico de Participantes por Programa ---
-        // Si el campo 'programa' en la BD es un CSV (ej: "Exito Academico,Biblioteca")
-        // necesitamos contar cada programa individualmente.
         $allProgramEntries = Participante::whereNotNull('programa')
                                 ->where('programa', '!=', '')
-                                ->pluck('programa'); // Obtiene todas las cadenas CSV del campo 'programa'
+                                ->pluck('programa');
 
         $programCounts = [];
         foreach ($allProgramEntries as $programCsv) {
-            $individualPrograms = explode(',', $programCsv); // Divide la cadena CSV en programas individuales
+            $individualPrograms = explode(',', $programCsv);
             foreach ($individualPrograms as $prog) {
-                $trimmedProg = trim($prog); // Limpia espacios
+                $trimmedProg = trim($prog);
                 if (!empty($trimmedProg)) {
                     if (!isset($programCounts[$trimmedProg])) {
                         $programCounts[$trimmedProg] = 0;
                     }
-                    $programCounts[$trimmedProg]++; // Incrementa el contador para ese programa
+                    $programCounts[$trimmedProg]++;
                 }
             }
         }
-        // Opcional: ordenar los programas por conteo (descendente) o alfabéticamente
-        // arsort($programCounts); // Por conteo descendente
-        // ksort($programCounts); // Alfabéticamente por nombre de programa
+        ksort($programCounts); 
 
-        // --- Datos para el gráfico de Participantes por Lugar de Encuentro ---
-        // Este ya debería funcionar bien si 'lugar_de_encuentro_del_programa' es un valor único por registro.
         $participantsByPlace = Participante::groupBy('lugar_de_encuentro_del_programa')
             ->selectRaw('lugar_de_encuentro_del_programa, count(*) as count')
-            ->whereNotNull('lugar_de_encuentro_del_programa') // Excluir nulos si no son relevantes
-            ->where('lugar_de_encuentro_del_programa', '!=', '') // Excluir vacíos
+            ->whereNotNull('lugar_de_encuentro_del_programa')
+            ->where('lugar_de_encuentro_del_programa', '!=', '')
             ->pluck('count', 'lugar_de_encuentro_del_programa')
             ->toArray();
-        // ksort($participantsByPlace); // Opcional: ordenar alfabéticamente por lugar
+        ksort($participantsByPlace);
+
+        // --- Nuevas Estadísticas de Usuarios ---
+        $totalUsers = User::count();
+        $approvedUsers = User::approved()->count(); // Usando el scope del modelo User
+        $pendingUsers = User::pendingApproval()->count(); // Usando el scope del modelo User
+
+        // Usuarios por rol
+        $usersByRole = User::select('role', DB::raw('count(*) as count'))
+                            ->groupBy('role')
+                            ->pluck('count', 'role');
+
+        // Asignar conteos por roles específicos que manejes (ej. admin, editor, gestor, user)
+        // Los roles deben coincidir con los definidos en tu sistema (ej. RoleController)
+        $adminUsers = $usersByRole->get('admin', 0);
+        $editorUsers = $usersByRole->get('editor', 0); 
+        $gestorUsers = $usersByRole->get('gestor', 0);
+        $standardUsers = $usersByRole->get('user', 0); // 'user' es un rol común
+
+        // Total de Tutores (si los tutores son un tipo de User o se cuentan desde Participante)
+        // Si los tutores son usuarios con un rol específico 'tutor':
+        // $tutorsCount = $usersByRole->get('tutor', 0); 
+        // O si se cuentan desde el modelo Participante (como en tu AppServiceProvider):
+        $tutorsCountFromParticipants = Participante::distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
+
 
         return view('dashboard', [
+            // Datos de Participantes
             'totalParticipants' => $totalParticipants,
-            'participantsByProgramData' => $programCounts, // Datos para el gráfico de programas
-            'participantsByPlaceData' => $participantsByPlace, // Datos para el gráfico de lugares
-            // También puedes pasar los arrays originales si los usas en tablas además de los gráficos
-            'participantsByProgramForTable' => $programCounts, // O la versión agrupada directa si la prefieres para la tabla
+            'participantsByProgramData' => $programCounts,
+            'participantsByPlaceData' => $participantsByPlace,
+            'participantsByProgramForTable' => $programCounts,
             'participantsByPlaceForTable' => $participantsByPlace,
+
+            // Nuevos Datos de Usuarios
+            'totalUsers' => $totalUsers,
+            'approvedUsers' => $approvedUsers,
+            'pendingUsers' => $pendingUsers,
+            'adminUsers' => $adminUsers,
+            'editorUsers' => $editorUsers,
+            'gestorUsers' => $gestorUsers,
+            'standardUsers' => $standardUsers,
+            'tutorsCount' => $tutorsCountFromParticipants, // Usando el conteo desde Participantes
         ]);
     }
 }

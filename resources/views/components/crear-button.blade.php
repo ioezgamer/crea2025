@@ -1,11 +1,20 @@
 <button {{ $attributes->merge([
     'type' => 'submit',
-    'class' => 'inline-flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-full shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-700 transform focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
+    'class' => 'group inline-flex items-center justify-center text-blue-700 w-12 h-12 bg-white rounded-full shadow-md transition-all duration-300 transform hover:rotate-90 focus:outline-none stroke-zinc-900 fill-none hover:fill-zinc-800 active:stroke-zinc-200 active:fill-zinc-600'
 ]) }}>
-    <!-- Ícono Heroicon "plus" -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-12 h-12  group-active:stroke-zinc-200 group-active:fill-zinc-600 transition-all duration-300 group-active:duration-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+    >
+        <path
+            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+        />
+        <path d="M8 12H16" />
+        <path d="M12 16V8" />
     </svg>
-    <span>{{ $slot }}</span>
+    <span class="sr-only">{{ $slot }}</span>
 </button>

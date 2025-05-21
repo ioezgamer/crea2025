@@ -7,12 +7,16 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EstadisticasProgramaController;
 use App\Http\Controllers\EstadisticasTutorController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
+// Nueva ruta para la página de inicio general después del login
+Route::middleware(['auth', 'verified'])->group(function () { // 'verified' es opcional si usas verificación de email
+    Route::get('/home', [HomeController::class, 'index'])->name('home'); // <-- NUEVA RUTA
+});
 // Grupo principal de rutas que requieren autenticación y, en este caso, el permiso 'can:manage-roles'
 // Si algunas rutas de tutores no necesitan 'can:manage-roles', considera un grupo anidado o moverlas.
 Route::middleware(['auth', 'can:manage-roles'])->group(function () { // Asumiendo que todas estas rutas requieren 'can:manage-roles'

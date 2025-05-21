@@ -16,15 +16,34 @@
             </div>
             <div class="flex items-center space-x-2">
                 <a href="{{ route('participantes.import.form') }}" title="Importar Participantes"
-                   class="group inline-flex items-center px-2 py-2 bg-indigo-600 border border-transparent rounded-full  text-xs text-white tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150">
-                    <svg class="w-8 h-8 group-hover:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <span class="hidden group-hover:inline">Importar</span>
+                    class="group relative inline-flex items-center uppercase justify-center w-14 h-14 bg-indigo-700 border-4 border-white shadow-lg rounded-full text-white text-xs tracking-widest transition-all duration-300 overflow-hidden hover:w-36 hover:rounded-[50px] active:scale-90 focus:outline-none">
+                        
+                        <svg class="w-3 fill-white delay-50 duration-300 ease-in group-hover:-translate-y-12"
+                            viewBox="0 0 384 512">
+                            <path
+                                d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z">
+                            </path>
+                        </svg>
+
+                        <span class="absolute text-white whitespace-nowrap scale-0 group-hover:scale-100 transition-all duration-200">
+                            Importar
+                        </span>
                 </a>
                 <a href="{{ route('participantes.export', request()->query()) }}" title="Exportar Participantes Filtrados"
-                   class="group inline-flex items-center px-2 py-2 bg-green-600 border border-transparent rounded-full  text-xs text-white tracking-widest  hover:bg-green-500 active:bg-green-700 focus:outline-none focus:border-green-700 focus:ring ring-green-300 disabled:opacity-25 transition ease-in-out duration-150">
-                    <svg class="w-8 h-8 group-hover:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span class="hidden group-hover:inline">Exportar</span>
+                    class="group/exportar inline-flex items-center justify-center w-14 h-14 bg-green-600 border-4 border-white shadow-lg rounded-full text-white text-xs tracking-widest transition-all duration-300 overflow-hidden hover:w-36 hover:rounded-[50px] active:scale-90 focus:outline-none">
+
+                        <!-- Ícono animado -->
+                        <svg class="w-8 h-8 delay-400 duration-300 ease-in group-hover/exportar:translate-y-12 group-hover/exportar:opacity-0 absolute"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
+                            </path>
+                        </svg>
+
+                        <!-- Texto que aparece al hacer hover -->
+                        <span class="text-white whitespace-nowrap scale-0 group-hover/exportar:scale-100 transition-all duration-200">Exportar</span>
                 </a>
+
                 <x-crear-button onclick="window.location.href='{{ route('participante.create') }}'">
                 </x-crear-button>
             </div>

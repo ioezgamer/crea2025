@@ -4,7 +4,7 @@
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-14">
             <div class="flex items-center">
-                <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center">
+                <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center">
                     {{-- <img class="h-8 w-auto" src="/path/to/your/logo.svg" alt="Logo de la Aplicación"> --}}
                     <span class="font-bold text-lg ml-2 text-indigo-400 hover:text-indigo-300 transition-colors">SistemaCREA</span>
                 </a>
