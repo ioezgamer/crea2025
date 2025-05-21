@@ -1,17 +1,38 @@
-@props(['active', 'count' => null])
+@props(['active' => false, 'count' => null])
 
 @php
-$classes = ($active ?? false)
-            ? 'flex items-center space-x-1 text-white bg-indigo-600 bg-opacity-75 rounded-full px-2 py-1 font-medium '
-            : 'flex items-center space-x-1 text-gray-300 hover:bg-gray-700 hover:text-white rounded-full px-2 py-1 transition-colors duration-200';
+// Define the base classes shared by both active and inactive states
+$baseClasses = 'group flex items-center px-3 py-2 rounded-2xl text-sm transition-colors duration-150 ease-in-out';
+
+// Define classes for the inactive state
+$inactiveClasses = 'text-slate-600 hover:bg-indigo-100 hover:text-indigo-700';
+
+// Define classes for the active state
+$activeClasses = 'bg-indigo-100 text-indigo-700 font-semibold';
+
+// Combine base classes with state-specific classes
+$classes = $baseClasses . ' ' . (($active ?? false) ? $activeClasses : $inactiveClasses);
+
+// Define classes for the count badge
+$countBaseClasses = 'text-xs  px-1.5 py-0.5 rounded-full ml-auto transition-opacity duration-150 ease-in-out';
+$countActiveClasses = 'bg-indigo-600 text-white';
+$countInactiveClasses = 'bg-indigo-500 text-white group-hover:bg-indigo-600';
+$countClasses = $countBaseClasses . ' ' . (($active ?? false) ? $countActiveClasses : $countInactiveClasses);
+
 @endphp
 
 <a {{ $attributes->merge(['class' => $classes]) }}>
-    <div class="flex items-center space-x-1">
-        {{ $slot }}
-    </div>
-    @if($count !== null)
-        <span class="ml-2 bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+    {{-- The slot will contain the icon and the text span --}}
+    {{-- Example structure expected within the slot:
+        <div class="flex items-center space-x-1.5">
+            <svg class="h-5 w-5" ...></svg>
+            <span>Link Text</span>
+        </div>
+    --}}
+    {{ $slot }}
+
+    @if($count !== null && $count > 0)
+        <span class="{{ $countClasses }}">
             {{ $count }}
         </span>
     @endif

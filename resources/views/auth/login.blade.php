@@ -1,7 +1,7 @@
 {{-- Assuming this is a Blade component, x-guest-layout provides the basic page structure --}}
 <x-guest-layout>
     {{-- Centering container for the login card, applying the gradient background --}}
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 p-4 sm:p-6 lg:p-8 antialiased">
+    <div class="flex flex-col items-center justify-center min-h-lg sm:p-6 lg:p-8 antialiased">
 
         {{-- Login Card with two-column layout for larger screens --}}
         <div class="flex bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden mx-auto max-w-sm lg:max-w-4xl w-full my-6 sm:my-8 transform transition-all duration-500 ease-in-out hover:shadow-3xl">

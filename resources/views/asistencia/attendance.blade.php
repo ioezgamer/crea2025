@@ -1,18 +1,28 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-gray-800">Registro de Asistencia Interactivo</h2>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <h2 class="font-semibold text-xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 leading-tight">
+                {{ __('Registro de Asistencia Interactivo') }}
+            </h2>
+            {{-- Assuming x-boton-regresar can be styled or is already consistent.
+                 If it's a simple link, it might look like this:
+            <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-slate-200 border border-transparent rounded-xl font-semibold text-xs text-slate-700 uppercase tracking-widest hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm hover:shadow-md">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Regresar
+            </a>
+            --}}
             <x-boton-regresar onclick="window.location.href='{{ route('dashboard') }}'" />
         </div>
     </x-slot>
 
-    <div class="py-8 bg-gray-50 min-h-screen">
+    <div class="py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 min-h-screen">
         <div class="max-w-full mx-auto px-2 sm:px-4 lg:px-6">
-            <div class="bg-white shadow-sm rounded-lg p-4 mb-6">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {{-- Filter Section Card --}}
+            <div class="bg-white/70 backdrop-blur-lg shadow-xl rounded-2xl p-4 sm:p-6 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                     <div>
-                        <label for="filtro_programa" class="block text-xs font-medium text-gray-700">Programa <span class="text-red-500">*</span></label>
-                        <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="filtro_programa" class="block text-xs font-medium text-slate-700 mb-1">Programa <span class="text-red-500">*</span></label>
+                        <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
                             <option value="">Seleccione Programa...</option>
                             @foreach ($programOptions as $prog)
                                 <option value="{{ $prog }}" {{ $selectedPrograma == $prog ? 'selected' : '' }}>{{ $prog }}</option>
@@ -20,38 +30,38 @@
                         </select>
                     </div>
                     <div>
-                        <label for="filtro_lugar" class="block text-xs font-medium text-gray-700">Lugar <span class="text-red-500">*</span></label>
-                        <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
+                        <label for="filtro_lugar" class="block text-xs font-medium text-slate-700 mb-1">Lugar <span class="text-red-500">*</span></label>
+                        <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
                             <option value="">Seleccione Lugar...</option>
-                            @foreach ($lugarOptions as $lugar)
+                            @foreach ($lugarOptions as $lugar) {{-- Populated by JS --}}
                                 <option value="{{ $lugar }}" {{ $selectedLugar == $lugar ? 'selected' : '' }}>{{ $lugar }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="filtro_grado" class="block text-xs font-medium text-gray-700">Grado <span class="text-red-500">*</span></label>
-                        <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500" disabled>
+                        <label for="filtro_grado" class="block text-xs font-medium text-slate-700 mb-1">Grado <span class="text-red-500">*</span></label>
+                        <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
                             <option value="">Seleccione Grado...</option>
-                             @foreach ($gradoOptions as $grado)
+                             @foreach ($gradoOptions as $grado) {{-- Populated by JS --}}
                                 <option value="{{ $grado }}" {{ $selectedGrado == $grado ? 'selected' : '' }}>{{ $grado }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="filtro_tipo_asistencia" class="block text-xs font-medium text-gray-700">Tipo Asistencia <span class="text-red-500">*</span></label>
-                        <select name="tipo_asistencia" id="filtro_tipo_asistencia" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="filtro_tipo_asistencia" class="block text-xs font-medium text-slate-700 mb-1">Tipo Asistencia <span class="text-red-500">*</span></label>
+                        <select name="tipo_asistencia" id="filtro_tipo_asistencia" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
                             <option value="semanal" {{ ($selectedTipoAsistencia ?? 'semanal') == 'semanal' ? 'selected' : '' }}>Semanal</option>
                             <option value="diaria" {{ ($selectedTipoAsistencia ?? 'semanal') == 'diaria' ? 'selected' : '' }}>Diaria</option>
                         </select>
                     </div>
                     <div>
-                        <label for="filtro_fecha" class="block text-xs font-medium text-gray-700"><span id="label_fecha">Semana (Lunes)</span> <span class="text-red-500">*</span></label>
-                        <input type="date" name="fecha" id="filtro_fecha" value="{{ $fechaInput ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="filtro_fecha" class="block text-xs font-medium text-slate-700 mb-1"><span id="label_fecha">Semana (Lunes)</span> <span class="text-red-500">*</span></label>
+                        <input type="date" name="fecha" id="filtro_fecha" value="{{ $fechaInput ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2 placeholder-slate-400">
                     </div>
                 </div>
-                <div class="mt-3 text-right">
-                    <button type="button" id="btn_cargar_participantes" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
-                        <svg id="spinner_cargar" class="animate-spin -ml-0.5 mr-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div class="mt-4 text-right">
+                    <button type="button" id="btn_cargar_participantes" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <svg id="spinner_cargar" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -60,28 +70,31 @@
                 </div>
             </div>
 
+            {{-- Feedback Messages Area --}}
             <div id="global_feedback_messages" class="mb-4"></div>
             @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 mb-4 rounded-md text-xs">
-                    <p class="font-bold">Por favor corrige los siguientes errores:</p>
-                    <ul class="list-disc ml-5 mt-1">
+                <div class="bg-red-50/70 backdrop-blur-md border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl shadow-md text-xs">
+                    <p class="font-semibold text-red-800">Por favor corrige los siguientes errores:</p>
+                    <ul class="list-disc ml-5 mt-1 space-y-0.5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
             @endif
-             @if (session('success'))
-                <div class="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 mb-6 rounded-md text-xs">
+            @if (session('success'))
+                <div class="bg-green-50/70 backdrop-blur-md border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl shadow-md text-xs">
                     {{ session('success') }}
                 </div>
             @endif
 
+            {{-- Attendance Table Container --}}
             <div id="tabla_asistencia_container">
-                 @if ($participantes->isNotEmpty())
+                @if ($participantes->isNotEmpty())
+                    {{-- Ensure the partial is styled for the light theme --}}
                     @include('asistencia.partials.tabla_asistencia', [
                         'participantes' => $participantes,
-                        'diasSemana' => $diasSemana, // Esta variable contendrá los días correctos (1 o 5)
+                        'diasSemana' => $diasSemana,
                         'asistencias' => $asistencias,
                         'selectedPrograma' => $selectedPrograma,
                         'fechaInput' => $fechaInput,
@@ -90,15 +103,21 @@
                         'selectedTipoAsistencia' => $selectedTipoAsistencia ?? 'semanal'
                     ])
                 @else
-                    <div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">
-                        Seleccione todos los filtros (Programa, Lugar, Grado, Tipo Asistencia y Fecha) y presione "Cargar Participantes".
+                    <div class="mt-6 bg-white/70 backdrop-blur-lg shadow-lg rounded-2xl p-8 text-center">
+                        <svg class="mx-auto h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                        <p class="text-sm text-slate-600">
+                            Seleccione todos los filtros (Programa, Lugar, Grado, Tipo Asistencia y Fecha) y presione "Cargar Participantes" para mostrar la tabla de asistencia.
+                        </p>
                     </div>
                 @endif
             </div>
             
-            <div id="report_button_container" class="mt-6 text-center {{ !$selectedPrograma ? 'hidden' : '' }}">
-                 <a href="#" id="link_generar_reporte" class="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            {{-- Generate Report Button Container --}}
+            <div id="report_button_container" class="mt-6 text-center {{ !$selectedPrograma || $participantes->isEmpty() ? 'hidden' : '' }}">
+                 <a href="#" id="link_generar_reporte" class="inline-flex items-center justify-center py-2.5 px-6 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-xl font-semibold text-sm text-white shadow-md hover:shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition ease-in-out duration-150">
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Generar Reporte de Asistencia
                 </a>
             </div>
@@ -120,6 +139,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const reportButtonContainer = document.getElementById('report_button_container');
     const linkGenerarReporte = document.getElementById('link_generar_reporte');
 
+    const initialSelectedPrograma = "{{ $selectedPrograma ?? '' }}";
+    const initialSelectedLugar = "{{ $selectedLugar ?? '' }}";
+    const initialSelectedGrado = "{{ $selectedGrado ?? '' }}";
+
     function updateFechaLabel() {
         if (filtroTipoAsistencia.value === 'diaria') {
             labelFecha.textContent = 'Fecha';
@@ -135,9 +158,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const fechaSelected = filtroFecha.value !== "";
         const tipoAsistenciaSelected = filtroTipoAsistencia.value !== "";
         
-        btnCargarParticipantes.disabled = !(programaSelected && lugarSelected && gradoSelected && fechaSelected && tipoAsistenciaSelected);
+        const allFiltersSelected = programaSelected && lugarSelected && gradoSelected && fechaSelected && tipoAsistenciaSelected;
+        btnCargarParticipantes.disabled = !allFiltersSelected;
         
-        if (programaSelected && lugarSelected && gradoSelected && fechaSelected && tipoAsistenciaSelected) {
+        if (allFiltersSelected && tablaAsistenciaContainer.querySelector('table')) { // Show report button only if table is loaded
             reportButtonContainer.classList.remove('hidden');
             const reporteUrl = `{{ route('asistencia.reporte') }}?programa=${encodeURIComponent(filtroPrograma.value)}&lugar_de_encuentro_del_programa=${encodeURIComponent(filtroLugar.value)}&grado_p=${encodeURIComponent(filtroGrado.value)}&fecha=${encodeURIComponent(filtroFecha.value)}&tipo_asistencia=${encodeURIComponent(filtroTipoAsistencia.value)}`;
             linkGenerarReporte.href = reporteUrl;
@@ -148,67 +172,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function populateSelect(selectElement, options, selectedValue = "", placeholder = "Seleccione...") {
         selectElement.innerHTML = `<option value="">${placeholder}</option>`;
-        options.forEach(optionValue => {
-            const option = document.createElement('option');
-            option.value = optionValue;
-            option.textContent = optionValue;
-            if (optionValue === selectedValue) {
-                option.selected = true;
+        if (Array.isArray(options) && options.length > 0) {
+            options.forEach(optionValue => {
+                const option = document.createElement('option');
+                option.value = optionValue;
+                option.textContent = optionValue;
+                if (optionValue === selectedValue) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            });
+            selectElement.disabled = false;
+        } else {
+             selectElement.innerHTML = `<option value="">${options.length === 0 && selectElement.id !== 'filtro_programa' ? 'No hay opciones' : placeholder}</option>`;
+            selectElement.disabled = true;
+        }
+    }
+    
+    async function fetchOptions(url, selectElement, dependantSelectElement = null, selectedValue = "", placeholder = "Seleccione...") {
+        selectElement.innerHTML = `<option value="">Cargando...</option>`;
+        selectElement.disabled = true;
+        if(dependantSelectElement) {
+            dependantSelectElement.innerHTML = `<option value="">${dependantSelectElement.id === 'filtro_lugar' ? 'Seleccione Programa' : 'Seleccione Lugar'}</option>`;
+            dependantSelectElement.disabled = true;
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+            const data = await response.json();
+            populateSelect(selectElement, data, selectedValue, placeholder);
+        } catch (error) {
+            console.error(`Error cargando opciones para ${selectElement.id}:`, error);
+            selectElement.innerHTML = `<option value="">Error al cargar</option>`;
+        } finally {
+            // Re-enable if it has options or a selected value, otherwise keep disabled if it's not the primary filter
+            selectElement.disabled = selectElement.options.length <= 1 && !selectElement.value && selectElement.id !== 'filtro_programa';
+             if(dependantSelectElement && selectElement.value){ // If current select got a value, trigger change for dependant
+                selectElement.dispatchEvent(new Event('change'));
             }
-            selectElement.appendChild(option);
-        });
-        selectElement.disabled = options.length === 0 && !selectedValue; // Mantener habilitado si hay un valor seleccionado
-         if (options.length === 0 && !selectedValue){
-             selectElement.innerHTML = `<option value="">No hay opciones disponibles</option>`;
-         }
+            checkFiltersAndEnableButton();
+        }
     }
 
     filtroPrograma.addEventListener('change', function () {
         const programa = this.value;
-        filtroLugar.innerHTML = '<option value="">Cargando lugares...</option>';
-        filtroLugar.disabled = true;
-        filtroGrado.innerHTML = '<option value="">Seleccione Lugar primero...</option>';
-        filtroGrado.disabled = true;
-        checkFiltersAndEnableButton();
-
-        if (programa) {
-            fetch(`{{ route('asistencia.opciones.lugares') }}?programa=${encodeURIComponent(programa)}`)
-                .then(response => response.json())
-                .then(data => {
-                    populateSelect(filtroLugar, data, '{{ $selectedLugar ?? '' }}', 'Seleccione Lugar...');
-                    if (filtroLugar.value) filtroLugar.dispatchEvent(new Event('change')); 
-                })
-                .catch(error => {
-                    console.error('Error cargando lugares:', error);
-                    filtroLugar.innerHTML = '<option value="">Error al cargar</option>';
-                });
-        } else {
-            populateSelect(filtroLugar, [], '', 'Seleccione Programa primero...');
-            populateSelect(filtroGrado, [], '', 'Seleccione Programa primero...');
-        }
+        fetchOptions(`{{ route('asistencia.opciones.lugares') }}?programa=${encodeURIComponent(programa)}`, filtroLugar, filtroGrado, initialSelectedLugar && this.value === initialSelectedPrograma ? initialSelectedLugar : "", 'Seleccione Lugar...');
     });
 
     filtroLugar.addEventListener('change', function () {
         const programa = filtroPrograma.value;
         const lugar = this.value;
-        filtroGrado.innerHTML = '<option value="">Cargando grados...</option>';
-        filtroGrado.disabled = true;
-        checkFiltersAndEnableButton();
-
-        if (programa && lugar) {
-            fetch(`{{ route('asistencia.opciones.grados') }}?programa=${encodeURIComponent(programa)}&lugar_de_encuentro_del_programa=${encodeURIComponent(lugar)}`)
-                .then(response => response.json())
-                .then(data => {
-                    populateSelect(filtroGrado, data, '{{ $selectedGrado ?? '' }}', 'Seleccione Grado...');
-                     checkFiltersAndEnableButton(); // Volver a chequear por si este era el último filtro
-                })
-                .catch(error => {
-                    console.error('Error cargando grados:', error);
-                    filtroGrado.innerHTML = '<option value="">Error al cargar</option>';
-                });
-        } else {
-             populateSelect(filtroGrado, [], '', 'Seleccione Lugar primero...');
-        }
+        fetchOptions(`{{ route('asistencia.opciones.grados') }}?programa=${encodeURIComponent(programa)}&lugar_de_encuentro_del_programa=${encodeURIComponent(lugar)}`, filtroGrado, null, initialSelectedGrado && this.value === initialSelectedLugar && filtroPrograma.value === initialSelectedPrograma ? initialSelectedGrado : "", 'Seleccione Grado...');
     });
     
     filtroGrado.addEventListener('change', checkFiltersAndEnableButton);
@@ -219,6 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     btnCargarParticipantes.addEventListener('click', function () {
+        // ... (rest of the click handler remains the same, ensure showGlobalFeedback is styled)
         const programa = filtroPrograma.value;
         const lugar = filtroLugar.value;
         const grado = filtroGrado.value;
@@ -232,14 +248,14 @@ document.addEventListener('DOMContentLoaded', function () {
         
         spinnerCargar.classList.remove('hidden');
         this.disabled = true;
-        tablaAsistenciaContainer.innerHTML = '<div class="text-center py-10"><p class="text-gray-500">Cargando participantes...</p></div>';
+        tablaAsistenciaContainer.innerHTML = '<div class="text-center py-10"><p class="text-slate-500">Cargando participantes...</p></div>';
         globalFeedback.innerHTML = '';
 
         const params = new URLSearchParams({ 
             programa, 
             lugar_de_encuentro_del_programa: lugar, 
             grado_p: grado, 
-            fecha: fecha, // Cambiado de fecha_inicio a fecha
+            fecha: fecha,
             tipo_asistencia: tipoAsistencia
         });
 
@@ -253,30 +269,50 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.html) {
                     tablaAsistenciaContainer.innerHTML = data.html;
-                    initializeAsistenciaSelects();
+                    initializeAsistenciaSelects(); // Re-initialize selects in the new table
                 } else if (data.error) {
-                     showGlobalFeedback(data.error, 'error');
-                     tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-red-500">${data.error}</div>`;
+                    showGlobalFeedback(data.error, 'error');
+                    tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white/70 backdrop-blur-lg shadow-lg rounded-2xl p-6 text-sm text-red-600">${data.error}</div>`;
                 } else {
-                    tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No se encontraron participantes con los filtros seleccionados.</div>`;
+                    tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white/70 backdrop-blur-lg shadow-lg rounded-2xl p-8 text-center"><svg class="mx-auto h-12 w-12 text-slate-400 mb-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg><p class="text-sm text-slate-600">No se encontraron participantes con los filtros seleccionados.</p></div>`;
                 }
             })
             .catch(error => {
                 console.error('Error al cargar participantes:', error);
                 showGlobalFeedback(`Error al cargar participantes: ${error.message}`, 'error');
-                tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-red-500">Error al cargar participantes. Intente de nuevo.</div>`;
+                tablaAsistenciaContainer.innerHTML = `<div class="mt-6 bg-white/70 backdrop-blur-lg shadow-lg rounded-2xl p-6 text-sm text-red-600">Error al cargar participantes. Intente de nuevo.</div>`;
             })
             .finally(() => {
                 spinnerCargar.classList.add('hidden');
-                this.disabled = false; // Re-habilitar el botón
+                this.disabled = false; 
                 checkFiltersAndEnableButton();
             });
     });
 
     function showGlobalFeedback(message, type = 'success') {
-        const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
-        globalFeedback.innerHTML = `<div class="${bgColor} border-l-4 p-3 rounded-md text-xs mb-3">${message}</div>`;
-        setTimeout(() => { globalFeedback.innerHTML = ''; }, 5000);
+        const toastId = 'toast-' + Date.now();
+        const toast = document.createElement('div');
+        let bgColor, textColor, borderColor, iconSvg;
+
+        if (type === 'success') {
+            bgColor = 'bg-green-50/80 backdrop-blur-md'; textColor = 'text-green-700'; borderColor = 'border-green-500';
+            iconSvg = `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`;
+        } else { // error
+            bgColor = 'bg-red-50/80 backdrop-blur-md'; textColor = 'text-red-700'; borderColor = 'border-red-500';
+            iconSvg = `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4a1 1 0 102 0V5zm-1 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`;
+        }
+        toast.className = `flex items-center p-4 rounded-xl shadow-lg border-l-4 ${bgColor} ${textColor} ${borderColor} text-sm font-medium mb-3 transition-all duration-500 ease-out transform translate-x-full opacity-0`;
+        toast.innerHTML = `${iconSvg}<span>${message}</span>`;
+        
+        globalFeedback.appendChild(toast);
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+        });
+        setTimeout(() => {
+            toast.classList.add('opacity-0');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        }, 5000);
     }
     
     function showRowFeedback(row, message, type = 'success') {
@@ -284,25 +320,25 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!feedbackEl) return;
 
         feedbackEl.textContent = message;
-        feedbackEl.className = 'save-feedback ml-2 text-xs';
+        feedbackEl.className = 'save-feedback ml-2 text-xs transition-opacity duration-300 ease-in-out'; // Base classes
         if (type === 'success') {
             feedbackEl.classList.add('text-green-600');
         } else {
             feedbackEl.classList.add('text-red-600');
         }
-        feedbackEl.classList.remove('hidden');
+        feedbackEl.classList.remove('opacity-0'); // Make visible
         
         const originalBg = row.style.backgroundColor;
-        row.style.backgroundColor = type === 'success' ? '#D1FAE5' : '#FEE2E2';
+        row.style.backgroundColor = type === 'success' ? 'rgba(209, 250, 229, 0.7)' : 'rgba(254, 226, 226, 0.7)'; // green-100/70 or red-100/70
 
         setTimeout(() => {
-            feedbackEl.classList.add('hidden');
-            feedbackEl.textContent = '';
+            feedbackEl.classList.add('opacity-0');
             row.style.backgroundColor = originalBg;
         }, 3000);
     }
 
     function initializeAsistenciaSelects() {
+        // ... (rest of the initializeAsistenciaSelects function remains the same)
         document.querySelectorAll('.asistencia-select').forEach(select => {
             select.addEventListener('change', function () {
                 const participanteId = this.dataset.participanteId;
@@ -339,15 +375,16 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
         document.querySelectorAll('.total-asistido').forEach(el => {
-            if(el.dataset.participanteId) { // Asegurarse que el dataset exista
-                 updateTotalsForParticipant(el.dataset.participanteId);
+            if(el.dataset.participanteId) { 
+                updateTotalsForParticipant(el.dataset.participanteId);
             }
         });
     }
     
     function updateTotalsForParticipant(participanteId) {
+        // ... (rest of the updateTotalsForParticipant function remains the same)
         const fila = document.querySelector(`#fila-participante-${participanteId}`);
-        if (!fila) return; // Si la fila no existe (ej. después de un filtro que la elimina)
+        if (!fila) return;
 
         const selectsInRow = fila.querySelectorAll(`.asistencia-select`);
         let presentes = 0;
@@ -356,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 presentes++;
             }
         });
-        const totalDiasProgramados = selectsInRow.length; // Días visibles en la tabla para este participante
+        const totalDiasProgramados = selectsInRow.length;
         const porcentaje = totalDiasProgramados > 0 ? Math.round((presentes / totalDiasProgramados) * 100) : 0;
 
         const totalEl = fila.querySelector(`.total-asistido`);
@@ -365,41 +402,36 @@ document.addEventListener('DOMContentLoaded', function () {
         if(porcentajeEl) porcentajeEl.textContent = `${porcentaje}%`;
     }
 
-    // Inicializaciones al cargar la página
-    updateFechaLabel(); // Ajustar etiqueta de fecha según el tipo de asistencia seleccionado
-    if (filtroPrograma.value) {
-         // Si hay un programa seleccionado, disparamos el evento change para cargar lugares y grados si aplica
-        if ('{{ $selectedLugar }}' && '{{ $selectedGrado }}') {
-             // Si todos los filtros principales están, no disparamos change para evitar recargas innecesarias
-             // pero sí chequeamos el botón.
-        } else if ('{{ $selectedLugar }}') {
-            filtroPrograma.dispatchEvent(new Event('change')); // Carga grados
-        } else {
-            filtroPrograma.dispatchEvent(new Event('change')); // Carga lugares
-        }
+    // Initializations
+    updateFechaLabel();
+    if (initialSelectedPrograma) {
+        fetchOptions(`{{ route('asistencia.opciones.lugares') }}?programa=${encodeURIComponent(initialSelectedPrograma)}`, filtroLugar, filtroGrado, initialSelectedLugar, 'Seleccione Lugar...');
+    } else {
+         populateSelect(filtroLugar, [], '', 'Seleccione Programa...');
+         populateSelect(filtroGrado, [], '', 'Seleccione Lugar...');
     }
-    checkFiltersAndEnableButton();
-    initializeAsistenciaSelects();
     
-    // Si hay filtros preseleccionados y la tabla se carga inicialmente, asegurar que los totales se calculen
-    if (document.querySelectorAll('.asistencia-select').length > 0) {
-        const participanteIds = new Set();
-        document.querySelectorAll('.asistencia-select').forEach(sel => participanteIds.add(sel.dataset.participanteId));
-        participanteIds.forEach(id => updateTotalsForParticipant(id));
+    checkFiltersAndEnableButton(); // Check button state on load
+    if (document.querySelectorAll('.asistencia-select').length > 0) { // If table loaded initially
+        initializeAsistenciaSelects();
     }
-
 });
 </script>
 <style>
     .text-xxs { font-size: 0.65rem; line-height: 0.85rem; }
     .sticky.left-0 {
-        position: -webkit-sticky;
+        position: -webkit-sticky; /* For Safari */
         position: sticky;
         left: 0;
         z-index: 10; 
     }
     thead th.sticky.left-0 {
-        z-index: 20 !important;
+        z-index: 20 !important; /* Ensure header is above body cells */
     }
+    /* Custom scrollbar for Webkit browsers */
+    .overflow-x-auto::-webkit-scrollbar { height: 8px; }
+    .overflow-x-auto::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    .overflow-x-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 </x-app-layout>

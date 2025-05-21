@@ -1,10 +1,10 @@
 {{-- Assuming this is a Blade component, x-guest-layout provides the basic page structure --}}
 <x-guest-layout>
     {{-- Centering container for the registration card --}}
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-sky-100 p-4 sm:p-6 lg:p-8 antialiased">
+    
 
         {{-- Registration Card --}}
-        <div class="w-full max-w-lg sm:max-w-xl p-6 sm:p-10 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl transform transition-all duration-500 ease-in-out hover:shadow-3xl my-6 sm:my-8">
+        <div class=" max-w-full min-h-9xl xl:max-w-full p-2 lg:p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl transform transition-all duration-300 ease-in hover:shadow-4xl my-6 lg:my-8">
             <div class="text-center">
                 {{-- Icono de Foco/Idea --}}
                 <div class="mx-auto mb-5 h-16 w-16 sm:h-20 sm:w-20 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-1 shadow-lg">
@@ -91,7 +91,7 @@
                 &copy; {{ date('Y') }} Sistema CREA. Todos los derechos reservados.
             </p>
         </footer>
-    </div>
+   
 </x-guest-layout>
 
 {{-- Ensure you have Tailwind CSS available in your project. 
