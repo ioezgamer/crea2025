@@ -54,10 +54,10 @@
         </div>
 
         <h2 class="text-xl sm:text-2xl font-semibold text-slate-700 mb-3 sm:mb-4 leading-tight text-balance">
-            Transforma tus Ideas en Realidad
+            Gestión de Participantes y Asistencias
         </h2>
         <p class="text-sm sm:text-base text-slate-500 mb-8 sm:mb-10 text-balance">
-            La plataforma integral para la gestión de proyectos, colaboración en equipo y desarrollo creativo. Organiza, innova y alcanza tus metas con CREA.
+            Sistema de Registro y Control de Asistencias para los Programas de CREA.
         </p>
 
         @if (Route::has('login'))
