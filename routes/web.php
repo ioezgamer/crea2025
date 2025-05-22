@@ -14,14 +14,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 // Nueva ruta para la página de inicio general después del login
-Route::middleware(['auth', 'verified'])->group(function () { // 'verified' es opcional si usas verificación de email
+Route::middleware(['auth'])->group(function () { // 'verified' es opcional si usas verificación de email
     Route::get('/home', [HomeController::class, 'index'])->name('home'); // <-- NUEVA RUTA
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/participante', [ParticipanteController::class, 'index'])->name('participante.index');
+    Route::get('/programas', [EstadisticasProgramaController::class, 'index'])->name('programas');
 });
 // Grupo principal de rutas que requieren autenticación y, en este caso, el permiso 'can:manage-roles'
 // Si algunas rutas de tutores no necesitan 'can:manage-roles', considera un grupo anidado o moverlas.
 Route::middleware(['auth', 'can:manage-roles'])->group(function () { // Asumiendo que todas estas rutas requieren 'can:manage-roles'
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/programas', [EstadisticasProgramaController::class, 'index'])->name('programas');
     
     // Rutas para Estadísticas de Tutores
     Route::get('/tutores', [EstadisticasTutorController::class, 'estadisticas'])->name('tutores');
@@ -29,9 +34,8 @@ Route::middleware(['auth', 'can:manage-roles'])->group(function () { // Asumiend
     // Nueva ruta para la funcionalidad AJAX de cargar lugares dinámicamente en la vista de estadísticas de tutores
     Route::get('/tutores/lugares-por-programa', [EstadisticasTutorController::class, 'fetchPlacesForTutorFilters'])->name('tutores.lugaresPorPrograma');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+   
 
     // --- GRUPO DE RUTAS PARA PARTICIPANTES ---
     // Estas rutas son para usuarios autenticados y verificados en general
@@ -39,7 +43,7 @@ Route::middleware(['auth', 'can:manage-roles'])->group(function () { // Asumiend
     // Si no, podrían estar en un grupo 'auth', 'verified' más general fuera de 'can:manage-roles'.
     Route::get('/participante/create', [ParticipanteController::class, 'create'])->name('participante.create');
     Route::post('/participante/store', [ParticipanteController::class, 'store'])->name('participante.store');
-    Route::get('/participante', [ParticipanteController::class, 'index'])->name('participante.index');
+    
     Route::get('/participante/lugares-por-programa', [ParticipanteController::class, 'getLugaresByPrograma'])->name('participante.lugaresPorPrograma');
     Route::get('/participante/por-grado/{grado}', [ParticipanteController::class, 'indexByGrade'])->name('participante.indexByGrade');
     Route::get('/participante/{participante}', [ParticipanteController::class, 'show'])->name('participante.show');
