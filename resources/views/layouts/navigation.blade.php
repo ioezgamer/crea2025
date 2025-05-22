@@ -1,23 +1,9 @@
-{{-- 
-    Notes on this updated navigation:
-    1. Theme: Light theme applied, removing dark mode classes.
-    2. Styling: Uses Tailwind CSS to match the "Sistema CREA" aesthetic (gradients, rounded elements, modern feel).
-    3. Logo: The "SistemaCREA" text is styled with a gradient. You can replace the text with an SVG logo if preferred.
-    4. Nav Links & Dropdown: Styled for the light theme with hover and active states.
-    5. Mobile Menu: Also styled for the light theme.
-    6. Fixed Position: The navbar remains fixed at the top.
-    7. Alpine.js: The `x-data`, `x-show`, `@click` attributes for Alpine.js functionality are preserved.
-    8. Blade Components: The structure using `x-nav-link`, `x-dropdown`, `x-responsive-nav-link` is maintained.
-       You'll need to ensure these components correctly render the passed classes or have their internal styles
-       updated if they were previously hardcoded for a dark theme. The classes provided here are intended to be
-       applied to the final HTML output of those components.
---}}
 
 <nav x-data="{ open: false }" 
-     class="bg-white/80 backdrop-blur-xl text-slate-700 fixed top-0 left-0 right-0 z-50 shadow-sm transition-all duration-300 ease-in-out"
+     class="bg-white/80 backdrop-blur-xl text-slate-700 fixed top-0 left-0 right-0 z-50 shadow-sm  transition-all duration-600 ease-in "
      aria-label="Navegación Principal">
     <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between  h-14 sm:h-22"> {{-- Increased height slightly for better spacing --}}
+        <div class="flex items-center justify-between h-16 sm:h-18"> {{-- Increased height slightly for better spacing --}}
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center group">
                     {{-- Optional: SVG Logo Icon --}}
