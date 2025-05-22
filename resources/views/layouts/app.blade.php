@@ -15,16 +15,16 @@
     @vite(['resources/css/app.css'])
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
+     <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
         @include('layouts.navigation')
 
        <!-- Page Heading -->
 @isset($header)
-<header class="bg-white shadow">
-    <div class="max-w-screen  mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center ">
-        {{ $header }}
-    </div>
-</header>
+    <header class="bg-transparent">
+        <div class="max-w-screen mx-auto p-2 sm:px-6 lg:px-8 text-center ">
+            {{ $header }}
+        </div>
+    </header>
 @endisset
 
         <!-- Page Content -->
@@ -33,7 +33,7 @@
         </main>
 
         {{-- Pie de Página --}}
-        <footer class="bg-white border-t border-gray-200 p-6 text-center text-gray-700 shadow-inner">
+        <footer class="  p-4 text-center text-gray-700 ">
             <p class="text-sm">© {{ date('Y') }} SistemaCREA. Todos los derechos reservados.</p>
         </footer>
     </div>
