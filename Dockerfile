@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV APP_ENV=production
 ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr # Consistent with your provided Dockerfile
+ENV LOG_CHANNEL=stderr
 
 # Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
@@ -50,26 +50,23 @@ RUN composer dump-autoload --optimize
 
 # Instalar dependencias frontend y compilar assets
 RUN npm install
-RUN npx vite build # Using npx vite build as per your latest Dockerfile example
+RUN npx vite build
 
 # Establecer permisos para Laravel
 RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chown -R www-data:www-data /app \
     && chmod -R 775 storage bootstrap/cache
 
-# Optimizar Laravel: Limpiar y cachear selectivamente para el build
-# Evitamos optimize:clear y cache:clear para el 'database' store durante el build
-# para prevenir intentos de conexión a la BD.
-RUN CACHE_DRIVER=array php artisan config:clear
-RUN CACHE_DRIVER=array php artisan route:clear
-RUN CACHE_DRIVER=array php artisan view:clear
-# RUN CACHE_DRIVER=array php artisan event:clear # Descomentar si usa descubrimiento de eventos
+# Limpiar cachés durante la construcción sin acceder a la base de datos
+RUN CACHE_STORE=array php artisan config:clear
+RUN CACHE_STORE=array php artisan route:clear
+RUN CACHE_STORE=array php artisan view:clear
+# RUN CACHE_STORE=array php artisan event:clear # Descomentar si usas descubrimiento de eventos
 
-# Cachear configuración, rutas y vistas (usando CACHE_DRIVER=array como precaución)
-RUN CACHE_DRIVER=array php artisan config:cache
-RUN CACHE_DRIVER=array php artisan route:cache
-RUN CACHE_DRIVER=array php artisan view:cache
-# RUN CACHE_DRIVER=array php artisan event:cache # Descomentar si usa descubrimiento de eventos y necesita cachearlo
+# Cachear configuración, rutas y vistas
+RUN CACHE_STORE=array php artisan config:cache
+RUN CACHE_STORE=array php artisan route:cache
+RUN CACHE_STORE=array php artisan view:cache
 
 # Copiar script de inicio y hacerlo ejecutable
 COPY start.sh /app/start.sh
