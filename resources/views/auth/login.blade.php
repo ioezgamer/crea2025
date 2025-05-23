@@ -10,7 +10,7 @@
             <div class="hidden lg:flex lg:items-center lg:justify-center lg:w-1/2 bg-cover bg-center"
                  style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80');">
                 {{-- Overlay content can be added here if desired --}}
-                <div class="p-12 text-center bg-black bg-opacity-40 rounded-xl">
+                <div class="p-12 text-center rounded-xl">
                     <h2 class="text-3xl font-bold text-white mb-3 text-balance">Bienvenido a CREA</h2>
                     <p class="text-slate-200 text-balance">Donde tus ideas toman forma y tus proyectos alcanzan el éxito.</p>
                 </div>
