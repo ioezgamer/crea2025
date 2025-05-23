@@ -17,13 +17,17 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libgd-dev \
     libonig-dev \
-    libpq-dev \ # For PostgreSQL, if you use it. Remove if not needed.
-    # libsqlite3-dev # For SQLite. If uncommented, add '\' if more packages follow in this apt-get block.
-    # default-mysql-client # For MySQL. If uncommented, add '\' if more packages follow in this apt-get block.
+    # For PostgreSQL, if you use it. Remove if not needed.
+    libpq-dev \
+    # For SQLite. If uncommented, ensure a '\' follows if more packages are listed after it.
+    # libsqlite3-dev \
+    # For MySQL. If uncommented, ensure a '\' follows if more packages are listed after it.
+    # default-mysql-client \
     unzip \
     zip \
     gnupg \
-    nginx \ # Install Nginx
+    # Install Nginx
+    nginx \
     && docker-php-ext-install pdo pdo_mysql zip gd mbstring bcmath exif pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -40,9 +44,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 WORKDIR /app
 
 # Copy Nginx configuration
-# We'll create this file next
+# This file (nginx.conf) should be in the same directory as your Dockerfile
 COPY nginx.conf /etc/nginx/sites-available/default
-# It's good practice to remove the default Nginx config if it exists
+# Ensure the default Nginx site is removed and our custom one is linked
 RUN rm -f /etc/nginx/sites-enabled/default && \
     ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
