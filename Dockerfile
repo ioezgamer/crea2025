@@ -71,7 +71,8 @@ RUN CACHE_DRIVER=array php artisan config:clear
 RUN CACHE_DRIVER=array php artisan route:clear
 RUN CACHE_DRIVER=array php artisan view:clear
 # RUN CACHE_DRIVER=array php artisan event:clear # Uncomment if you use event discovery and need to clear it
-RUN CACHE_DRIVER=array php artisan compiled:clear
+# The 'compiled:clear' command is removed as it might not be available or necessary in modern Laravel versions.
+# The other clear commands should suffice.
 
 # Explicitly clear cache.
 # Primary attempt: use CACHE_DRIVER=array.
