@@ -1,3 +1,5 @@
+# Dockerfile corregido para Laravel + Vite
+
 FROM php:8.2-fpm
 
 # Evitar preguntas interactivas
@@ -41,8 +43,10 @@ RUN composer clear-cache
 # Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader || cat storage/logs/laravel.log
 
-# Instalar y compilar assets
-RUN npm install --omit=dev
+# Instalar dependencias de frontend incluyendo Vite
+RUN npm install
+
+# Compilar assets con Vite
 RUN npx vite build
 
 # Establecer permisos
