@@ -42,8 +42,8 @@ RUN composer clear-cache
 RUN composer install --no-dev --optimize-autoloader || cat storage/logs/laravel.log
 
 # Instalar y compilar assets
-RUN npm install --production
-RUN npm run build
+RUN npm install
+RUN npx vite build
 
 # Establecer permisos
 RUN chmod -R 775 storage bootstrap/cache
