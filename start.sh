@@ -12,11 +12,14 @@ sed -i "s/LISTEN_PORT_PLACEHOLDER/$PORT/g" /etc/nginx/sites-available/default
 echo "Running Laravel migrations..."
 php artisan migrate --force
 
-# Start PHP-FPM
+echo "Listing tables in database 'railway'..."
+mysql -h mysql.railway.internal -P 3306 -u root -p"$DB_PASSWORD" -e "USE railway; SHOW TABLES;" || echo "Failed to list tables"
+
+echo "Checking Laravel logs..."
+cat /app/storage/logs/laravel.log || echo "No log file found"
+
 echo "Starting PHP-FPM..."
 php-fpm -D # -D to run in daemon mode (background)
 
-# Start Nginx
 echo "Starting Nginx on port $PORT..."
-# exec nginx -g 'daemon off;' # exec ensures Nginx is the main process
 nginx -g 'daemon off;'
