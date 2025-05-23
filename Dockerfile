@@ -17,12 +17,10 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libgd-dev \
     libonig-dev \
-    # For PostgreSQL, if you use it. Remove if not needed.
-    libpq-dev \
-    # For SQLite. If uncommented, ensure a '\' follows if more packages are listed after it.
+    # For MySQL (client utilities, pdo_mysql extension is installed below)
+    default-mysql-client \
+    # For SQLite (if you were to use it, uncomment and ensure pdo_sqlite is in docker-php-ext-install)
     # libsqlite3-dev \
-    # For MySQL. If uncommented, ensure a '\' follows if more packages are listed after it.
-    # default-mysql-client \
     unzip \
     zip \
     gnupg \
@@ -62,13 +60,18 @@ RUN composer dump-autoload --optimize
 RUN npm install
 RUN npm run build # Or npx vite build, if you prefer
 
-# Set permissions
-# Create storage/framework directories if they don't exist
+# Set permissions for Laravel storage and bootstrap cache
 RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chown -R www-data:www-data /app \
     && chmod -R 775 storage bootstrap/cache
 
 # Optimize Laravel
+# These commands should not fail if DB_CONNECTION is mysql and credentials are in .env
+# as they typically don't make a DB connection unless cache/session is 'database'
+# and the connection fails during the build.
+# Railway injects .env variables at runtime, not necessarily build time for these commands.
+# If 'database' driver is used for cache/session, ensure these commands can run
+# or defer them to start.sh if they cause build issues due to DB connectivity.
 RUN php artisan optimize:clear
 RUN php artisan config:cache
 RUN php artisan route:cache
