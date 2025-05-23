@@ -42,7 +42,7 @@ RUN composer clear-cache
 RUN composer install --no-dev --optimize-autoloader || cat storage/logs/laravel.log
 
 # Instalar y compilar assets
-RUN npm install
+RUN npm install --omit=dev
 RUN npx vite build
 
 # Establecer permisos
@@ -58,3 +58,5 @@ RUN php artisan view:cache
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 CMD ["/app/start.sh"]
+# Exponer el puerto 9000
+EXPOSE 9000
