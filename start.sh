@@ -13,10 +13,10 @@ echo "Running Laravel migrations..."
 php artisan migrate --force
 
 echo "Listing tables in database 'railway'..."
-mysql -h mysql.railway.internal -P 3306 -u root -p"$DB_PASSWORD" -e "USE railway; SHOW TABLES;" || echo "Failed to list tables"
+mysql -h mysql.railway.internal -P 3306 -u root -p"$DB_PASSWORD" railway -e "SHOW TABLES;" || echo "Failed to list tables: check MySQL connection"
 
 echo "Checking Laravel logs..."
-cat /app/storage/logs/laravel.log || echo "No log file found"
+cat /app/storage/logs/laravel.log || echo "No Laravel log file found"
 
 echo "Starting PHP-FPM..."
 php-fpm -D # -D to run in daemon mode (background)
