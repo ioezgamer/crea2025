@@ -66,17 +66,14 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chmod -R 775 storage bootstrap/cache
 
 # Optimize Laravel
-# These commands should not fail if DB_CONNECTION is mysql and credentials are in .env
-# as they typically don't make a DB connection unless cache/session is 'database'
-# and the connection fails during the build.
-# Railway injects .env variables at runtime, not necessarily build time for these commands.
-# If 'database' driver is used for cache/session, ensure these commands can run
-# or defer them to start.sh if they cause build issues due to DB connectivity.
-RUN php artisan optimize:clear
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-# RUN php artisan event:cache # Uncomment if you use event discovery
+# Temporarily set CACHE_DRIVER to 'array' for build-time optimizations
+# to avoid database connection issues.
+# The runtime .env configuration (CACHE_STORE=database) will be used when the app runs.
+RUN CACHE_DRIVER=array php artisan optimize:clear
+RUN CACHE_DRIVER=array php artisan config:cache
+RUN CACHE_DRIVER=array php artisan route:cache
+RUN CACHE_DRIVER=array php artisan view:cache
+# RUN CACHE_DRIVER=array php artisan event:cache # Uncomment if you use event discovery
 
 # Copy start script and make it executable
 COPY start.sh /app/start.sh
