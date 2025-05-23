@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y \
     libgd-dev \
     libonig-dev \
     libpq-dev \ # For PostgreSQL, if you use it. Remove if not needed.
-    # libsqlite3-dev \ # For SQLite, if you use it.
-    # default-mysql-client \ # For MySQL, if you use it.
+    # libsqlite3-dev # For SQLite. If uncommented, add '\' if more packages follow in this apt-get block.
+    # default-mysql-client # For MySQL. If uncommented, add '\' if more packages follow in this apt-get block.
     unzip \
     zip \
     gnupg \
