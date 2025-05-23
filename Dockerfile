@@ -66,14 +66,24 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chmod -R 775 storage bootstrap/cache
 
 # Optimize Laravel
-# Temporarily set CACHE_DRIVER to 'array' for build-time optimizations
-# to avoid database connection issues.
-# The runtime .env configuration (CACHE_STORE=database) will be used when the app runs.
-RUN CACHE_DRIVER=array php artisan optimize:clear
+# Clear operations first, ensuring no persistent DB access during build
+RUN CACHE_DRIVER=array php artisan config:clear
+RUN CACHE_DRIVER=array php artisan route:clear
+RUN CACHE_DRIVER=array php artisan view:clear
+# RUN CACHE_DRIVER=array php artisan event:clear # Uncomment if you use event discovery and need to clear it
+RUN CACHE_DRIVER=array php artisan compiled:clear
+
+# Explicitly clear cache.
+# Primary attempt: use CACHE_DRIVER=array.
+# Fallback: if CACHE_DRIVER=array is ignored and it tries to use a DB,
+# ensure it's an in-memory SQLite to prevent file access errors.
+RUN DB_CONNECTION=sqlite DB_DATABASE=:memory: CACHE_DRIVER=array php artisan cache:clear
+
+# Caching operations for build-time optimization
 RUN CACHE_DRIVER=array php artisan config:cache
 RUN CACHE_DRIVER=array php artisan route:cache
-RUN CACHE_DRIVER=array php artisan view:cache
-# RUN CACHE_DRIVER=array php artisan event:cache # Uncomment if you use event discovery
+RUN CACHE_DRIVER=array php artisan view:cache # view:cache itself doesn't typically use DB
+# RUN CACHE_DRIVER=array php artisan event:cache # Uncomment if you use event discovery and need to cache it
 
 # Copy start script and make it executable
 COPY start.sh /app/start.sh
