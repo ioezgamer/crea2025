@@ -19,11 +19,11 @@ class ParticipanteController extends Controller
         $search_name = $request->input('search_name');
         $search_programa = $request->input('search_programa');
         $search_lugar = $request->input('search_lugar');
-        $grado_filter = $request->input('grado'); 
+        $grado_filter = $request->input('grado');
 
         $query = Participante::query()
             ->filterByName($search_name)
-            ->filterByPrograma($search_programa) 
+            ->filterByPrograma($search_programa)
             ->filterByLugar($search_lugar);
 
         if ($grado_filter) {
@@ -31,20 +31,20 @@ class ParticipanteController extends Controller
         }
 
         $query->orderBy('grado_p', 'asc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
-            
+
         $participantes = $query->paginate($request->input('per_page', 15));
-        
+
         // Asegúrate que este método exista en tu modelo Participante y funcione correctamente
-        $programOptions = Participante::getDistinctProgramasOptions(); 
-    
+        $programOptions = Participante::getDistinctProgramasOptions();
+
         return view('participante.index', compact('participantes'))
-                ->with('programas', $programOptions) 
+                ->with('programas', $programOptions)
                 ->with('search_name', $search_name)
                 ->with('search_programa', $search_programa)
                 ->with('search_lugar', $search_lugar)
                 ->with('grado', $grado_filter);
     }
-    
+
     public function indexByGrade(Request $request, $gradoParam)
     {
         $decodedGrado = urldecode($gradoParam);
@@ -53,21 +53,21 @@ class ParticipanteController extends Controller
         $search_lugar = $request->input('search_lugar');
 
         $query = Participante::query()
-            ->filterByGrado($decodedGrado) 
+            ->filterByGrado($decodedGrado)
             ->filterByName($search_name)
             ->filterByPrograma($search_programa)
             ->filterByLugar($search_lugar);
-    
-        $query->orderBy('primer_apellido_p')->orderBy('primer_nombre_p'); 
+
+        $query->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
         $participantes = $query->paginate($request->input('per_page', 15));
         $programOptions = Participante::getDistinctProgramasOptions();
-    
+
         return view('participante.index', compact('participantes'))
                 ->with('programas', $programOptions)
                 ->with('search_name', $search_name)
                 ->with('search_programa', $search_programa)
                 ->with('search_lugar', $search_lugar)
-                ->with('grado', $gradoParam); 
+                ->with('grado', $gradoParam);
     }
 
     /**
@@ -92,7 +92,7 @@ class ParticipanteController extends Controller
                                                 ->where('lugar_de_encuentro_del_programa', '!=', '')
                                                 ->select('programa', 'lugar_de_encuentro_del_programa') // Solo campos necesarios
                                                 ->get();
-            
+
             Log::info('[getLugaresByPrograma] Participantes preliminares encontrados con LIKE:', [
                 'count' => $participantesConPosiblePrograma->count(),
                 'programa_filtro' => $programaFilter
@@ -103,18 +103,18 @@ class ParticipanteController extends Controller
             foreach ($participantesConPosiblePrograma as $participante) {
                 // Convertir el campo 'programa' (CSV) del participante a un array de programas individuales
                 $programasDelParticipante = array_map('trim', explode(',', $participante->programa ?? ''));
-                
+
                 // Verificar si el programa solicitado está exactamente en la lista de programas del participante
                 if (in_array($programaFilter, $programasDelParticipante)) {
                     $lugaresFiltrados->push($participante->lugar_de_encuentro_del_programa);
                 }
             }
-            
+
             // Obtener lugares únicos, ordenarlos y devolverlos
             $lugares = $lugaresFiltrados->unique()->filter()->sort()->values();
 
             Log::info('[getLugaresByPrograma] Lugares finales procesados:', [
-                'count' => $lugares->count(), 
+                'count' => $lugares->count(),
                 'lugares' => $lugares->toArray()
             ]);
             return response()->json($lugares);
@@ -137,16 +137,31 @@ class ParticipanteController extends Controller
         $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
         $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
         $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
-        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro']; 
+        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro'];
         $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
 
-        $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca']; // Para selects de programa principal
-        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM']; // Para selects de sub-programas
-        $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']; // Para selects de días
+        // Get distinct 'Nivel del Participante' (field 'participante')
+        $tiposParticipanteDB = Participante::distinct()
+                                ->whereNotNull('participante')
+                                ->where('participante', '!=', '')
+                                ->pluck('participante')
+                                ->filter()
+                                ->sort()
+                                ->values();
+        // Define static default options that should always be available
+        $tiposParticipanteEstaticos = ['Preescolar (o menos)', 'Primaria', 'Secundaria', 'Adulto'];
+        // Merge, ensure uniqueness, and sort
+        $tiposParticipante = collect($tiposParticipanteEstaticos)->merge($tiposParticipanteDB)->unique()->sort()->values();
+
+
+        $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'];
+        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'];
+        $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
         return view('participante.create', compact(
             'comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion',
-            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList'
+            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList',
+            'tiposParticipante' // Pass the dynamic list to the view
         ));
     }
 
@@ -154,13 +169,13 @@ class ParticipanteController extends Controller
     {
         $validated = $request->validated();
         $validated['dias_de_asistencia_al_programa'] = implode(',', $validated['dias_de_asistencia_al_programa']);
-        $validated['programas'] = implode(',', $validated['programas']); 
+        $validated['programas'] = implode(',', $validated['programas']);
         $validated['programa'] = implode(',', $validated['programa']);
         Participante::create($validated);
         return redirect()->route('participante.index')
                          ->with('success', 'Participante creado exitosamente.');
     }
-    
+
     public function show(Participante $participante)
     {
         // Convertir CSVs a arrays para mostrar en la vista si es necesario
@@ -170,7 +185,7 @@ class ParticipanteController extends Controller
         return view('participante.show', compact('participante'));
     }
 
-    public function exportPdf($id) 
+    public function exportPdf($id)
     {
         \Carbon\Carbon::setLocale('es');
         $participante = Participante::findOrFail($id);
@@ -188,7 +203,7 @@ class ParticipanteController extends Controller
         $nombreArchivo = "Ficha_Participante_{$participante->primer_nombre_p}_{$participante->primer_apellido_p}.pdf";
         return $mpdf->Output($nombreArchivo, 'D');
     }
-    
+
     public function edit(Participante $participante)
     {
         $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort()->values();
@@ -197,7 +212,7 @@ class ParticipanteController extends Controller
         $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
         $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro'];
         $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
-        
+
         // Convertir CSVs de la BD a arrays para los selects múltiples del formulario
         $participante->dias_de_asistencia_al_programa = !empty($participante->dias_de_asistencia_al_programa) ? explode(',', $participante->dias_de_asistencia_al_programa) : [];
         $participante->programas = !empty($participante->programas) ? explode(',', $participante->programas) : [];
