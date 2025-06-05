@@ -3,14 +3,14 @@
 namespace App\Exports;
 
 use App\Models\Participante;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Carbon\Carbon;
 
 class ParticipantesExport implements FromCollection, WithHeadings, WithMapping
 {
-    protected $filters;
+    protected array $filters;
 
     public function __construct(array $filters = [])
     {
@@ -18,8 +18,8 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
         $query = Participante::query();
@@ -27,91 +27,95 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping
         if (!empty($this->filters['search_name'])) {
             $query->filterByName($this->filters['search_name']);
         }
+
         if (!empty($this->filters['search_programa'])) {
             $query->filterByPrograma($this->filters['search_programa']);
         }
+
         if (!empty($this->filters['search_lugar'])) {
             $query->filterByLugar($this->filters['search_lugar']);
         }
+
         if (!empty($this->filters['grado'])) {
             $query->filterByGrado(urldecode($this->filters['grado']));
         }
-        // Aquí podrías añadir más lógica de filtrado si es necesario
 
-        return $query->orderBy('primer_apellido_p')->orderBy('primer_nombre_p')->get();
+        return $query->orderBy('primer_apellido_p')
+                     ->orderBy('primer_nombre_p')
+                     ->get();
     }
 
     /**
-    * @return array
-    */
+     * @return array
+     */
     public function headings(): array
     {
         return [
-            'ID Participante', // participante_id (PK)
-            'Fecha Inscripción', // fecha_de_inscripcion
-            'Año Inscripción', // ano_de_inscripcion
-            'Tipo Participante', // participante (ej: primaria, secundaria)
-            'Tiene Partida Nacimiento (1/0)', // partida_de_nacimiento
-            'Tiene Boletín/Diploma 2024 (1/0)', // boletin_o_diploma_2024
-            'Tutor Presentó Cédula (1/0)', // cedula_tutor (boolean)
-            'Participante Adulto Presentó Cédula (1/0)', // cedula_participante_adulto (boolean)
-            'Programa Principal (CSV)', // programa
-            'Sub-Programas/Códigos (CSV)', // programas
-            'Lugar Encuentro Programa', // lugar_de_encuentro_del_programa
-            'Primer Nombre', // primer_nombre_p
-            'Segundo Nombre', // segundo_nombre_p
-            'Primer Apellido', // primer_apellido_p
-            'Segundo Apellido', // segundo_apellido_p
-            'Ciudad Nacimiento', // ciudad_p
-            'Departamento Nacimiento', // departamento_p
-            'Fecha Nacimiento', // fecha_de_nacimiento_p
-            'Edad', // edad_p
-            'Cédula Participante Adulto (Número)', // cedula_participante_adulto_str
-            'Género', // genero
-            'Comunidad Residencia Participante', // comunidad_p
-            'Escuela', // escuela_p
-            'Comunidad Escuela', // comunidad_escuela
-            'Grado Escolar', // grado_p
-            'Turno Escolar', // turno
-            'Repite Grado (1/0)', // repite_grado
-            'Días Asistencia Programa (CSV)', // dias_de_asistencia_al_programa
-            'Relación Tutor Principal', // tutor_principal (ej: Padre, Madre)
-            'Nombres y Apellidos Tutor Principal', // nombres_y_apellidos_tutor_principal
-            'Número Cédula Tutor Principal', // numero_de_cedula_tutor
-            'Comunidad Tutor Principal', // comunidad_tutor
-            'Dirección Tutor Principal', // direccion_tutor
-            'Teléfono Tutor Principal', // telefono_tutor
-            'Sector Económico Tutor Principal', // sector_economico_tutor
-            'Nivel Educación Tutor Principal', // nivel_de_educacion_formal_adquirido_tutor
-            'Expectativas Tutor Principal', // expectativas_del_programa_tutor_principal
-            'Relación Tutor Secundario', // tutor_secundario
-            'Nombres y Apellidos Tutor Secundario', // nombres_y_apellidos_tutor_secundario
-            'Número Cédula Tutor Secundario', // numero_de_cedula_tutor_secundario
-            'Comunidad Tutor Secundario', // comunidad_tutor_secundario
-            'Teléfono Tutor Secundario', // telefono_tutor_secundario
-            'Asiste Otros Programas (1/0)', // asiste_a_otros_programas
-            'Nombres Otros Programas', // otros_programas
-            'Días Asiste Otros Programas', // dias_asiste_a_otros_programas
-            'Activo (1/0)', // activo
+            'Participante_ID',
+            'Fecha de inscripción',
+            'Participante',
+            'Partida de nacimiento',
+            'Boletín o diploma (2024)',
+            'Cédula tutor',
+            'Cédula participante adulto',
+            'Programas',
+            'Lugar de encuentro del programa',
+            'Primer nombre (P)',
+            'Segundo nombre (P)',
+            'Primer apellido (P)',
+            'Segundo apellido (P)',
+            'Ciudad (P)',
+            'Departamento (P)',
+            'Fecha de nacimiento (P)',
+            'Edad (P)',
+            'Cédula (Participante Adulto)',
+            'Genero',
+            'Comunidad (P)',
+            'Escuela (P)',
+            'Comunidad (Escuela)',
+            'Grado (P)',
+            'Turno',
+            '¿Repite grado?',
+            'Días de asistencia al programa',
+            'Programa',
+            'Tutor principal',
+            'Nombres y apellidos (Tutor principal)',
+            'Número de cédula (Tutor)',
+            'Comunidad (Tutor)',
+            'Dirección (Tutor)',
+            'Teléfono (Tutor)',
+            'Sector económico (Tutor)',
+            'Nivel de educación formal adquirido (Tutor)',
+            '¿Cuáles son sus expectativas del programa? (Tutor principal)',
+            'Tutor secundario',
+            'Nombres y apellidos (Tutor secundario)',
+            'Número de cédula (Tutor secundario)',
+            'Comunidad (Tutor secundario)',
+            'Teléfono (Tutor secundario)',
+            '¿El participante asiste a otros programas de la comunidad?',
+            'Otros programas a los que asiste el participante',
+            'Días que asiste a otros programas',
+            'Año de inscripción',
+            'Activo',
         ];
     }
 
     /**
-    * @param mixed $participanteModel
-    * @return array
-    */
+     * @param \App\Models\Participante $participanteModel
+     * @return array
+     */
     public function map($participanteModel): array
     {
+        $boolToText = fn($value) => $value ? 'Sí' : 'No';
+
         return [
             $participanteModel->participante_id,
             $participanteModel->fecha_de_inscripcion ? Carbon::parse($participanteModel->fecha_de_inscripcion)->format('Y-m-d') : '',
-            $participanteModel->ano_de_inscripcion,
             $participanteModel->participante,
-            $participanteModel->partida_de_nacimiento ? 1 : 0,
-            $participanteModel->boletin_o_diploma_2024 ? 1 : 0,
-            $participanteModel->cedula_tutor ? 1 : 0,
-            $participanteModel->cedula_participante_adulto ? 1 : 0,
-            $participanteModel->programa,
+            $boolToText($participanteModel->partida_de_nacimiento),
+            $boolToText($participanteModel->boletin_o_diploma_2024),
+            $boolToText($participanteModel->cedula_tutor),
+            $boolToText($participanteModel->cedula_participante_adulto),
             $participanteModel->programas,
             $participanteModel->lugar_de_encuentro_del_programa,
             $participanteModel->primer_nombre_p,
@@ -129,8 +133,9 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping
             $participanteModel->comunidad_escuela,
             $participanteModel->grado_p,
             $participanteModel->turno,
-            $participanteModel->repite_grado ? 1 : 0,
+            $boolToText($participanteModel->repite_grado),
             $participanteModel->dias_de_asistencia_al_programa,
+            $participanteModel->programa,
             $participanteModel->tutor_principal,
             $participanteModel->nombres_y_apellidos_tutor_principal,
             $participanteModel->numero_de_cedula_tutor,
@@ -145,10 +150,11 @@ class ParticipantesExport implements FromCollection, WithHeadings, WithMapping
             $participanteModel->numero_de_cedula_tutor_secundario,
             $participanteModel->comunidad_tutor_secundario,
             $participanteModel->telefono_tutor_secundario,
-            $participanteModel->asiste_a_otros_programas ? 1 : 0,
+            $boolToText($participanteModel->asiste_a_otros_programas),
             $participanteModel->otros_programas,
             $participanteModel->dias_asiste_a_otros_programas,
-            $participanteModel->activo ? 1 : 0,
+            $participanteModel->ano_de_inscripcion,
+            $boolToText($participanteModel->activo),
         ];
     }
 }

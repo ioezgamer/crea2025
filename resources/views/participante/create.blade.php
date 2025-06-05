@@ -1,17 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 lg:text-2xl">
+        <div class="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0 ">
+            <h2 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
                 Nueva inscripción
             </h2>
             <x-boton-regresar onclick="window.location.href='{{ route('participante.index') }}'" />
         </div>
     </x-slot>
 
-    <div class="py-8 font-sans bg-gray-100">
+    <div class="py-8 font-sans bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
         <div class="max-w-5xl px-4 mx-auto sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white shadow-xl rounded-xl">
-                <div class="px-6 py-5 bg-indigo-700 sm:px-8">
+                <div class="px-6 py-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 sm:px-8">
                     <h1 class="text-2xl font-semibold text-center text-white">Formulario de Inscripción CREA</h1>
                     <p class="mt-1 text-sm text-center text-indigo-200">Complete todos los campos requeridos (*).</p>
                 </div>

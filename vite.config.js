@@ -1,11 +1,26 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
-            refresh: true,
-        }),
-    ],
+export default defineConfig(({ mode }) => {
+    // Carga las variables de entorno de tu archivo .env
+    const env = loadEnv(mode, process.cwd(), '');
+
+    return {
+        server: {
+            // Habilita CORS para permitir conexiones desde cualquier origen.
+            // Esto es crucial para que ngrok (u otros proxies) puedan acceder a los assets de Vite.
+            cors: true,
+        },
+        plugins: [
+            laravel({
+                input: [
+                    'resources/css/app.css',
+                    'resources/js/app.js',
+                    'resources/js/pages/asistencia-attendance.js',
+                    'resources/js/pages/participante-index.js',
+                ],
+                refresh: true, // Puedes configurarlo a un array de rutas si necesitas más control sobre la recarga
+            }),
+        ],
+    };
 });

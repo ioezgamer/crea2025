@@ -1,52 +1,62 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
-            <h2 class="text-xl lg:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 leading-tight">
-                {{ __('Gestión de Roles y Usuarios') }}
-            </h2>
-            <div class="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-3">
-                <h3 class="text-sm lg:text-base text-slate-700 leading-tight">
-                    Crear Nuevo Usuario
-                </h3>
-                {{-- Assuming x-crear-button is styled according to the CREA theme --}}
-                {{-- Example of how it might be styled if it were a simple anchor tag:
-                <a href="{{ route('roles.user.create') }}" 
-                   class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md hover:shadow-lg">
-                    <svg class="w-4 h-4 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                    Nuevo
-                </a>
-                --}}
-                <x-crear-button onclick="window.location.href='{{ route('roles.user.create') }}'"/>
+        <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <!-- Título -->
+                <h1 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+                {{ __('Gestión de roles y usuarios') }}
+            </h1>
+            <!-- Botón -->
+            <div class="ml-auto">
+                <x-boton-crear-usuario onclick="window.location.href='{{ route('roles.user.create') }}'" />
             </div>
         </div>
     </x-slot>
+    <div class="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
+        <div class="max-w-full px-4 mx-auto sm:px-6 lg:px-8">
 
-    <div class="py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 min-h-screen">
-        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-            
             {{-- Alert Component Function --}}
             @php
             function render_alert($type, $title, $message) {
-                $baseClasses = 'p-4 mb-6 rounded-xl shadow-lg text-sm border-l-4 flex items-start space-x-3 bg-white/80 backdrop-blur-md'; // Added backdrop
+                $isDark = Illuminate\Support\Facades\Request::hasCookie('darkMode') && Illuminate\Support\Facades\Request::cookie('darkMode') === 'true'; // Helper to check dark mode, or use a global helper
+
+                $baseClasses = 'p-4 mb-6 rounded-xl shadow-lg text-sm border-l-4 flex items-start space-x-3 backdrop-blur-md';
                 $iconClasses = 'h-5 w-5 flex-shrink-0 mt-0.5';
                 $textClasses = 'flex-grow';
-                $titleClasses = 'font-semibold block text-slate-800'; // Adjusted for light theme
-                $messageClasses = 'text-xs text-slate-600'; // Adjusted for light theme
+
+                // Light theme text colors
+                $titleClassesLight = 'font-semibold block text-slate-800';
+                $messageClassesLight = 'text-xs text-slate-600';
+                // Dark theme text colors
+                $titleClassesDark = 'font-semibold block text-slate-100';
+                $messageClassesDark = 'text-xs text-slate-300';
+
+                $titleClasses = $isDark ? $titleClassesDark : $titleClassesLight;
+                $messageClasses = $isDark ? $messageClassesDark : $messageClassesLight;
 
                 $typeClasses = match ($type) {
-                    'success' => 'border-green-500',
-                    'error'   => 'border-red-500',
-                    'warning' => 'border-amber-500',
-                    'info'    => 'border-sky-500',
-                    default   => 'border-slate-500',
+                    'success' => 'border-green-500 dark:border-green-600',
+                    'error'   => 'border-red-500 dark:border-red-600',
+                    'warning' => 'border-amber-500 dark:border-amber-600',
+                    'info'    => 'border-sky-500 dark:border-sky-600',
+                    default   => 'border-slate-500 dark:border-slate-600',
                 };
 
+                // Backgrounds for dark mode
+                $bgClasses = match($type) {
+                    'success' => 'bg-green-50/80 dark:bg-green-700/30',
+                    'error'   => 'bg-red-50/80 dark:bg-red-700/30',
+                    'warning' => 'bg-amber-50/80 dark:bg-amber-700/30',
+                    'info'    => 'bg-sky-50/80 dark:bg-sky-700/30',
+                    default   => 'bg-white/80 dark:bg-slate-700/30',
+                };
+
+
                 $iconColor = match ($type) {
-                    'success' => 'text-green-500',
-                    'error'   => 'text-red-500',
-                    'warning' => 'text-amber-500',
-                    'info'    => 'text-sky-500',
-                    default   => 'text-slate-500',
+                    'success' => 'text-green-500 dark:text-green-400',
+                    'error'   => 'text-red-500 dark:text-red-400',
+                    'warning' => 'text-amber-500 dark:text-amber-400',
+                    'info'    => 'text-sky-500 dark:text-sky-400',
+                    default   => 'text-slate-500 dark:text-slate-400',
                 };
 
                 $iconSvg = match ($type) {
@@ -57,7 +67,7 @@
                     default   => '',
                 };
 
-                return "<div class=\"{$baseClasses} {$typeClasses}\" role=\"alert\">
+                return "<div class=\"{$baseClasses} {$typeClasses} {$bgClasses}\" role=\"alert\">
                             {$iconSvg}
                             <div class=\"{$textClasses}\">
                                 <strong class=\"{$titleClasses}\">{$title}</strong>
@@ -91,28 +101,28 @@
             @endif
 
             {{-- Main Content Card for User List --}}
-            <div class="bg-white/70 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden">
-                <div class="px-4 sm:px-6 py-5 border-b border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="overflow-hidden shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
+                <div class="px-4 py-5 border-b sm:px-6 border-slate-200 dark:border-slate-700">
+                    <div class="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
                         <div>
-                            <h3 class="text-lg font-semibold text-slate-800">Listado de Usuarios</h3>
-                            <p class="text-xs text-slate-500 mt-1">
+                            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Listado de Usuarios</h3>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                 Administra los roles y el estado de aprobación de los usuarios.
                             </p>
                         </div>
-                        <form method="GET" action="{{ route('roles.index') }}" class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
-                            <select name="approval_status" onchange="this.form.submit()" 
-                                    class="block w-full sm:w-auto border-slate-300 rounded-xl shadow-sm text-xs focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
+                        <form method="GET" action="{{ route('roles.index') }}" class="flex flex-col items-center w-full space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 md:w-auto">
+                            <select name="approval_status" onchange="this.form.submit()"
+                                    class="block w-full sm:w-auto border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded-xl shadow-sm text-xs focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
                                 <option value="">Todos los Estados</option>
                                 <option value="approved" {{ request('approval_status') == 'approved' ? 'selected' : '' }}>Aprobados</option>
                                 <option value="pending" {{ request('approval_status') == 'pending' ? 'selected' : '' }}>Pendientes</option>
                             </select>
                             <div class="relative w-full sm:w-auto">
                                 <input type="text" name="search" placeholder="Buscar usuario..."
-                                       class="w-full sm:w-56 px-4 py-2.5 border border-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                                       class="w-full sm:w-56 px-4 py-2.5 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
                                        value="{{ request('search') }}">
-                                <button type="submit" class="absolute right-0 top-0 bottom-0 my-auto mr-3 text-slate-400 hover:text-indigo-600 transition-colors">
-                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                                <button type="submit" class="absolute top-0 bottom-0 right-0 my-auto mr-3 transition-colors text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
                                 </button>
                             </div>
                         </form>
@@ -120,65 +130,65 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-100">
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <thead class="bg-slate-100 dark:bg-slate-700/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Nombre</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Correo</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Rol</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Estado Aprobación</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Acciones</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Nombre</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Correo</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Rol</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Estado Aprobación</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-center uppercase text-slate-600 dark:text-slate-300">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-slate-200">
+                        <tbody class="bg-white divide-y dark:bg-slate-800 divide-slate-200 dark:divide-slate-700">
                             @forelse ($users as $user)
-                                <tr class="hover:bg-sky-50/70 transition-colors duration-150">
+                                <tr class="transition-colors duration-150 hover:bg-sky-50/70 dark:hover:bg-slate-700/30">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-slate-900">{{ $user->name }}</div>
-                                        <div class="text-xs text-slate-500">ID: {{ $user->id }}</div>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ $user->name }}</div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">ID: {{ $user->id }}</div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap text-slate-600 dark:text-slate-300">{{ $user->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
                                             $role = $user->role ?? 'user';
                                             $roleColorClasses = match (strtolower($role)) {
-                                                'admin' => 'bg-red-100 text-red-700 border-red-300',
-                                                'editor' => 'bg-amber-100 text-amber-700 border-amber-300',
-                                                'gestor' => 'bg-sky-100 text-sky-700 border-sky-300',
-                                                'user' => 'bg-slate-100 text-slate-700 border-slate-300',
-                                                default => 'bg-slate-100 text-slate-700 border-slate-300',
+                                                'admin' => 'bg-red-100 text-red-700 border-red-300 dark:bg-red-700/30 dark:text-red-200 dark:border-red-500',
+                                                'editor' => 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-700/30 dark:text-amber-200 dark:border-amber-500',
+                                                'gestor' => 'bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-700/30 dark:text-sky-200 dark:border-sky-500',
+                                                'user' => 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-600/30 dark:text-slate-200 dark:border-slate-500',
+                                                default => 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-600/30 dark:text-slate-200 dark:border-slate-500',
                                             };
                                         @endphp
                                         <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border {{ $roleColorClasses }}">{{ ucfirst($role) }}</span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <td class="px-6 py-4 text-sm whitespace-nowrap">
                                         @if($user->isApproved())
-                                            <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-300">
+                                            <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-300 dark:bg-green-700/30 dark:text-green-200 dark:border-green-500">
                                                 Aprobado
                                             </span>
-                                            <span class="block text-xxs text-slate-500 mt-0.5">{{ $user->approved_at->isoFormat('D MMM, YY HH:mm') }}</span>
+                                            <span class="block text-xxs text-slate-500 dark:text-slate-400 mt-0.5">{{ $user->approved_at->isoFormat('D MMM, YY HH:mm') }}</span>
                                         @else
-                                            <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-300">
+                                            <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-700/30 dark:text-yellow-200 dark:border-yellow-500">
                                                 Pendiente
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
                                         <div class="flex items-center justify-center space-x-1 md:space-x-2">
                                             @if(Auth::user()->id !== $user->id)
                                             <form action="{{ route('roles.update', $user) }}" method="POST" class="flex items-center space-x-1" onsubmit="event.preventDefault(); confirmAction(this, 'Actualizar Rol', '¿Estás seguro de actualizar el rol de este usuario?', 'Sí, actualizar', 'Cancelar', 'indigo');">
                                                 @csrf
-                                                <select name="role" class="w-auto block border-slate-300 rounded-lg shadow-sm text-xs focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 py-1.5 pl-2 pr-7 transition duration-150 ease-in-out">
+                                                <select name="role" class="w-auto block border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded-lg shadow-sm text-xs focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-1.5 pl-2 pr-7 transition duration-150 ease-in-out">
                                                     @foreach ($roles as $roleOption)
                                                         <option value="{{ $roleOption }}" {{ $user->role === $roleOption ? 'selected' : '' }}>{{ ucfirst($roleOption) }}</option>
                                                     @endforeach
                                                 </select>
-                                                <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-purple-500 shadow-sm hover:shadow-md" title="Actualizar rol">
+                                                <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-800 focus:ring-purple-500 shadow-sm hover:shadow-md" title="Actualizar rol">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 </button>
                                             </form>
                                             @else
-                                                <span class="text-xs text-slate-400 italic mr-2">(Tu rol)</span>
+                                                <span class="mr-2 text-xs italic text-slate-400 dark:text-slate-500">(Tu rol)</span>
                                             @endif
 
                                             @if(Auth::user()->id !== $user->id)
@@ -186,7 +196,7 @@
                                                     <form action="{{ route('roles.user.unapprove', $user) }}" method="POST" onsubmit="event.preventDefault(); confirmAction(this, 'Revocar Aprobación', '¿Estás seguro de revocar la aprobación de este usuario?', 'Sí, revocar', 'Cancelar', 'yellow');">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-orange-500 shadow-sm hover:shadow-md" title="Revocar Aprobación">
+                                                        <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-800 focus:ring-orange-500 shadow-sm hover:shadow-md" title="Revocar Aprobación">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                                                         </button>
                                                     </form>
@@ -194,7 +204,7 @@
                                                     <form action="{{ route('roles.user.approve', $user) }}" method="POST" onsubmit="event.preventDefault(); confirmAction(this, 'Aprobar Usuario', '¿Estás seguro de aprobar a este usuario?', 'Sí, aprobar', 'Cancelar', 'green');">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-emerald-500 shadow-sm hover:shadow-md" title="Aprobar Usuario">
+                                                        <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-800 focus:ring-emerald-500 shadow-sm hover:shadow-md" title="Aprobar Usuario">
                                                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                                         </button>
                                                     </form>
@@ -205,7 +215,7 @@
                                                 <form action="{{ route('roles.destroy', $user) }}" method="POST" onsubmit="event.preventDefault(); confirmAction(this, 'Eliminar Usuario', '¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.', 'Sí, eliminar', 'Cancelar', 'red');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-rose-500 shadow-sm hover:shadow-md" title="Eliminar usuario">
+                                                    <button type="submit" class="p-1.5 text-xs font-medium rounded-lg text-white bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-800 focus:ring-rose-500 shadow-sm hover:shadow-md" title="Eliminar usuario">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                     </button>
                                                 </form>
@@ -217,10 +227,10 @@
                                 <tr>
                                     <td colspan="5" class="px-6 py-12 text-center">
                                         <div class="flex flex-col items-center">
-                                            <svg class="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <p class="text-sm text-slate-500">No se encontraron usuarios.</p>
+                                            <svg class="w-12 h-12 mb-3 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <p class="text-sm text-slate-500 dark:text-slate-400">No se encontraron usuarios.</p>
                                             @if(request('search') || request('approval_status'))
-                                                <p class="text-xs text-slate-400 mt-1">Intenta ajustar tus filtros de búsqueda.</p>
+                                                <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Intenta ajustar tus filtros de búsqueda.</p>
                                             @endif
                                         </div>
                                     </td>
@@ -230,7 +240,7 @@
                     </table>
                 </div>
                 @if ($users->hasPages())
-                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 rounded-b-xl">
+                    <div class="px-6 py-4 border-t bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-700 rounded-b-xl">
                         {{ $users->appends(request()->except('page'))->links() }}
                     </div>
                 @endif
@@ -242,6 +252,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function confirmAction(formElement, title, text, confirmButtonText, cancelButtonText, confirmButtonColor = 'indigo') {
+            const isDark = document.documentElement.classList.contains('dark');
             Swal.fire({
                 title: title,
                 text: text,
@@ -250,14 +261,16 @@
                 confirmButtonText: confirmButtonText,
                 cancelButtonText: cancelButtonText,
                 customClass: {
-                    popup: 'rounded-xl shadow-lg', // General popup styling
-                    confirmButton: `btn-sweetalert btn-${confirmButtonColor}`,
-                    cancelButton: 'btn-sweetalert btn-slate' // Consistent slate for cancel
+                    popup: `rounded-xl shadow-lg ${isDark ? 'bg-slate-800 text-slate-200' : 'bg-white'}`,
+                    title: `${isDark ? 'text-slate-100' : 'text-slate-800'}`,
+                    htmlContainer: `${isDark ? 'text-slate-300' : 'text-slate-600'}`,
+                    confirmButton: `btn-sweetalert btn-${confirmButtonColor} ${isDark ? 'dark-btn-' + confirmButtonColor : ''}`,
+                    cancelButton: `btn-sweetalert btn-slate ${isDark ? 'dark-btn-slate' : ''}`
                 },
-                buttonsStyling: false 
+                buttonsStyling: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    formElement.submit(); 
+                    formElement.submit();
                 }
             });
         }
@@ -314,31 +327,37 @@
         .btn-sweetalert.btn-slate:hover {
             background-color: #cbd5e1; /* slate-300 */
         }
-
-        /* Styling for Laravel Pagination to match the theme */
-        .pagination span, .pagination a {
-            padding: 0.5rem 0.75rem;
-            margin: 0 0.125rem;
-            border-radius: 0.5rem; /* rounded-lg */
-            font-size: 0.875rem; /* text-sm */
-            transition: all 0.15s ease-in-out;
+        /* Dark mode SweetAlert button overrides */
+        .dark .btn-sweetalert.btn-slate {
+            background-color: #475569; /* slate-600 */
+            color: #e2e8f0; /* slate-200 */
         }
-        .pagination span[aria-current="page"] span {
-            background-image: linear-gradient(to right, #4f46e5, #8b5cf6);
+        .dark .btn-sweetalert.btn-slate:hover {
+            background-color: #334155; /* slate-700 */
+        }
+        /* Dark mode pagination (tailwind.config.js should have darkMode: 'class') */
+        .dark .pagination span[aria-current="page"] span {
+            background-image: linear-gradient(to right, #6366f1, #a78bfa); /* indigo-500 to purple-400 */
             color: white;
-            font-weight: 600;
-            border: 1px solid transparent;
         }
-        .pagination a[rel="prev"], .pagination a[rel="next"] {
-            color: #4b5563; /* slate-600 */
-        }
-        .pagination a:hover {
-            background-color: #e0e7ff; /* indigo-100 */
-            color: #4338ca; /* indigo-700 */
-        }
-        .pagination span[aria-disabled="true"] span {
+        .dark .pagination a[rel="prev"], .dark .pagination a[rel="next"] {
             color: #9ca3af; /* slate-400 */
-            background-color: #f3f4f6; /* slate-100 */
         }
+        .dark .pagination a:hover {
+            background-color: #374151; /* slate-700 */
+            color: #d1d5db; /* slate-300 */
+        }
+        .dark .pagination span[aria-disabled="true"] span {
+            color: #6b7280; /* slate-500 */
+            background-color: #374151; /* slate-700 */
+        }
+        /* Custom scrollbar for Webkit browsers */
+         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
+         .overflow-x-auto::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+         .dark .overflow-x-auto::-webkit-scrollbar-track { background: #334155; } /* slate-700 */
+         .overflow-x-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+         .dark .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; } /* slate-600 */
+         .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+         .dark .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #64748b; } /* slate-500 */
     </style>
 </x-app-layout>

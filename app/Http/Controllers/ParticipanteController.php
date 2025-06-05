@@ -15,35 +15,53 @@ use Maatwebsite\Excel\Facades\Excel;
 class ParticipanteController extends Controller
 {
    public function index(Request $request)
-    {
-        $search_name = $request->input('search_name');
-        $search_programa = $request->input('search_programa');
-        $search_lugar = $request->input('search_lugar');
-        $grado_filter = $request->input('grado');
+{
+    $search_name = $request->input('search_name');
+    $search_programa = $request->input('search_programa');
+    $search_lugar = $request->input('search_lugar');
+    $search_grado = $request->input('search_grado'); // Nuevo filtro de grado desde el formulario
+    $grado_param_url = $request->input('grado'); // Filtro de grado desde parámetro URL (para enlaces directos)
 
-        $query = Participante::query()
-            ->filterByName($search_name)
-            ->filterByPrograma($search_programa)
-            ->filterByLugar($search_lugar);
+    $query = Participante::query()
+        ->filterByName($search_name)
+        ->filterByPrograma($search_programa)
+        ->filterByLugar($search_lugar);
 
-        if ($grado_filter) {
-            $query->filterByGrado(urldecode($grado_filter));
-        }
-
-        $query->orderBy('grado_p', 'asc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
-
-        $participantes = $query->paginate($request->input('per_page', 15));
-
-        // Asegúrate que este método exista en tu modelo Participante y funcione correctamente
-        $programOptions = Participante::getDistinctProgramasOptions();
-
-        return view('participante.index', compact('participantes'))
-                ->with('programas', $programOptions)
-                ->with('search_name', $search_name)
-                ->with('search_programa', $search_programa)
-                ->with('search_lugar', $search_lugar)
-                ->with('grado', $grado_filter);
+    // Aplicar filtro de grado
+    if ($search_grado) {
+        $query->filterByGrado($search_grado);
+    } elseif ($grado_param_url) { // Mantener compatibilidad con el filtro de grado por URL
+        $query->filterByGrado(urldecode($grado_param_url));
     }
+
+    $query->orderBy('grado_p', 'asc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
+
+    $participantes = $query->paginate($request->input('per_page', 15));
+
+    $programOptions = Participante::getDistinctProgramasOptions();
+
+    // Opciones de grado iniciales (para el select de grado)
+    // Se cargarán todas inicialmente, y el JS las refinará si se seleccionan programa/lugar
+    $gradoOptionsQuery = Participante::select('grado_p')->distinct()
+                        ->whereNotNull('grado_p')->where('grado_p', '!=', '');
+    if ($search_programa) {
+        $gradoOptionsQuery->where('programa', 'like', '%' . $search_programa . '%');
+    }
+    if ($search_programa && $search_lugar) { // Si hay lugar, también se considera para los grados iniciales
+        $gradoOptionsQuery->where('lugar_de_encuentro_del_programa', $search_lugar);
+    }
+    $gradoOptions = $gradoOptionsQuery->orderBy('grado_p')->pluck('grado_p')->toArray();
+
+
+    return view('participante.index', compact('participantes'))
+            ->with('programas', $programOptions)
+            ->with('gradoOptions', $gradoOptions) // Pasar opciones de grado
+            ->with('search_name', $search_name)
+            ->with('search_programa', $search_programa)
+            ->with('search_lugar', $search_lugar)
+            ->with('search_grado', $search_grado) // Pasar valor seleccionado del filtro de grado
+            ->with('grado', $grado_param_url); // Mantener el parámetro de grado de la URL
+}
 
     public function indexByGrade(Request $request, $gradoParam)
     {
@@ -327,7 +345,7 @@ class ParticipanteController extends Controller
                              ->with('error', 'Error de validación durante la importación.')
                              ->with('import_errors', $errorMessages);
         } catch (\Exception $e) {
-            \Log::error('Error importando participantes: ' . $e->getMessage());
+            Log::error('Error importando participantes: ' . $e->getMessage());
             return redirect()->route('participantes.import.form')->with('error', 'Ocurrió un error durante la importación: ' . $e->getMessage());
         }
     }
