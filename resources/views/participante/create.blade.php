@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0 ">
+        <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <h2 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
                 Nueva inscripción
             </h2>
@@ -17,12 +17,8 @@
                 </div>
 
                 <div class="p-6 sm:p-8">
-                    @if (session('success'))
-                        <div class="p-4 mb-6 text-sm text-green-700 bg-green-100 border-l-4 border-green-500 rounded-md shadow" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
+                    {{-- Los mensajes de sesión (success, error) serán manejados por app.js globalmente --}}
+                    {{-- Mostrar errores de validación específicos del formulario --}}
                     @if ($errors->any())
                         <div class="p-4 mb-6 text-sm text-red-700 bg-red-100 border-l-4 border-red-500 rounded-md shadow" role="alert">
                             <p class="font-bold">Por favor corrige los siguientes errores:</p>
@@ -55,11 +51,11 @@
                                     @error('ano_de_inscripcion') <p class="mt-1 text-xs text-red-600" id="ano_de_inscripcion-error">{{ $message }}</p> @enderror
                                 </div>
                             </div>
-                            <div class="mt-4">
+                            <div class="mt-4" style="display: none;">
                                 <label class="block mb-1 text-xs font-medium text-gray-700">Estado al Inscribir</label>
-                                <div class="flex items-center">
-                                    {{-- Hidden input to ensure a value (0) is submitted if checkbox is unchecked --}}
-                                    <input type="hidden" name="activo" value="0">
+                                <div class="flex items-center" >
+                                    {{-- Usamos un input hidden para manejar el estado activo --}}
+                                    <input type="hidden" name="activo" value="1">
                                     <label class="relative inline-flex items-center cursor-pointer">
                                         <input type="checkbox" name="activo" id="activo_toggle" value="1" class="sr-only peer" {{ old('activo', true) ? 'checked' : '' }}>
                                         <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 dark:peer-focus:ring-indigo-600 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border dark:border-gray-500 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -68,8 +64,6 @@
                                 </div>
                                 @error('activo') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             </div>
-
-
                         </fieldset>
 
                         <fieldset class="p-4 border border-gray-300 rounded-lg">
@@ -107,7 +101,7 @@
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
                                     <label for="participante_select" class="block mb-1 text-xs font-medium text-gray-700">Nivel del Participante <span class="text-red-500">*</span></label>
-                                    <select name="participante" id="participante_select" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('participante') border-red-500 @enderror" required>
+                                    <select name="participante" id="participante_select" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('participante') border-red-500 @enderror" required>
                                         <option value="" disabled {{ !old('participante') ? 'selected' : '' }}>Seleccione...</option>
                                         @foreach ($tiposParticipante as $tipo)
                                             <option value="{{ $tipo }}" {{ old('participante') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
@@ -123,7 +117,7 @@
                                 </div>
                                 <div>
                                     <label for="primer_nombre_p" class="block mb-1 text-xs font-medium text-gray-700">Primer Nombre <span class="text-red-500">*</span></label>
-                                    <input type="text" name="primer_nombre_p" id="primer_nombre_p" value="{{ old('primer_nombre_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('primer_nombre_p') border-red-500 @enderror" required>
+                                    <input type="text" name="primer_nombre_p" id="primer_nombre_p" value="{{ old('primer_nombre_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('primer_nombre_p') @enderror" required>
                                     @error('primer_nombre_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
@@ -253,7 +247,7 @@
                                         @foreach ($programaOptionsList ?? [] as $programaItem)
                                             <label class="flex items-center text-sm text-gray-600 cursor-pointer">
                                                 <input type="checkbox" name="programa[]" value="{{ $programaItem }}"
-                                                       @if(in_array($programaItem, (array)old('programa', []))) checked @endif
+                                                       @if(is_array(old('programa')) && in_array($programaItem, old('programa', []))) checked @endif
                                                        class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                                 {{ $programaItem }}
                                             </label>
@@ -267,7 +261,7 @@
                                         @foreach ($subProgramaOptionsList ?? [] as $subProgramaItem)
                                             <label class="flex items-center text-sm text-gray-600 cursor-pointer">
                                                 <input type="checkbox" name="programas[]" value="{{ $subProgramaItem }}"
-                                                       @if(in_array($subProgramaItem, (array)old('programas', []))) checked @endif
+                                                       @if(is_array(old('programas')) && in_array($subProgramaItem, old('programas', []))) checked @endif
                                                        class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                                 {{ $subProgramaItem }}
                                             </label>
@@ -461,7 +455,7 @@
                         </fieldset>
 
                         <div class="flex flex-col items-center justify-end pt-8 space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                             <x-secondary-button type="button" onclick="limpiarFormularioConConfirmacion()">
+                             <x-secondary-button type="button"> {{-- El onclick se asignará por JS --}}
                                 Limpiar Formulario
                             </x-secondary-button>
                             <x-primary-button type="submit">
@@ -474,130 +468,12 @@
         </div>
     </div>
 
+    {{-- Script para pasar datos 'old' de Laravel a JS. Esto es mejor que generarlos directamente en el JS. --}}
     <script>
-        let _oldActivo = {{ old('activo', 'true') === 'true' || old('activo', true) === true ? 'true' : 'false' }};
-        let _oldParticipante = @json(old('participante'));
-        let _oldParticipanteOtro = @json(old('participante_otro'));
-
-
-        function calcularAnoInscripcion() {
-            const fechaInscripcionInput = document.getElementById('fecha_de_inscripcion');
-            const anoInscripcionInput = document.getElementById('ano_de_inscripcion');
-            if (fechaInscripcionInput && anoInscripcionInput) {
-                if (fechaInscripcionInput.value) {
-                    const fechaInscripcion = new Date(fechaInscripcionInput.value + 'T00:00:00');
-                    anoInscripcionInput.value = fechaInscripcion.getFullYear();
-                } else {
-                    anoInscripcionInput.value = new Date().getFullYear();
-                }
-            }
-        }
-
-        function calcularEdad() {
-            const fechaNacimientoInput = document.getElementById('fecha_de_nacimiento_p');
-            const edadInput = document.getElementById('edad_p');
-            if (fechaNacimientoInput && edadInput) {
-                if (fechaNacimientoInput.value) {
-                    const birthDate = new Date(fechaNacimientoInput.value + 'T00:00:00');
-                    const today = new Date();
-                    let age = today.getFullYear() - birthDate.getFullYear();
-                    const monthDiff = today.getMonth() - birthDate.getMonth();
-                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                        age--;
-                    }
-                    edadInput.value = age >= 0 ? age : '';
-                } else {
-                    edadInput.value = '';
-                }
-            }
-        }
-
-        function toggleOtrosProgramas() {
-            const radiosAsisteOtros = document.querySelectorAll('.asiste-otros-radio');
-            const otrosProgramasDetallesSection = document.getElementById('otros-programas-detalles-section');
-            const otrosProgramasInput = document.getElementById('otros_programas');
-            const checkboxesDiasOtros = document.querySelectorAll('input[name="dias_asiste_a_otros_programas[]"]');
-
-            if (!radiosAsisteOtros.length || !otrosProgramasDetallesSection || !otrosProgramasInput) return;
-
-            let show = false;
-            radiosAsisteOtros.forEach(radio => {
-                if (radio.checked && radio.value === '1') {
-                    show = true;
-                }
-            });
-
-            if (show) {
-                otrosProgramasDetallesSection.classList.remove('hidden');
-            } else {
-                otrosProgramasDetallesSection.classList.add('hidden');
-                otrosProgramasInput.value = '';
-                checkboxesDiasOtros.forEach(checkbox => checkbox.checked = false);
-            }
-        }
-
-        function toggleParticipanteOtro() {
-            const participanteSelect = document.getElementById('participante_select');
-            const participanteOtroInput = document.getElementById('participante_otro_input');
-            if (participanteSelect && participanteOtroInput) {
-                if (participanteSelect.value === 'Otro') {
-                    participanteOtroInput.classList.remove('hidden');
-                    participanteOtroInput.setAttribute('required', 'required');
-                } else {
-                    participanteOtroInput.classList.add('hidden');
-                    participanteOtroInput.removeAttribute('required');
-                    if (document.activeElement !== participanteOtroInput) { // Avoid clearing if user is typing
-                        participanteOtroInput.value = '';
-                    }
-                }
-            }
-        }
-
-        function inicializarValoresFormulario() {
-            const fechaInscripcionInput = document.getElementById('fecha_de_inscripcion');
-            if (fechaInscripcionInput && !fechaInscripcionInput.value) { // Only set if not already set (e.g. by old() or user)
-                 fechaInscripcionInput.value = new Date().toISOString().split('T')[0];
-            }
-            calcularAnoInscripcion();
-            calcularEdad();
-            toggleOtrosProgramas();
-            toggleParticipanteOtro();
-
-            const participanteSelect = document.getElementById('participante_select');
-            if (participanteSelect && _oldParticipante) {
-                participanteSelect.value = _oldParticipante;
-                toggleParticipanteOtro();
-                 if (_oldParticipante === 'Otro' && _oldParticipanteOtro) {
-                    const participanteOtroInput = document.getElementById('participante_otro_input');
-                    if(participanteOtroInput) participanteOtroInput.value = _oldParticipanteOtro;
-                }
-            }
-        }
-
-        function limpiarFormularioConConfirmacion() {
-            if (confirm('¿Está seguro de que desea limpiar el formulario? Todos los datos no guardados se perderán.')) {
-                document.getElementById('inscripcionForm').reset();
-                // After reset, re-initialize to default states
-                _oldActivo = 'true'; // Default to true for 'activo' on reset
-                _oldParticipante = null;
-                _oldParticipanteOtro = null;
-                // Re-initialize all fields to their defaults, including 'activo' and conditional logic
-                inicializarValoresFormulario();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            inicializarValoresFormulario(); // Initialize form values on page load
-
-            const fechaInscripcionInput = document.getElementById('fecha_de_inscripcion');
-            const fechaNacimientoInput = document.getElementById('fecha_de_nacimiento_p');
-            const radiosAsisteOtros = document.querySelectorAll('.asiste-otros-radio');
-            const participanteSelect = document.getElementById('participante_select');
-
-            if(fechaInscripcionInput) fechaInscripcionInput.addEventListener('change', calcularAnoInscripcion);
-            if(fechaNacimientoInput) fechaNacimientoInput.addEventListener('change', calcularEdad);
-            radiosAsisteOtros.forEach(radio => radio.addEventListener('change', toggleOtrosProgramas));
-            if (participanteSelect) participanteSelect.addEventListener('change', toggleParticipanteOtro);
-        });
+        // Estas variables globales serán leídas por participante-create.js
+        const _oldActivo = {{ old('activo', true) ? 'true' : 'false' }}; // Asegurar que sea booleano JS
+        const _oldParticipante = @json(old('participante'));
+        const _oldParticipanteOtro = @json(old('participante_otro'));
     </script>
+    @vite(['resources/js/pages/participante-create.js'])
 </x-app-layout>

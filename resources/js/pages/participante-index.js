@@ -1,3 +1,7 @@
+// Al inicio de participante-index.js
+import { showToast } from '../utils/notifications.js'; // Para toasts dinámicos específicos de esta página
+import { confirmAction } from '../utils/helpers.js';   // Para confirmaciones
+
 document.addEventListener('DOMContentLoaded', function () {
     const configElement = document.getElementById('participanteIndexConfig');
     if (!configElement) {
@@ -7,15 +11,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const searchProgramaSelect = document.getElementById('search_programa');
     const searchLugarSelect = document.getElementById('search_lugar');
-    const searchGradoSelect = document.getElementById('search_grado'); // Selector para Grado
-    const feedbackToastContainer = document.getElementById('global_feedback_toast');
+    const searchGradoSelect = document.getElementById('search_grado');
 
     const RUTA_LUGARES_POR_PROGRAMA = configElement.dataset.rutaLugaresPorPrograma;
-    const RUTA_GRADOS_URL = configElement.dataset.rutaGradosUrl; // URL para obtener grados
+    const RUTA_GRADOS_URL = configElement.dataset.rutaGradosUrl;
     const CSRF_TOKEN = configElement.dataset.csrfToken;
     const RUTA_TOGGLE_ACTIVO = configElement.dataset.rutaToggleActivo;
     const initialLugarValue = configElement.dataset.initialSearchLugar;
-    const initialGradoValue = configElement.dataset.initialSearchGrado; // Valor inicial para grado
+    const initialGradoValue = configElement.dataset.initialSearchGrado;
+
+    // ... (resto de tu lógica para populateSelect, cargarLugaresParaParticipantes, cargarGradosParaParticipantes, etc. se mantiene igual) ...
+    // Asegúrate de que cualquier llamada a showToast dentro de esta lógica (ej. en los catch de errores de fetch)
+    // siga usando la función importada showToast.
 
     /**
      * Popula un elemento select con opciones.
@@ -76,9 +83,9 @@ document.addEventListener('DOMContentLoaded', function () {
         populateSelect(searchGradoSelect, [], '', 'Cargando Grados...', 'Todos los');
         searchGradoSelect.disabled = true;
 
-        if (programa) { // Grados dependen al menos del programa
+        if (programa) {
             let url = `${RUTA_GRADOS_URL}?programa=${encodeURIComponent(programa)}`;
-            if (lugar) { // Si hay lugar, añadirlo para ser más específico
+            if (lugar) {
                 url += `&lugar_de_encuentro_del_programa=${encodeURIComponent(lugar)}`;
             }
             try {
@@ -101,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function () {
         populateSelect(searchLugarSelect, [], '', 'Cargando Lugares...', 'Todos los');
         searchLugarSelect.disabled = true;
 
-        // Limpiar y deshabilitar grados al cargar lugares
         populateSelect(searchGradoSelect, [], '', 'Seleccione Lugar...', 'Todos los');
         if(searchGradoSelect) searchGradoSelect.disabled = true;
 
@@ -112,12 +118,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
                 populateSelect(searchLugarSelect, data.lugares || data, lugarASeleccionar, 'Lugar de Encuentro', 'Todos los');
 
-                // Después de poblar lugares, decidir si cargar grados
                 const lugarActualSeleccionado = searchLugarSelect.value;
-                if (lugarActualSeleccionado) { // Si un lugar se seleccionó (ya sea el inicial o el primero de la lista)
+                if (lugarActualSeleccionado) {
                     await cargarGradosParaParticipantes(programaSeleccionado, lugarActualSeleccionado, (lugarActualSeleccionado === lugarASeleccionar ? gradoASeleccionarParaDespues : ""));
-                } else if (!lugarASeleccionar) { // Si no había un lugar inicial para seleccionar y no se seleccionó ninguno automáticamente
-                    await cargarGradosParaParticipantes(programaSeleccionado, "", gradoASeleccionarParaDespues); // Cargar grados solo por programa
+                } else if (!lugarASeleccionar) {
+                    await cargarGradosParaParticipantes(programaSeleccionado, "", gradoASeleccionarParaDespues);
                 }
 
             } catch (error) {
@@ -125,37 +130,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 populateSelect(searchLugarSelect, [], '', 'Error al cargar lugares', 'Error');
                 showToast(`Error al cargar lugares: ${error.message}`, 'error');
             }
-        } else { // Si no hay programa seleccionado
+        } else {
             populateSelect(searchLugarSelect, [], '', 'Seleccione programa primero', 'Todos los');
             populateSelect(searchGradoSelect, [], '', 'Seleccione programa primero', 'Todos los');
         }
     }
-
-    // --- Event Listeners ---
+     // --- Event Listeners ---
     if (searchProgramaSelect) {
         searchProgramaSelect.addEventListener('change', async function () {
-            // Al cambiar programa, cargar lugares. Grados se cargarán en cascada o si no hay lugar.
-            await cargarLugaresParaParticipantes(this.value, "", ""); // No preseleccionar lugar ni grado
+            await cargarLugaresParaParticipantes(this.value, "", "");
         });
     }
 
     if (searchLugarSelect) {
         searchLugarSelect.addEventListener('change', async function() {
             const programa = searchProgramaSelect ? searchProgramaSelect.value : "";
-            // Al cambiar el lugar, cargar los grados correspondientes.
-            await cargarGradosParaParticipantes(programa, this.value, ""); // No preseleccionar grado
+            await cargarGradosParaParticipantes(programa, this.value, "");
         });
     }
-    // El filtro de grado no tiene dependientes, así que no necesita un listener 'change' para cargar otros selects.
 
     // --- Inicialización de la Página ---
     async function inicializarPaginaParticipantes() {
         const currentSelectedPrograma = searchProgramaSelect ? searchProgramaSelect.value : "";
         if (currentSelectedPrograma) {
-            // Cargar lugares y, en cascada, grados, usando los valores iniciales si existen
             await cargarLugaresParaParticipantes(currentSelectedPrograma, initialLugarValue, initialGradoValue);
         } else {
-            // Si no hay programa inicial, los selectores de lugar y grado deben estar con su placeholder y deshabilitados
             populateSelect(searchLugarSelect, [], '', 'Seleccione programa primero', 'Todos los');
             populateSelect(searchGradoSelect, [], '', 'Seleccione programa primero', 'Todos los');
         }
@@ -163,52 +162,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     inicializarPaginaParticipantes();
 
-    // --- Funcionalidad de Toast (Notificaciones) ---
-    function showToast(message, type = 'success') {
-        if (!feedbackToastContainer) {
-            console.warn('Contenedor de toasts (global_feedback_toast) no encontrado.');
-            // Podrías crear uno dinámicamente si es crucial, o simplemente no mostrar el toast.
-            // return;
-        }
-        const toastId = 'toast-' + Date.now();
-        const toast = document.createElement('div');
-        let bgColor, textColor, borderColor, iconSvg;
-
-        // Clases para modo claro y oscuro
-        if (type === 'success') {
-            bgColor = 'bg-green-50 dark:bg-green-700/30';
-            textColor = 'text-green-700 dark:text-green-200';
-            borderColor = 'border-green-400 dark:border-green-600';
-            iconSvg = `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`;
-        } else { // Asumir error si no es success
-            bgColor = 'bg-red-50 dark:bg-red-700/30';
-            textColor = 'text-red-700 dark:text-red-200';
-            borderColor = 'border-red-400 dark:border-red-600';
-            iconSvg = `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4a1 1 0 102 0V5zm-1 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>`;
-        }
-        toast.className = `flex items-center p-4 rounded-xl shadow-lg border-l-4 ${bgColor} ${textColor} ${borderColor} text-sm font-medium mb-3 transition-all duration-500 ease-out transform translate-x-full opacity-0`;
-        toast.innerHTML = `${iconSvg}<span>${message}</span>`;
-
-        if (feedbackToastContainer) {
-            feedbackToastContainer.appendChild(toast);
-        } else { // Fallback si el contenedor no existe, aunque debería estar
-            document.body.appendChild(toast);
-             toast.style.position = 'fixed';
-             toast.style.top = '5rem'; // Ajustar según sea necesario
-             toast.style.right = '1.25rem'; // Ajustar según sea necesario
-             toast.style.zIndex = '100';
-        }
-
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-x-full', 'opacity-0');
-            toast.classList.add('translate-x-0', 'opacity-100');
-        });
-
-        setTimeout(() => {
-            toast.classList.add('opacity-0', 'translate-x-full');
-            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-        }, 4000);
-    }
 
     // --- Funcionalidad de Toggle Activo ---
     const toggles = document.querySelectorAll('.toggle-activo');
@@ -264,4 +217,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // --- Funcionalidad de Confirmación de Eliminación (usa confirmAction de helpers.js) ---
+    document.querySelectorAll('.form-delete-participante').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const participanteNombre = this.dataset.participanteNombre || 'este participante';
+            confirmAction(event,
+                'Eliminar Participante',
+                `¿Estás seguro de eliminar a ${participanteNombre}? Esta acción no se puede deshacer.`,
+                'Sí, eliminar',
+                'Cancelar',
+                'red'
+            );
+        });
+    });
+
+    // La lógica para procesar mensajes de sesión de Laravel se ha movido a app.js
+    // y ya no es necesaria aquí.
 });

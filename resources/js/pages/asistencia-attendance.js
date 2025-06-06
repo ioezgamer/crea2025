@@ -1,3 +1,5 @@
+// Al inicio de asistencia-attendance.js
+import { showToast } from '../utils/notifications.js'; // Ajusta la ruta si es necesario
 document.addEventListener('DOMContentLoaded', function () {
     const configElement = document.getElementById('asistenciaConfig');
     if (!configElement) {

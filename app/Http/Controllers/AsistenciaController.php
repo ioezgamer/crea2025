@@ -17,18 +17,18 @@ class AsistenciaController extends Controller
         $selectedPrograma = $request->input('programa', '');
         $selectedLugar = $request->input('lugar_de_encuentro_del_programa', '');
         $selectedGrado = $request->input('grado_p', '');
-        $selectedTipoAsistencia = $request->input('tipo_asistencia', 'semanal'); // 'semanal' o 'diaria'
+        $selectedTipoAsistencia = $request->input('tipo_asistencia', 'semanal');
         $fechaInput = $request->input('fecha', $selectedTipoAsistencia == 'semanal' ? now()->startOfWeek()->format('Y-m-d') : now()->format('Y-m-d'));
-
         $fechaCarbon = Carbon::parse($fechaInput);
 
-        // Validar que si es semanal, la fecha sea lunes
         if ($selectedTipoAsistencia == 'semanal' && $fechaCarbon->dayOfWeek !== Carbon::MONDAY) {
+            // Los withErrors se mostrarán por Blade, pero podemos añadir un flash general.
             return redirect()->route('asistencia.create', $request->except('fecha'))
+                ->with('error', 'Para asistencia semanal, la fecha de inicio debe ser un lunes.') // Mensaje flash
                 ->withErrors(['fecha' => 'Para asistencia semanal, la fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
-        
+
         $programOptions = Participante::getDistinctProgramasOptions();
         $lugarOptions = [];
         if ($selectedPrograma) {
@@ -38,9 +38,7 @@ class AsistenciaController extends Controller
         if ($selectedPrograma && $selectedLugar) {
             $gradoOptions = $this->getGradosQuery($selectedPrograma, $selectedLugar)->get()->pluck('grado_p');
         }
-        
         $diasSemana = $this->getDiasParaAsistencia($fechaCarbon, $selectedTipoAsistencia);
-
         $participantes = collect();
         $asistencias = [];
 
@@ -49,13 +47,10 @@ class AsistenciaController extends Controller
                 $selectedPrograma, $selectedLugar, $selectedGrado, $fechaCarbon, $selectedTipoAsistencia, $diasSemana
             );
         }
-        
+
         return view('asistencia.attendance', compact(
-            'programOptions', 'lugarOptions', 'gradoOptions',
-            'selectedPrograma', 'selectedLugar', 'selectedGrado', 'selectedTipoAsistencia',
-            'fechaInput', // Nombre de variable consistente
-            'diasSemana',
-            'participantes', 'asistencias'
+            'programOptions', 'lugarOptions', 'gradoOptions', 'selectedPrograma', 'selectedLugar',
+            'selectedGrado', 'selectedTipoAsistencia', 'fechaInput', 'diasSemana', 'participantes', 'asistencias'
         ));
     }
 
@@ -63,14 +58,12 @@ class AsistenciaController extends Controller
     {
         $dias = [];
         if ($tipoAsistencia === 'semanal') {
-            // Asegurarse que la fecha de referencia sea Lunes para 'semanal'
             $inicioSemana = $fechaReferencia->copy()->startOfWeek();
-            for ($i = 0; $i < 5; $i++) { // Lunes a Viernes
+            for ($i = 0; $i < 5; $i++) {
                 $fecha = $inicioSemana->copy()->addDays($i);
                 $dias[$fecha->translatedFormat('l')] = $fecha->format('Y-m-d');
             }
         } elseif ($tipoAsistencia === 'diaria') {
-            // Para 'diaria', solo usamos la fecha de referencia
             $dias[$fechaReferencia->translatedFormat('l')] = $fechaReferencia->format('Y-m-d');
         }
         return $dias;
@@ -80,21 +73,15 @@ class AsistenciaController extends Controller
     {
         $query = Participante::query()->where('activo', true);
         $query->where('programa', 'like', '%' . $programa . '%');
-        if ($lugar) {
-            $query->where('lugar_de_encuentro_del_programa', $lugar);
-        }
-        if ($grado) {
-            $query->where('grado_p', $grado);
-        }
-        
+        if ($lugar) $query->where('lugar_de_encuentro_del_programa', $lugar);
+        if ($grado) $query->where('grado_p', $grado);
+
         $fechaInicioRango = $fechaReferencia->copy();
         $fechaFinRango = $fechaReferencia->copy();
-
         if ($tipoAsistencia === 'semanal') {
             $fechaInicioRango = $fechaReferencia->copy()->startOfWeek();
-            $fechaFinRango = $fechaReferencia->copy()->startOfWeek()->addDays(4); // Lunes a Viernes
+            $fechaFinRango = $fechaReferencia->copy()->startOfWeek()->addDays(4);
         }
-        // Si es 'diaria', fechaInicioRango y fechaFinRango ya son el mismo día (fechaReferencia)
 
         $participantes = $query->with(['asistencias' => function ($q) use ($fechaInicioRango, $fechaFinRango) {
             $q->whereBetween('fecha_asistencia', [$fechaInicioRango->format('Y-m-d'), $fechaFinRango->format('Y-m-d')]);
@@ -102,29 +89,22 @@ class AsistenciaController extends Controller
 
         $asistenciasData = [];
         foreach ($participantes as $participante) {
-            $asistenciasParticipante = $participante->asistencias->keyBy(function ($item) {
-                return Carbon::parse($item->fecha_asistencia)->format('Y-m-d');
-            });
-
+            $asistenciasParticipante = $participante->asistencias->keyBy(fn($item) => Carbon::parse($item->fecha_asistencia)->format('Y-m-d'));
             $totalAsistido = 0;
-            // Usar $diasSemana (que ya está filtrado por tipo_asistencia) para iterar
             foreach ($diasSemana as $diaNombre => $fechaDia) {
                 $estado = $asistenciasParticipante->get($fechaDia)?->estado ?? 'Ausente';
                 $asistenciasData[$participante->participante_id][$diaNombre] = $estado;
-                if ($estado === 'Presente') {
-                    $totalAsistido++;
-                }
+                if ($estado === 'Presente') $totalAsistido++;
             }
             $participante->totalAsistido = $totalAsistido;
-            $participante->porcentajeAsistencia = count($diasSemana) > 0
-                ? round(($totalAsistido / count($diasSemana)) * 100)
-                : 0;
+            $participante->porcentajeAsistencia = count($diasSemana) > 0 ? round(($totalAsistido / count($diasSemana)) * 100) : 0;
         }
         return [$participantes, $asistenciasData];
     }
 
     public function getParticipantesFiltrados(Request $request)
     {
+        // Esta función devuelve JSON, los mensajes de error se manejan en el cliente.
         $validator = Validator::make($request->all(), [
             'programa' => 'required|string',
             'lugar_de_encuentro_del_programa' => 'required|string',
@@ -132,17 +112,13 @@ class AsistenciaController extends Controller
             'fecha' => 'required|date_format:Y-m-d',
             'tipo_asistencia' => 'required|in:semanal,diaria',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->first(), 'details' => $validator->errors()], 400);
-        }
+        if ($validator->fails()) return response()->json(['error' => $validator->errors()->first(), 'details' => $validator->errors()], 400);
 
         $selectedPrograma = $request->input('programa');
         $selectedLugar = $request->input('lugar_de_encuentro_del_programa');
         $selectedGrado = $request->input('grado_p');
-        $fechaInput = $request->input('fecha'); // Nombre consistente
+        $fechaInput = $request->input('fecha');
         $selectedTipoAsistencia = $request->input('tipo_asistencia');
-        
         try {
             $fechaCarbon = Carbon::parse($fechaInput);
             if ($selectedTipoAsistencia == 'semanal' && $fechaCarbon->dayOfWeek !== Carbon::MONDAY) {
@@ -151,44 +127,32 @@ class AsistenciaController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Formato de fecha inválido.'], 400);
         }
-
         $diasSemana = $this->getDiasParaAsistencia($fechaCarbon, $selectedTipoAsistencia);
-
         list($participantes, $asistencias) = $this->cargarParticipantesYAsistencias(
             $selectedPrograma, $selectedLugar, $selectedGrado, $fechaCarbon, $selectedTipoAsistencia, $diasSemana
         );
-        
         if ($participantes->isEmpty()) {
-             return response()->json(['html' => '<div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">No se encontraron participantes con los filtros seleccionados.</div>']);
+             return response()->json(['html' => '<div class="p-6 mt-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">No se encontraron participantes con los filtros seleccionados.</div>']);
         }
-
         $htmlTabla = view('asistencia.partials.tabla_asistencia', compact(
-            'participantes', 'diasSemana', 'asistencias', 
-            'selectedPrograma', 'fechaInput', 'selectedLugar', 'selectedGrado', 'selectedTipoAsistencia'
+            'participantes', 'diasSemana', 'asistencias', 'selectedPrograma', 'fechaInput', 'selectedLugar', 'selectedGrado', 'selectedTipoAsistencia'
         ))->render();
-        
         return response()->json(['html' => $htmlTabla]);
     }
 
-    // --- Métodos para Filtros Dinámicos AJAX (getLugaresEncuentro, getGrados) ---
-    // Estos métodos no cambian fundamentalmente, pero se mantienen para la funcionalidad de los filtros.
     private function getLugaresEncuentroQuery($programa)
     {
         $query = Participante::select('lugar_de_encuentro_del_programa')->distinct()
-            ->whereNotNull('lugar_de_encuentro_del_programa')
-            ->where('lugar_de_encuentro_del_programa', '!=', '');
-        if ($programa) {
-            $query->where('programa', 'like', '%' . $programa . '%');
-        }
+            ->whereNotNull('lugar_de_encuentro_del_programa')->where('lugar_de_encuentro_del_programa', '!=', '');
+        if ($programa) $query->where('programa', 'like', '%' . $programa . '%');
         return $query->orderBy('lugar_de_encuentro_del_programa');
     }
 
     public function getLugaresEncuentro(Request $request)
     {
+        // Devuelve JSON
         $validator = Validator::make($request->all(), ['programa' => 'required|string']);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->first()], 400);
-        }
+        if ($validator->fails()) return response()->json(['error' => $validator->errors()->first()], 400);
         $programa = $request->query('programa');
         $lugares = $this->getLugaresEncuentroQuery($programa)->get()->pluck('lugar_de_encuentro_del_programa');
         return response()->json($lugares);
@@ -198,49 +162,39 @@ class AsistenciaController extends Controller
     {
         $query = Participante::select('grado_p')->distinct()
             ->whereNotNull('grado_p')->where('grado_p', '!=', '');
-        if ($programa) {
-            $query->where('programa', 'like', '%' . $programa . '%');
-        }
-        if ($lugar) {
-            $query->where('lugar_de_encuentro_del_programa', $lugar);
-        }
+        if ($programa) $query->where('programa', 'like', '%' . $programa . '%');
+        if ($lugar) $query->where('lugar_de_encuentro_del_programa', $lugar);
         return $query->orderBy('grado_p');
     }
 
     public function getGrados(Request $request)
     {
+        // Devuelve JSON
         $validator = Validator::make($request->all(), [
             'programa' => 'required|string',
-            'lugar_de_encuentro_del_programa' => 'nullable|string', // Puede ser nulo si se está cargando solo por programa
+            'lugar_de_encuentro_del_programa' => 'nullable|string',
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->first()], 400);
-        }
+        if ($validator->fails()) return response()->json(['error' => $validator->errors()->first()], 400);
         $programa = $request->query('programa');
         $lugar = $request->query('lugar_de_encuentro_del_programa');
         $grados = $this->getGradosQuery($programa, $lugar)->get()->pluck('grado_p');
         return response()->json($grados);
     }
-    
+
     public function storeIndividual(Request $request)
     {
+        // Devuelve JSON, se maneja en el cliente
         $validator = Validator::make($request->all(), [
             'participante_id' => 'required|integer|exists:participantes,participante_id',
             'fecha_asistencia' => 'required|date_format:Y-m-d',
             'estado' => 'required|in:Presente,Ausente,Justificado',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
-        }
+        if ($validator->fails()) return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
 
         try {
             DB::beginTransaction();
             Asistencia::updateOrCreate(
-                [
-                    'participante_id' => $request->input('participante_id'),
-                    'fecha_asistencia' => $request->input('fecha_asistencia'),
-                ],
+                ['participante_id' => $request->input('participante_id'), 'fecha_asistencia' => $request->input('fecha_asistencia')],
                 ['estado' => $request->input('estado')]
             );
             DB::commit();
@@ -251,9 +205,10 @@ class AsistenciaController extends Controller
             return response()->json(['success' => false, 'message' => 'Error al guardar: ' . $e->getMessage()], 500);
         }
     }
-    
+
     public function reporte(Request $request)
     {
+        // Similar a create, si hay errores de validación, redirigir con un mensaje flash.
         $filtersValidator = Validator::make($request->all(), [
             'programa' => 'required|string',
             'lugar_de_encuentro_del_programa' => 'nullable|string',
@@ -261,57 +216,49 @@ class AsistenciaController extends Controller
             'fecha' => 'required|date_format:Y-m-d',
             'tipo_asistencia' => 'required|in:semanal,diaria',
         ]);
-        
+
         if ($filtersValidator->fails()) {
-            return redirect()->route('asistencia.create') // O a una página de error más genérica
+            return redirect()->route('asistencia.create') // o donde sea apropiado
+                ->with('error', 'Por favor corrige los errores del formulario para generar el reporte.')
                 ->withErrors($filtersValidator)
                 ->withInput();
         }
         $filters = $filtersValidator->validated();
-
         $fechaCarbon = Carbon::parse($filters['fecha']);
         if ($filters['tipo_asistencia'] == 'semanal' && $fechaCarbon->dayOfWeek !== Carbon::MONDAY) {
-            return redirect()->route('asistencia.reporte', $request->except('fecha')) // o asistencia.create
+            return redirect()->route('asistencia.reporte', $request->except('fecha'))
+                ->with('error', 'Para reporte semanal, la fecha de inicio debe ser un lunes.')
                 ->withErrors(['fecha' => 'Para reporte semanal, la fecha de inicio debe ser un lunes.'])
                 ->withInput();
         }
-        
+
         $diasSemana = $this->getDiasParaAsistencia($fechaCarbon, $filters['tipo_asistencia']);
-
         list($participantes, $asistencias) = $this->cargarParticipantesYAsistencias(
-            $filters['programa'],
-            $filters['lugar_de_encuentro_del_programa'],
-            $filters['grado_p'],
-            $fechaCarbon,
-            $filters['tipo_asistencia'],
-            $diasSemana
+            $filters['programa'], $filters['lugar_de_encuentro_del_programa'], $filters['grado_p'],
+            $fechaCarbon, $filters['tipo_asistencia'], $diasSemana
         );
-
+        // ... resto de la lógica de reporte ...
         $estadisticasPorDia = [];
         foreach($diasSemana as $diaNombre => $fechaDia) {
             $estadisticasPorDia[$diaNombre] = ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0, 'Total' => 0];
         }
-
         foreach($participantes as $p) {
             foreach($diasSemana as $diaNombre => $fechaDia) {
                 $estado = $asistencias[$p->participante_id][$diaNombre] ?? 'Ausente';
-                if (isset($estadisticasPorDia[$diaNombre][$estado])) {
-                    $estadisticasPorDia[$diaNombre][$estado]++;
-                }
+                if (isset($estadisticasPorDia[$diaNombre][$estado])) $estadisticasPorDia[$diaNombre][$estado]++;
                 $estadisticasPorDia[$diaNombre]['Total']++;
             }
         }
         $totalParticipantes = $participantes->count();
         $sumaPorcentajes = $participantes->sum('porcentajeAsistencia');
         $promedioAsistenciaGeneral = $totalParticipantes > 0 ? round($sumaPorcentajes / $totalParticipantes) : 0;
-        
+
         $programOptions = Participante::getDistinctProgramasOptions();
         $lugarOptions = $this->getLugaresEncuentroQuery($filters['programa'])->get()->pluck('lugar_de_encuentro_del_programa');
         $gradoOptions = $this->getGradosQuery($filters['programa'], $filters['lugar_de_encuentro_del_programa'])->get()->pluck('grado_p');
 
         return view('asistencia.reporte', compact(
-            'participantes', 'asistencias', 'diasSemana',
-            'filters', 
+            'participantes', 'asistencias', 'diasSemana', 'filters',
             'programOptions', 'lugarOptions', 'gradoOptions',
             'estadisticasPorDia', 'totalParticipantes', 'promedioAsistenciaGeneral'
         ));
@@ -328,40 +275,32 @@ class AsistenciaController extends Controller
         ]);
 
         if ($filtersValidator->fails()) {
-            return redirect()->route('asistencia.create') // O a una página de error más genérica
+            return redirect()->route('asistencia.reporte') // o a asistencia.create
+                ->with('error', 'No se pudo generar el PDF debido a errores en los filtros.')
                 ->withErrors($filtersValidator)
                 ->withInput();
         }
         $filters = $filtersValidator->validated();
-
         $fechaCarbon = Carbon::parse($filters['fecha']);
         if ($filters['tipo_asistencia'] == 'semanal' && $fechaCarbon->dayOfWeek !== Carbon::MONDAY) {
              return redirect()->route('asistencia.reporte', $request->except('fecha'))
-                ->withErrors(['fecha_export' => 'Para PDF semanal, la fecha de inicio debe ser un lunes.'])
+                ->with('error', 'Para PDF semanal, la fecha de inicio debe ser un lunes.')
+                ->withErrors(['fecha_export' => 'Para PDF semanal, la fecha de inicio debe ser un lunes.']) // Usar una clave de error diferente si es necesario
                 ->withInput();
         }
-        
-        $diasSemana = $this->getDiasParaAsistencia($fechaCarbon, $filters['tipo_asistencia']);
 
+        // ... (resto de la lógica para preparar datos del PDF) ...
+        $diasSemana = $this->getDiasParaAsistencia($fechaCarbon, $filters['tipo_asistencia']);
         list($participantes, $asistencias) = $this->cargarParticipantesYAsistencias(
-            $filters['programa'],
-            $filters['lugar_de_encuentro_del_programa'],
-            $filters['grado_p'],
-            $fechaCarbon,
-            $filters['tipo_asistencia'],
-            $diasSemana
+            $filters['programa'], $filters['lugar_de_encuentro_del_programa'], $filters['grado_p'],
+            $fechaCarbon, $filters['tipo_asistencia'], $diasSemana
         );
-        
         $estadisticasPorDia = [];
-        foreach($diasSemana as $diaNombre => $fechaDia) {
-            $estadisticasPorDia[$diaNombre] = ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0, 'Total' => 0];
-        }
+        foreach($diasSemana as $diaNombre => $fechaDia) $estadisticasPorDia[$diaNombre] = ['Presente' => 0, 'Ausente' => 0, 'Justificado' => 0, 'Total' => 0];
         foreach($participantes as $p) {
             foreach($diasSemana as $diaNombre => $fechaDia) {
                 $estado = $asistencias[$p->participante_id][$diaNombre] ?? 'Ausente';
-                 if (isset($estadisticasPorDia[$diaNombre][$estado])) {
-                    $estadisticasPorDia[$diaNombre][$estado]++;
-                }
+                 if (isset($estadisticasPorDia[$diaNombre][$estado])) $estadisticasPorDia[$diaNombre][$estado]++;
                 $estadisticasPorDia[$diaNombre]['Total']++;
             }
         }
@@ -376,9 +315,8 @@ class AsistenciaController extends Controller
 
         try {
             $mpdf = new \Mpdf\Mpdf([
-                'format' => $filters['tipo_asistencia'] === 'semanal' ? 'A4-L' : 'A4', // Landscape para semanal, Portrait para diario
-                'margin_top' => 10, 'margin_bottom' => 10,
-                'margin_left' => 10, 'margin_right' => 10,
+                'format' => $filters['tipo_asistencia'] === 'semanal' ? 'A4-L' : 'A4',
+                'margin_top' => 10, 'margin_bottom' => 10, 'margin_left' => 10, 'margin_right' => 10,
             ]);
             $mpdf->WriteHTML($html);
             $fechaFormateada = $fechaCarbon->format('Y-m-d');
@@ -387,7 +325,9 @@ class AsistenciaController extends Controller
             return $mpdf->Output($nombreArchivo, 'D');
         } catch (\Mpdf\MpdfException $e) {
             Log::error("Error al generar PDF de asistencia: " . $e->getMessage());
-            return redirect()->back()->withErrors(['pdf_error' => 'No se pudo generar el PDF: ' . $e->getMessage()]);
+            return redirect()->back()
+                            ->with('error', 'No se pudo generar el PDF: ' . $e->getMessage())
+                            ->withInput($request->all()); // Re-enviar filtros para que el usuario no los pierda
         }
     }
 }

@@ -1,4 +1,3 @@
-{{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class=""> {{-- La clase 'dark' se gestiona por JS --}}
 <head>
@@ -13,8 +12,11 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+    {{-- SweetAlert2 CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     {{-- Scripts de Vite (CSS principal) --}}
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js']) {{-- Asegúrate de que app.js se compile aquí --}}
 
     {{-- Script para inicializar el modo oscuro --}}
     <script>
@@ -33,10 +35,9 @@
             const currentPreference = localStorage.getItem('themePreference');
             if (currentPreference === 'system' || !currentPreference) {
                 applyTheme();
-                // Actualizar estado de Alpine.js si existe (para el botón de toggle de tema)
                 const alpineComponent = document.querySelector('[x-data*="currentTheme"]');
                 if (alpineComponent && alpineComponent.__x) {
-                    alpineComponent.__x.$data.currentTheme = alpineComponent.__x.$data.getInitialTheme(); // Re-evaluar
+                    alpineComponent.__x.$data.currentTheme = alpineComponent.__x.$data.getInitialTheme();
                 }
             }
         });
@@ -47,17 +48,14 @@
 
         @include('layouts.navigation')
 
-        {{-- Header Estándar y Consistente --}}
         @isset($header)
-        <header class="sticky z-30 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 backdrop-blur-md ">
+        <header class="sticky top-0 z-40 shadow-sm bg-white/70 dark:bg-slate-800/80 backdrop-blur-md">
             <div class="flex flex-col w-full px-4 py-2 mx-auto gap-y-1 sm:flex-row sm:items-center sm:justify-between max-w-7xl sm:px-6 lg:px-8 sm:py-1">
-                {{-- El contenido que definas en el slot 'header' de tus vistas se insertará aquí --}}
                 {{ $header }}
             </div>
         </header>
         @endisset
 
-        {{-- Contenido Principal --}}
         <main class="flex-grow">
             {{ $slot }}
         </main>
@@ -65,9 +63,27 @@
         @include('layouts.footer')
     </div>
 
+    {{-- Contenedor global para toasts --}}
+    <div id="global_toast_container" class="fixed top-20 right-5 z-[100] w-full max-w-xs sm:max-w-sm space-y-3">
+        {{-- Los toasts se añadirán aquí dinámicamente por notifications.js --}}
+    </div>
+
+    {{-- Div para pasar mensajes de sesión de Laravel a JavaScript --}}
+    {{-- Este div será leído por resources/js/app.js para mostrar los toasts --}}
+    <div id="sessionMessages" class="hidden"
+         @if (session('success')) data-success-message="{{ session('success') }}" @endif
+         @if (session('error')) data-error-message="{{ session('error') }}" @endif
+         @if (session('warning')) data-warning-message="{{ session('warning') }}" @endif
+         @if (session('info')) data-info-message="{{ session('info') }}" @endif
+    ></div>
+
     {{-- Alpine.js desde CDN --}}
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- SweetAlert2 JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     {{-- Scripts específicos de página pusheados aquí --}}
     @stack('scripts')
+    {{-- El @vite ya carga app.js, que debería manejar lógica global y de inicialización. --}}
 </body>
 </html>

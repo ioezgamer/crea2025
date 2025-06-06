@@ -91,26 +91,22 @@
                                 <option value="">{{ request('search_programa') ? 'Todos los lugares' : 'Seleccione programa primero' }}</option>
                             </select>
                         </div>
-{{-- ... después del div de search_lugar ... --}}
-<div class="col-span-12 md:col-span-4 lg:col-span-2"> {{-- Ajusta el span según tu layout --}}
-    <label for="search_grado" class="block text-xs font-medium text-slate-700 dark:text-slate-300">Grado</label>
-    <select name="search_grado" id="search_grado"
-            class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
-            {{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? '' : 'disabled' }}>
-        <option value="">{{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? 'Todos los grados' : 'Seleccione programa/lugar' }}</option>
-        @foreach($gradoOptions as $gradoOption) {{-- Opciones iniciales --}}
-            <option value="{{ $gradoOption }}" {{ request('search_grado') == $gradoOption ? 'selected' : '' }}>
-                {{ $gradoOption }}
-            </option>
-        @endforeach
-    </select>
-</div>
+                        <div class="col-span-12 md:col-span-4 lg:col-span-2">
+                            <label for="search_grado" class="block text-xs font-medium text-slate-700 dark:text-slate-300">Grado</label>
+                            <select name="search_grado" id="search_grado"
+                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    {{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? '' : 'disabled' }}>
+                                <option value="">{{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? 'Todos los grados' : 'Seleccione programa/lugar' }}</option>
+                                @foreach($gradoOptions as $gradoOption)
+                                    <option value="{{ $gradoOption }}" {{ request('search_grado') == $gradoOption ? 'selected' : '' }}>
+                                        {{ $gradoOption }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-{{-- Ajusta el col-span del div de botones para que quepan todos los filtros --}}
-
-    {{-- Botones Filtrar y Limpiar existentes --}}
-                <div class="flex items-end col-span-12 space-x-2 md:col-span-12 lg:col-span-2">
-                                <button type="submit" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150 shadow-md hover:shadow-lg">
+                        <div class="flex items-end col-span-12 space-x-2 md:col-span-12 lg:col-span-3"> {{-- Adjusted span for new filter --}}
+                            <button type="submit" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150 shadow-md hover:shadow-lg">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 Filtrar
                             </button>
@@ -122,7 +118,7 @@
                     </form>
                 </div>
 
-                <div id="global_feedback_toast" class="fixed top-20 right-5 z-[100]"></div>
+                {{-- global_feedback_toast div is removed. notifications.js will create global_toast_container if needed. --}}
 
                 <div class="p-2 sm:p-4">
                     @if($participantes->isEmpty())
@@ -229,7 +225,8 @@
                                                     <a href="{{ route('participante.edit', $participante) }}" class="text-amber-500 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 p-1.5 rounded-full hover:bg-amber-100 dark:hover:bg-amber-700/30 transition-colors" title="Editar">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                     </a>
-                                                    <form action="{{ route('participante.destroy', $participante) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este participante? Esta acción no se puede deshacer.');">
+                                                    <form action="{{ route('participante.destroy', $participante) }}" method="POST" class="inline form-delete-participante"
+                                                          data-participante-nombre="{{ $participante->primer_nombre_p }} {{ $participante->primer_apellido_p }}">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-700/30 transition-colors" title="Eliminar">
@@ -254,16 +251,23 @@
         </div>
     </div>
 
-   {{-- ... tu contenido de la vista ... --}}
+    {{-- Div para configuración de JS y pasar datos desde el backend --}}
+    <div id="participanteIndexConfig" class="hidden"
+         data-ruta-lugares-por-programa="{{ route('participante.lugaresPorPrograma') }}"
+         data-ruta-grados-url="{{ route('asistencia.opciones.grados') }}"
+         data-csrf-token="{{ csrf_token() }}"
+         data-ruta-toggle-activo="{{ route('participante.toggle-activo') }}"
+         data-initial-search-lugar="{{ request('search_lugar', '') }}"
+         data-initial-search-grado="{{ request('search_grado', '') }}"
+    ></div>
 
-<div id="participanteIndexConfig" class="hidden"
-     data-ruta-lugares-por-programa="{{ route('participante.lugaresPorPrograma') }}"
-     data-ruta-grados-url="{{ route('asistencia.opciones.grados') }}" {{-- <--- NUEVO --}}
-     data-csrf-token="{{ csrf_token() }}"
-     data-ruta-toggle-activo="{{ route('participante.toggle-activo') }}"
-     data-initial-search-lugar="{{ request('search_lugar', '') }}"
-     data-initial-search-grado="{{ request('search_grado', '') }}" {{-- <--- NUEVO --}}
-></div>
+    {{-- Div para pasar mensajes de sesión de Laravel a JavaScript --}}
+    <div id="sessionMessages" class="hidden"
+         @if (session('success')) data-success-message="{{ session('success') }}" @endif
+         @if (session('error')) data-error-message="{{ session('error') }}" @endif
+         @if (session('warning')) data-warning-message="{{ session('warning') }}" @endif
+         @if (session('info')) data-info-message="{{ session('info') }}" @endif
+    ></div>
 
 
     <style>
@@ -276,7 +280,6 @@
         .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .dark .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #64748b; } /* slate-500 */
     </style>
-    {{-- Al final de tu archivo participante/index.blade.php, antes de </x-app-layout> --}}
 
     @vite(['resources/js/pages/participante-index.js'])
 

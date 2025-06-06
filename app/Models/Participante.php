@@ -72,7 +72,7 @@ class Participante extends Model
         if ($filterPrograma) {
             // Para MySQL, FIND_IN_SET es ideal para buscar en campos CSV
             // return $query->whereRaw('FIND_IN_SET(?, programa)', [$filterPrograma]);
-            
+
             // Alternativa más general (pero menos precisa y eficiente) es LIKE
             // Esto encontrará 'Programa A' si el campo es 'Programa ABC, Programa A, Programa D'
             // pero también si el campo es 'Super Programa Avanzado' y el filtro es 'Programa A'
@@ -125,4 +125,9 @@ class Participante extends Model
         sort($programOptions);
         return $programOptions;
     }
+    public function getRouteKeyName()
+{
+    return 'participante_id';
+}
+
 }

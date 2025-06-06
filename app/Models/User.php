@@ -60,16 +60,14 @@ class User extends Authenticatable // Podrías implementar MustVerifyEmail aquí
     /**
      * Scope para obtener solo usuarios aprobados.
      */
-    public function scopeApproved($query)
-    {
-        return $query->whereNotNull('approved_at');
-    }
+    // En App\Models\User.php
+public function scopeApproved($query)
+{
+    return $query->whereNotNull('approved_at');
+}
 
-    /**
-     * Scope para obtener solo usuarios pendientes de aprobación.
-     */
-    public function scopePendingApproval($query)
-    {
-        return $query->whereNull('approved_at');
-    }
+public function scopePendingApproval($query)
+{
+    return $query->whereNull('approved_at');
+}
 }

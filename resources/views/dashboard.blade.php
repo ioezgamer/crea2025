@@ -14,7 +14,7 @@
             {{-- Welcome Banner --}}
             <div class="mb-8">
                 <div class="p-6 shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
-                    <h3 class="mb-2 text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
+                    <h3 class="text-xs font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
                         ¡Bienvenido, <span class="font-bold">{{ Auth::user()->name }}</span>!
                     </h3>
                     <p class="text-sm text-slate-600 dark:text-slate-300">
@@ -56,7 +56,9 @@
                 {{-- Stat Card: Pending Users --}}
                 <div class="flex items-center p-6 transition-shadow duration-300 shadow-lg bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl hover:shadow-xl">
                     <div class="flex-shrink-0 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-3.5 mr-4 shadow-md">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-slate-500 dark:text-slate-400">Usuarios Pendientes</h4>
@@ -71,21 +73,25 @@
                 <div class="p-6 transition-shadow duration-300 shadow-lg bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl hover:shadow-xl">
                     <div class="flex items-center mb-3">
                         <div class="flex-shrink-0 bg-gradient-to-br from-purple-500 to-fuchsia-600 rounded-xl p-3.5 mr-4 shadow-md">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zm8 0c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zM6 3a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3H6z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 text-white">
+                            <path d="M11.584 2.376a.75.75 0 0 1 .832 0l9 6a.75.75 0 1 1-.832 1.248L12 3.901 3.416 9.624a.75.75 0 0 1-.832-1.248l9-6Z" />
+                            <path fill-rule="evenodd" d="M20.25 10.332v9.918H21a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5h.75v-9.918a.75.75 0 0 1 .634-.74A49.109 49.109 0 0 1 12 9c2.59 0 5.134.202 7.616.592a.75.75 0 0 1 .634.74Zm-7.5 2.418a.75.75 0 0 0-1.5 0v6.75a.75.75 0 0 0 1.5 0v-6.75Zm3-.75a.75.75 0 0 1 .75.75v6.75a.75.75 0 0 1-1.5 0v-6.75a.75.75 0 0 1 .75-.75ZM9 12.75a.75.75 0 0 0-1.5 0v6.75a.75.75 0 0 0 1.5 0v-6.75Z" clip-rule="evenodd" />
+                            <path d="M12 7.875a1.125 1.125 0 1 0 0-2.25 1.125 1.125 0 0 0 0 2.25Z" />
+                            </svg>
+
                         </div>
-                        <div>
-                            <h4 class="text-sm font-medium text-slate-500 dark:text-slate-400">Usuarios por Rol</h4>
-                             <p class="text-xl font-semibold text-slate-800 dark:text-slate-100">Admins: {{ $adminUsers ?? 0 }}</p>
-                        </div>
-                    </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 ml-1 space-y-0.5">
+                        <div class="text-xs text-slate-500 dark:text-slate-400 ml-1 space-y-0.5">
+                        <h4 class="text-sm font-medium text-slate-500 dark:text-slate-400">Usuarios por Rol</h4>
+                        <p>Admins: {{ $adminUsers ?? 0 }}</p>
                         <p>Editores: {{ $editorUsers ?? 0 }}</p>
                         <p>Gestores: {{ $gestorUsers ?? 0 }}</p>
                         <p>Usuarios: {{ $standardUsers ?? 0 }}</p>
+                        @can('manage-roles')
+                            <a href="{{ route('roles.index') }}" class="block mt-2 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Gestionar Roles</a>
+                            @endcan
+                        </div>
                     </div>
-                    @can('manage-roles')
-                    <a href="{{ route('roles.index') }}" class="block mt-2 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Gestionar Roles</a>
-                    @endcan
+
                 </div>
             </div>
 
@@ -233,22 +239,55 @@
             </div>
 
             {{-- Quick Actions Section --}}
-            <h3 class="mt-10 mb-4 ml-1 text-xl font-semibold text-slate-700 dark:text-slate-200">Acciones Rápidas</h3>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <h3 class="mt-10 mb-4 ml-1 text-xl font-semibold text-center border-b text-slate-700 dark:text-slate-200-">Acciones Rápidas</h3>
+            <div class="grid items-center justify-center grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 lg:justify-items-center">
                 @can('create-user')
-                <a href="{{ route('roles.user.create') }}" class="block px-4 py-3 font-semibold text-center text-white transition duration-150 ease-in-out shadow-md bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl hover:shadow-lg">
-                    Crear Usuario
+                <a href="{{ route('roles.user.create') }}"
+                class="group inline-flex items-center justify-center h-10 pl-3 pr-5 size-64
+                        gap-2.5 rounded-full font-semibold relative cursor-pointer
+                        transition-all duration-300 ease-in-out
+                        shadow-[5px_5px_10px_rgba(0,0,0,0.116)]
+                        active:scale-[0.97] active:duration-200
+                        text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                    <!-- Icono UserPlus (Heroicons) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-[25px] w-[25px] transition-transform duration-[1000ms] ease-in-out group-hover:rotate-[250deg]">
+            <path d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z" />
+            </svg>
+
+                    <span>Crear Usuario</span>
                 </a>
                 @endcan
-                <a href="{{ route('participante.create') }}" class="block px-4 py-3 font-semibold text-center text-white transition duration-150 ease-in-out shadow-md bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl hover:shadow-lg">
-                    Registrar Participante
+
+                <a href="{{ route('participante.create') }}"
+                class="group inline-flex items-center justify-center h-10 pl-3 pr-5 size-64
+                        gap-2.5 rounded-full font-semibold relative cursor-pointer
+                        transition-all duration-300 ease-in-out
+                        shadow-[5px_5px_10px_rgba(0,0,0,0.116)]
+                        active:scale-[0.97] active:duration-200
+                        text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
+                    <!-- Icono Users (Heroicons) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-[25px] w-[25px] transition-transform duration-[1000ms] ease-in-out group-hover:rotate-[250deg]">
+            <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
+            </svg>
+
+                    <span>Registrar Participante</span>
                 </a>
-                <a href="{{ route('asistencia.create') }}" class="block px-4 py-3 font-semibold text-center text-white transition duration-150 ease-in-out shadow-md bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 rounded-xl hover:shadow-lg">
-                    Registrar Asistencia
+
+                <a href="{{ route('asistencia.create') }}"
+                class="group inline-flex items-center justify-center h-10 pl-3 pr-5 size-64
+                        gap-2.5 rounded-full font-semibold relative cursor-pointer
+                        transition-all duration-300 ease-in-out
+                        shadow-[5px_5px_10px_rgba(0,0,0,0.116)]
+                        active:scale-[0.97] active:duration-200
+                        text-white bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700">
+                    <!-- Icono ClipboardDocumentCheck (Heroicons) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-[25px] w-[25px] transition-transform duration-[1000ms] ease-in-out group-hover:rotate-[250deg]">
+            <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 0 1 1.5 18.375V5.625ZM21 9.375A.375.375 0 0 0 20.625 9h-7.5a.375.375 0 0 0-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 0 0 .375-.375v-1.5Zm0 3.75a.375.375 0 0 0-.375-.375h-7.5a.375.375 0 0 0-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 0 0 .375-.375v-1.5Zm0 3.75a.375.375 0 0 0-.375-.375h-7.5a.375.375 0 0 0-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 0 0 .375-.375v-1.5ZM10.875 18.75a.375.375 0 0 0 .375-.375v-1.5a.375.375 0 0 0-.375-.375h-7.5a.375.375 0 0 0-.375.375v1.5c0 .207.168.375.375.375h7.5ZM3.375 15h7.5a.375.375 0 0 0 .375-.375v-1.5a.375.375 0 0 0-.375-.375h-7.5a.375.375 0 0 0-.375.375v1.5c0 .207.168.375.375.375Zm0-3.75h7.5a.375.375 0 0 0 .375-.375v-1.5A.375.375 0 0 0 10.875 9h-7.5A.375.375 0 0 0 3 9.375v1.5c0 .207.168.375.375.375Z" clip-rule="evenodd" />
+            </svg>
+
+                    <span>Registrar Asistencia</span>
                 </a>
-                <a href="{{ route('asistencia.reporte') }}" class="block px-4 py-3 font-semibold text-center text-white transition duration-150 ease-in-out shadow-md bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 rounded-xl hover:shadow-lg">
-                    Reportes Asistencia
-                </a>
+
             </div>
         </div>
     </div>

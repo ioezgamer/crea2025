@@ -75,10 +75,9 @@ class DashboardController extends Controller
         // --- Estadísticas de Usuarios ---
         $totalUsers = User::count();
 
-        // CORRECCIÓN: Usar `email_verified_at` para determinar usuarios aprobados/pendientes
-        // Si tienes una columna diferente para la aprobación (ej. un booleano 'activo' o 'aprobado'), úsala aquí.
-        $approvedUsers = User::whereNotNull('email_verified_at')->count();
-        $pendingUsers = User::whereNull('email_verified_at')->count();
+        // AJUSTE: Usar los scopes del modelo User para consistencia, basados en 'approved_at'
+        $approvedUsers = User::approved()->count();
+        $pendingUsers = User::pendingApproval()->count();
 
 
         $usersByRole = User::select('role', DB::raw('count(*) as count'))
@@ -88,7 +87,7 @@ class DashboardController extends Controller
         $adminUsers = $usersByRole->get('admin', 0);
         $editorUsers = $usersByRole->get('editor', 0);
         $gestorUsers = $usersByRole->get('gestor', 0);
-        $standardUsers = $usersByRole->get('user', 0);
+        $standardUsers = $usersByRole->get('user', 0); // Asumiendo 'user' es el rol estándar
 
         $tutorsCountFromParticipants = Participante::distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
 
@@ -97,8 +96,8 @@ class DashboardController extends Controller
             'totalParticipants' => $totalParticipants,
             'participantsByProgramData' => $programCounts,
             'participantsByPlaceData' => $participantsByPlace,
-            'participantsByProgramForTable' => $programCounts,
-            'participantsByPlaceForTable' => $participantsByPlace,
+            'participantsByProgramForTable' => $programCounts, // Considera si necesitas datos diferentes para tabla y gráfico
+            'participantsByPlaceForTable' => $participantsByPlace, // Considera si necesitas datos diferentes para tabla y gráfico
             'newParticipantsThisMonth' => $newParticipantsThisMonth,
             'newParticipantsByMonth' => $newParticipantsByMonthFormatted,
 
@@ -109,7 +108,7 @@ class DashboardController extends Controller
             'editorUsers' => $editorUsers,
             'gestorUsers' => $gestorUsers,
             'standardUsers' => $standardUsers,
-            'tutorsCount' => $tutorsCountFromParticipants,
+            'tutorsCount' => $tutorsCountFromParticipants, // Este parece ser un conteo de tutores basado en la tabla Participantes
         ]);
     }
 }

@@ -23,12 +23,14 @@ class UpdateParticipanteRequest extends FormRequest
      */
     public function rules(): array
     {
-        $participanteId = $this->route('participante') ? $this->route('participante')->participante_id : null;
+       $participante = $this->route('participante');
+    $participanteId = $participante?->getKey();
+
 
         return [
             'fecha_de_inscripcion' => 'required|date',
             'ano_de_inscripcion' => 'required|integer|min:1900|max:'.date('Y'),
-            'participante' => 'required|in:primaria,secundaria', // Asegúrate que estos valores sean los correctos
+            'participante' => 'required|string|max:255', // Asegúrate que estos valores sean los correctos
             'partida_de_nacimiento' => 'required|boolean',
             'activo' => 'required|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
