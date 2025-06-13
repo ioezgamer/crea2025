@@ -195,26 +195,16 @@
                                         @enderror
                                     </div>
                                     <div>
-                                        <label for="comunidad_p" class="block mb-1 text-xs font-medium text-gray-800">Comunidad</label>
-                                        <select name="comunidad_p" id="comunidad_p" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione</option>
-                                            <option value="Asentamiento" {{ old('comunidad_p', $participante->comunidad_p) == 'Asentamiento' ? 'selected' : '' }}>Asentamiento</option>
-                                            <option value="Barrio Nuevo" {{ old('comunidad_p', $participante->comunidad_p) == 'Barrio Nuevo' ? 'selected' : '' }}>Barrio Nuevo</option>
-                                            <option value="Cuascoto" {{ old('comunidad_p', $participante->comunidad_p) == 'Cuascoto' ? 'selected' : '' }}>Cuascoto</option>
-                                            <option value="Higueral" {{ old('comunidad_p', $participante->comunidad_p) == 'Higueral' ? 'selected' : '' }}>Higueral</option>
-                                            <option value="Juan Dávila" {{ old('comunidad_p', $participante->comunidad_p) == 'Juan Dávila' ? 'selected' : '' }}>Juan Dávila</option>
-                                            <option value="Las Mercedes" {{ old('comunidad_p', $participante->comunidad_p) == 'Las Mercedes' ? 'selected' : '' }}>Las Mercedes</option>
-                                            <option value="Las Salinas" {{ old('comunidad_p', $participante->comunidad_p) == 'Las Salinas' ? 'selected' : '' }}>Las Salinas</option>
-                                            <option value="Limón 1" {{ old('comunidad_p', $participante->comunidad_p) == 'Limón 1' ? 'selected' : '' }}>Limón 1</option>
-                                            <option value="Limón 2" {{ old('comunidad_p', $participante->comunidad_p) == 'Limón 2' ? 'selected' : '' }}>Limón 2</option>
-                                            <option value="Ojochal" {{ old('comunidad_p', $participante->comunidad_p) == 'Ojochal' ? 'selected' : '' }}>Ojochal</option>
-                                            <option value="San Ignacio" {{ old('comunidad_p', $participante->comunidad_p) == 'San Ignacio' ? 'selected' : '' }}>San Ignacio</option>
-                                            <option value="Santa Juana" {{ old('comunidad_p', $participante->comunidad_p) == 'Santa Juana' ? 'selected' : '' }}>Santa Juana</option>
-                                            <option value="Virgen Morena" {{ old('comunidad_p', $participante->comunidad_p) == 'Virgen Morena' ? 'selected' : '' }}>Virgen Morena</option>
-                                        </select>
-                                        @error('comunidad_p')
-                                            <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
-                                        @enderror
+                                        <x-input-label for="comunidad_p">Comunidad del Participante <span class="text-red-500">*</span></x-input-label>
+
+                                        {{-- Asegúrate de pasar la colección y el valor actual --}}
+                                        <x-community-selector
+                                            :comunidades="$comunidades"
+                                            name="comunidad_p"
+                                            id="comunidad_p"
+                                            :value="$participante->comunidad_p"
+                                            required
+                                        />
                                     </div>
                                     <div>
                                         <label for="ciudad_p" class="block mb-1 text-xs font-medium text-gray-800">Ciudad</label>
@@ -359,20 +349,15 @@
                                         @enderror
                                     </div>
                                     <div>
-                                        <label for="lugar_de_encuentro_del_programa" class="block mb-1 text-xs font-medium text-gray-800">Lugar de encuentro <span class="text-red-500">*</span></label>
-                                        <select name="lugar_de_encuentro_del_programa" id="lugar_de_encuentro_del_programa" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out" required>
-                                            <option value="" disabled>Seleccione...</option>
-                                            <option value="Virgen Morena" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Virgen Morena' ? 'selected' : '' }}>Virgen Morena</option>
-                                            <option value="Las Salinas" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Las Salinas' ? 'selected' : '' }}>Las Salinas</option>
-                                            <option value="CREA" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'CREA' ? 'selected' : '' }}>CREA</option>
-                                            <option value="Ojochal" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Ojochal' ? 'selected' : '' }}>Ojochal</option>
-                                            <option value="Las Mercedes" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Las Mercedes' ? 'selected' : '' }}>Las Mercedes</option>
-                                            <option value="Limón 1" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Limón 1' ? 'selected' : '' }}>Limón 1</option>
-                                            <option value="Asentamiento" {{ old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa) == 'Asentamiento' ? 'selected' : '' }}>Asentamiento</option>
-                                        </select>
-                                        @error('lugar_de_encuentro_del_programa')
-                                            <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
-                                        @enderror
+                                        <x-input-label for="lugar_de_encuentro_del_programa" required>Lugar de encuentro del programa</x-input-label>
+                                        <div class="mt-2">
+                                            <x-radio-group-with-other
+                                                :options="$lugaresDeEncuentro"
+                                                name="lugar_de_encuentro_del_programa"
+                                                :value="$participante->lugar_de_encuentro_del_programa"
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block mb-2 text-xs font-medium text-gray-800">Días de Asistencia Esperados <span class="text-red-500">*</span></label>
@@ -431,17 +416,62 @@
                                             <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div>
-                                        <label for="comunidad_tutor" class="block mb-1 text-xs font-medium text-gray-800">Comunidad</label>
-                                        <select name="comunidad_tutor" id="comunidad_tutor" class="w-full px-3 py-1.5 border border-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm transition duration-150 ease-in-out">
-                                            <option value="" {{ old('comunidad_tutor', $participante->comunidad_tutor) == '' ? 'selected' : '' }}>Seleccione (Opcional)</option>
-                                            @foreach($comunidades as $comunidad)
-                                            <option value="{{ $comunidad }}" {{ old('comunidad_tutor', $participante->comunidad_tutor) == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
+                                    {{-- Sección de Comunidad del Tutor (Adaptada para Edición) --}}
+                                    @php
+                                        // Determinar el estado inicial. Se muestra el campo 'nueva_comunidad' si:
+                                        // 1. Hubo un error de validación y se había seleccionado 'Otra'.
+                                        // 2. El valor actual del participante NO está en la lista de opciones y no está vacío.
+                                        $showNuevaComunidad = old('comunidad_tutor') === '_OTRA_' ||
+                                                            (!in_array(old('comunidad_tutor', $participante->comunidad_tutor), $comunidades->all()) &&
+                                                            !empty(old('comunidad_tutor', $participante->comunidad_tutor)));
+
+                                        // Determinar qué valor debe estar seleccionado en el dropdown.
+                                        // Si la comunidad actual no está en la lista, se selecciona '_OTRA_'.
+                                        $selectedComunidad = in_array(old('comunidad_tutor', $participante->comunidad_tutor), $comunidades->all())
+                                                            ? old('comunidad_tutor', $participante->comunidad_tutor)
+                                                            : '_OTRA_';
+                                    @endphp
+
+                                    <div x-data="{ esOtraComunidad: {{ $showNuevaComunidad ? 'true' : 'false' }} }">
+                                        <label for="comunidad_tutor" class="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-300">
+                                            Comunidad del tutor
+                                            {{-- Si el campo no es obligatorio en la edición, puedes quitar el asterisco --}}
+                                            <span class="text-red-500">*</span>
+                                        </label>
+
+                                        {{-- Menú desplegable con las comunidades existentes y la opción "Otra" --}}
+                                        <select name="comunidad_tutor" id="comunidad_tutor"
+                                                @change="esOtraComunidad = ($event.target.value === '_OTRA_')"
+                                                class="block w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600">
+                                            <option value="" disabled>Seleccione...</option>
+                                            @foreach ($comunidades as $comunidad)
+                                                <option value="{{ $comunidad }}" {{ $selectedComunidad == $comunidad ? 'selected' : '' }}>
+                                                    {{ $comunidad }}
+                                                </option>
                                             @endforeach
+                                            <option value="_OTRA_" {{ $selectedComunidad == '_OTRA_' ? 'selected' : '' }}>
+                                                Otra... (especificar)
+                                            </option>
                                         </select>
-                                        @error('comunidad_tutor')
-                                            <p class="mt-1 text-xs text-rose-500">{{ $message }}</p>
-                                        @enderror
+                                        <x-input-error :messages="$errors->get('comunidad_tutor')" class="mt-2" />
+
+                                        {{-- Campo de texto que aparece si se selecciona "Otra" o si el valor existente es personalizado --}}
+                                        <div x-show="esOtraComunidad" x-transition class="mt-2">
+                                            <label for="nueva_comunidad_tutor" class="block mb-1 text-xs font-medium text-gray-700 dark:text-slate-400">
+                                                Nombre de la comunidad <span class="text-red-500">*</span>
+                                            </label>
+                                            {{--
+                                                El valor se llena con:
+                                                1. El valor antiguo de 'nueva_comunidad_tutor' si existe (por error de validación).
+                                                2. O, si el valor del participante no estaba en la lista, se muestra aquí.
+                                            --}}
+                                            <x-text-input id="nueva_comunidad_tutor" type="text" name="nueva_comunidad_tutor"
+                                                        :value="old('nueva_comunidad_tutor', $showNuevaComunidad ? $participante->comunidad_tutor : '')"
+                                                        class="block w-full mt-1"
+                                                        placeholder="Escriba el nombre aquí..."
+                                                        x-bind:required="esOtraComunidad" />
+                                            <x-input-error :messages="$errors->get('nueva_comunidad_tutor')" class="mt-2" />
+                                        </div>
                                     </div>
                                     <div>
                                         <label for="direccion_tutor" class="block mb-1 text-xs font-medium text-gray-800">Dirección</label>

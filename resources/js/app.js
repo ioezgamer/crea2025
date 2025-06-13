@@ -4,6 +4,12 @@ import './bootstrap';
 // Importar y configurar Alpine.js
 import Alpine from 'alpinejs';
 window.Alpine = Alpine;
+import flatpickr from "flatpickr"; // Importar flatpickr
+import { Spanish } from "flatpickr/dist/l10n/es.js"; // Importar el idioma español
+
+// Asignar el idioma y hacer flatpickr accesible globalmente o para Alpine
+flatpickr.localize(Spanish);
+window.flatpickr = flatpickr;
 Alpine.start();
 
 // Importar la función para mostrar toasts

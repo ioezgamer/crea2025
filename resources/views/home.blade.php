@@ -51,7 +51,7 @@
                         </svg>
                         Ir al Panel de Control
                     </a>
-                    @else
+                      @endcan
                     <a href="{{ route('profile.edit') }}"
                        class="relative flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-indigo-600 transition-all duration-300 ease-in-out bg-white border-2 border-indigo-500 rounded-full shadow-sm group sm:w-auto dark:border-indigo-500 dark:text-indigo-300 dark:bg-slate-800 hover:shadow-md hover:bg-indigo-50 dark:hover:bg-slate-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:ring-offset-1 dark:focus:ring-offset-slate-900">
                         <svg class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -59,7 +59,7 @@
                         </svg>
                         Ver mi Perfil
                     </a>
-                    @endcan
+
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-auto">
                         @csrf

@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Models\Participante;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\URL; // <-- ASEGÚRATE DE TENER ESTA LÍNEA
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role; // <-- AÑADIDO: Importar el modelo Role si se necesita
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,37 +27,64 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Forzar HTTPS en producción o en tu entorno de Railway
-        // Coloca esta lógica al principio del método boot o donde consideres apropiado.
-        if ($this->app->environment('production') || $this->app->environment('staging') /* u otro nombre de entorno que uses en Railway */) {
-            URL::forceScheme('https');
+        if ($this->app->environment('production') || $this->app->environment('staging')) {
+            URL::forceScheme('httpss');
         }
 
-        // Define the 'manage-roles' Gate
-        Gate::define('manage-roles', function ($user) {
-            return $user->role === 'admin';
+        // --- GATES DE AUTORIZACIÓN (usando Spatie) ---
+        // Se asegura de que incluso si usas `can:manage-roles` en tus rutas/vistas,
+        // la lógica subyacente utilice el sistema de permisos de Spatie.
+
+        // El Gate 'manage-roles' ahora verifica un permiso de Spatie
+        Gate::define('manage-roles', function (User $user) {
+            // Un usuario puede gestionar roles si tiene el permiso 'gestionar usuarios y roles'
+            return $user->hasPermissionTo('gestionar usuarios y roles');
         });
 
-        Gate::define('create-user', function ($user) {
-            return $user->role === 'admin';
+        // Este Gate es redundante si 'manage-roles' ya cubre la creación, pero lo mantenemos si lo usas explícitamente.
+        Gate::define('create-user', function (User $user) {
+            return $user->hasPermissionTo('gestionar usuarios y roles'); // O un permiso más específico como 'crear usuario'
         });
 
-        // View Composer to inject navigation counts
+
+        // --- VIEW COMPOSER PARA DATOS GLOBALES EN LA NAVEGACIÓN ---
+        // Inyecta variables en 'layouts.navigation' cada vez que se renderiza.
         View::composer('layouts.navigation', function ($view) {
-            $totalParticipants = Participante::count();
-            $activeProgramsCount = Participante::distinct('programa')->count('programa');
-            $meetingPlacesCount = Participante::distinct('lugar_de_encuentro_del_programa')->count('lugar_de_encuentro_del_programa');
-            $tutorsCount = Participante::distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
-            $tutorsParticipantsCount = Participante::count(); // Esto parece ser lo mismo que totalParticipants
-            $rolesCount = auth()->check() && auth()->user()->role === 'admin' ? \App\Models\User::count() : 0;
+            if (Auth::check()) {
+                $user = Auth::user();
 
-            $view->with(compact(
-                'totalParticipants',
-                'activeProgramsCount',
-                'meetingPlacesCount',
-                'tutorsCount',
-                'tutorsParticipantsCount',
-                'rolesCount'
-            ));
+                // --- CORREGIDO: Lógica para el contador de la sección de usuarios/roles ---
+                // Solo los usuarios con el permiso adecuado verán el conteo.
+                $managedUsersCount = 0;
+                if ($user->hasPermissionTo('gestionar usuarios y roles')) {
+                    $managedUsersCount = User::count(); // El conteo de todos los usuarios para el admin
+                }
+
+                // --- AÑADIDO: Lógica para el sistema de notificaciones ---
+                // Obtiene las 5 notificaciones no leídas más recientes para el dropdown
+                $unreadNotifications = $user->unreadNotifications()->take(5)->get();
+                // Obtiene el conteo total para el badge de la campana
+                $unreadNotificationsCount = $user->unreadNotifications()->count();
+
+                // Pasar todas las variables a la vista de navegación
+                $view->with([
+                    'totalParticipants' => Participante::count(),
+                    'activeProgramsCount' => Participante::distinct('programa')->count('programa'),
+                    'managedUsersCount' => $managedUsersCount, // <-- CORREGIDO Y RENOMBRADO
+                    'unreadNotifications' => $unreadNotifications, // <-- AÑADIDO
+                    'unreadNotificationsCount' => $unreadNotificationsCount, // <-- AÑADIDO
+                ]);
+
+            } else {
+                // Proporcionar valores por defecto para usuarios no autenticados (invitados)
+                $view->with([
+                    'totalParticipants' => 0,
+                    'activeProgramsCount' => 0,
+                    'managedUsersCount' => 0,
+                    'unreadNotifications' => collect(),
+                    'unreadNotificationsCount' => 0,
+                ]);
+            }
         });
     }
 }

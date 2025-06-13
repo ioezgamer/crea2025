@@ -11,17 +11,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role; // <-- AÑADIDO: Importar el modelo Role de Spatie
 
 class RoleController extends Controller
 {
     public function __construct()
     {
+        // Este middleware ahora dependerá del Gate 'manage-roles' que usa Spatie
         $this->middleware('can:manage-roles');
     }
 
     public function index(Request $request): View
     {
-        $query = User::query();
+        $query = User::query()->with('roles'); // Cargar la relación de roles de Spatie para eficiencia
 
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -39,8 +41,14 @@ class RoleController extends Controller
             }
         }
 
+        if ($request->filled('role')) { // Nuevo: Filtrar por rol de Spatie
+            $query->whereHas('roles', function ($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
         $users = $query->orderBy('name')->paginate(15);
-        $roles = ['admin', 'editor', 'gestor', 'user'];
+        $roles = Role::orderBy('name')->pluck('name')->all(); // <-- CORREGIDO: Obtener roles de la tabla de Spatie
 
         $totalUsers = User::count();
         $approvedUsers = User::approved()->count();
@@ -48,99 +56,89 @@ class RoleController extends Controller
 
         return view('roles.index', compact(
             'users',
-            'roles',
+            'roles', // Se pasa la lista de roles de Spatie
             'totalUsers',
             'approvedUsers',
             'pendingUsers'
         ));
     }
 
-    public function create(): View|RedirectResponse
+    // CORREGIDO: Nombre del método para coincidir con la ruta roles.user.create
+    public function create(): View
     {
-        if (Gate::denies('create-user')) {
-            return redirect()->route('roles.index')->with('error', 'No tienes permiso para crear usuarios.');
-        }
-        $roles = ['admin', 'editor', 'gestor', 'user'];
+        Gate::authorize('manage-roles'); // Reemplaza 'create-user' para consistencia
+        $roles = Role::orderBy('name')->pluck('name')->all(); // Obtener roles de Spatie para el dropdown
         return view('roles.create_user', compact('roles'));
     }
 
+    // CORREGIDO: Nombre del método para coincidir con la ruta roles.user.store
     public function store(Request $request): RedirectResponse
     {
-        Log::info('RoleController@store: Solicitud recibida para crear usuario.', $request->all());
+        Gate::authorize('manage-roles');
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:admin,editor,gestor,user'],
-            'approve_now' => ['nullable', 'boolean'],
+            'role' => ['required', 'string', 'exists:roles,name'], // <-- CORREGIDO: Validar contra la tabla 'roles' de Spatie
+            'approve_now' => ['sometimes', 'boolean'],
         ]);
 
-        $approvedAt = null;
-        if ($request->role === 'admin' || ($request->boolean('approve_now') && Auth::user()->can('manage-roles'))) {
-            $approvedAt = now();
-        }
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'approved_at' => $request->boolean('approve_now') ? now() : null,
+            // El campo 'role' antiguo se puede dejar nulo o manejarlo como un rol por defecto si es necesario
+        ]);
 
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => $request->role,
-                'approved_at' => $approvedAt,
-            ]);
-            Log::info('RoleController@store: Usuario creado exitosamente.', ['user_id' => $user->id]);
+        $user->assignRole($request->role); // <-- CORREGIDO: Asignar rol usando Spatie
 
-            $message = 'Usuario creado exitosamente.';
-            $message .= $approvedAt ? ' El usuario ha sido aprobado.' : ' El usuario está pendiente de aprobación.';
-            return redirect()->route('roles.index')->with('success', $message);
-        } catch (\Exception $e) {
-            Log::error('Error al crear usuario: ' . $e->getMessage(), ['request' => $request->all()]);
-            return redirect()->back()->with('error', 'Error al crear el usuario: ' . $e->getMessage())->withInput();
-        }
+        return redirect()->route('roles.index')->with('success', 'Usuario creado exitosamente.'); // Estandarizado a 'success'
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        if (Auth::user()->id === $user->id && Auth::user()->role === 'admin' && $request->role !== 'admin') {
-             return redirect()->route('roles.index')->with('error', 'Un administrador no puede cambiar su propio rol a uno inferior.');
-        }
-        if ($user->role === 'admin' && User::where('role', 'admin')->count() === 1 && $request->role !== 'admin') {
-            return redirect()->route('roles.index')->with('error', 'No se puede cambiar el rol del único administrador.');
-        }
-        $request->validate(['role' => 'required|in:admin,editor,gestor,user']);
+        $request->validate([
+            'role' => ['required', 'string', 'exists:roles,name'],
+        ]);
 
-        try {
-            $user->update(['role' => $request->role]);
-            return redirect()->route('roles.index')->with('success', 'Rol de usuario actualizado correctamente.');
-        } catch (\Exception $e) {
-            Log::error("Error al actualizar rol para usuario ID {$user->id}: " . $e->getMessage());
-            return redirect()->route('roles.index')->with('error', 'Error al actualizar el rol del usuario.');
+        // Evitar que un usuario se quite a sí mismo el rol de Administrador si es el único
+        if (Auth::user()->id === $user->id && $user->hasRole('Administrador')) {
+            $adminRole = Role::where('name', 'Administrador')->first();
+            if ($adminRole && $adminRole->users()->count() === 1) {
+                 return back()->with('error', 'No puedes quitarte el rol de Administrador porque eres el único.');
+            }
         }
+
+        $user->syncRoles([$request->role]); // <-- CORREGIDO: Sincronizar (asignar) el nuevo rol usando Spatie
+
+        return back()->with('success', 'Rol del usuario actualizado correctamente.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
-        if ($user->role === 'admin' && User::where('role', 'admin')->count() === 1) {
-            return redirect()->route('roles.index')->with('error', 'No se puede eliminar al único administrador.');
-        }
+        // Evitar que un usuario se elimine a sí mismo
         if (Auth::user()->id === $user->id) {
-            return redirect()->route('roles.index')->with('error', 'No puedes eliminarte a ti mismo.');
+            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
         }
-        try {
-            $user->delete();
-            return redirect()->route('roles.index')->with('success', 'Usuario eliminado correctamente.');
-        } catch (\Exception $e) {
-            Log::error("Error al eliminar usuario ID {$user->id}: " . $e->getMessage());
-            return redirect()->route('roles.index')->with('error', 'Error al eliminar el usuario.');
+
+        // Evitar eliminar al único administrador
+        if ($user->hasRole('Administrador')) {
+            $adminRole = Role::where('name', 'Administrador')->first();
+            if ($adminRole && $adminRole->users()->count() === 1) {
+                return back()->with('error', 'No se puede eliminar al único administrador.');
+            }
         }
+
+        $user->delete();
+
+        return redirect()->route('roles.index')->with('success', 'Usuario eliminado correctamente.');
     }
 
     public function approve(User $user): RedirectResponse
     {
-        if (Auth::user()->id === $user->id && $user->isApproved()) {
-             return redirect()->route('roles.index')->with('info', 'Este usuario ya está aprobado y no puedes cambiar tu propia aprobación si eres tú mismo.');
-        }
-        if ($user->isApproved()) {
+        if ($user->approved_at) {
             return redirect()->route('roles.index')->with('info', 'Este usuario ya está aprobado.');
         }
         try {
@@ -154,16 +152,12 @@ class RoleController extends Controller
 
     public function unapprove(User $user): RedirectResponse
     {
-        if (Auth::user()->id === $user->id && $user->role === 'admin') {
-            $otherApprovedAdmins = User::approved()->where('role', 'admin')->where('id', '!=', $user->id)->count();
-            if ($otherApprovedAdmins === 0) {
-                 return redirect()->route('roles.index')->with('error', 'No se puede revocar la aprobación del único administrador activo.');
-            }
-        }
-        if ($user->role === 'admin' && User::approved()->where('role', 'admin')->count() === 1 && $user->isApproved()) {
+        // CORREGIDO: Usar hasRole para la lógica
+        if ($user->hasRole('Administrador') && Role::where('name', 'Administrador')->first()->users()->whereNotNull('approved_at')->count() === 1 && $user->approved_at) {
              return redirect()->route('roles.index')->with('error', 'No se puede revocar la aprobación del único administrador aprobado.');
         }
-        if (!$user->isApproved()) {
+
+        if (!$user->approved_at) {
             return redirect()->route('roles.index')->with('info', 'Este usuario no está aprobado actualmente.');
         }
         try {

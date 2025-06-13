@@ -1,3 +1,5 @@
+@import 'flatpickr/dist/flatpickr.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -38,4 +40,27 @@
 }
 .dark .btn-sweetalert.btn-slate {
     @apply bg-slate-600 text-slate-200 hover:bg-slate-500 focus:ring-slate-500;
+}
+
+/* Opcional: Personalizar flatpickr para que coincida con tu tema oscuro */
+.dark .flatpickr-calendar {
+    @apply shadow-xl bg-slate-800 border-slate-700;
+}
+.dark .flatpickr-day, .dark .flatpickr-weekday {
+    @apply text-slate-300;
+}
+.dark .flatpickr-day:hover, .dark .flatpickr-day:focus {
+    @apply bg-slate-700/50 border-slate-700;
+}
+.dark .flatpickr-day.today {
+    @apply border-indigo-500;
+}
+.dark .flatpickr-day.selected, .dark .flatpickr-day.startRange, .dark .flatpickr-day.endRange {
+    @apply bg-indigo-600 border-indigo-600;
+}
+.dark .flatpickr-month, .dark .numInput, .dark .arrowUp, .dark .arrowDown {
+    @apply fill-current text-slate-200;
+}
+.dark .flatpickr-months .flatpickr-prev-month, .dark .flatpickr-months .flatpickr-next-month {
+    @apply fill-current text-slate-400 hover:text-indigo-400;
 }

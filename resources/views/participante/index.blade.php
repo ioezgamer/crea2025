@@ -17,10 +17,14 @@
                     <span class="text-xs text-slate-500 dark:text-slate-400"> (Total: {{ $participantes->total() }})</span>
                 </p>
             </div>
-            <div class="flex items-center space-x-2 sm:space-x-3">
+
+        </div>
+    </x-slot>
+    <div class="flex items-center justify-end px-6 pt-4 sm:px-6 lg:px-6">
+        <div class="flex items-center space-x-2 sm:space-x-3">
                 {{-- Import Button --}}
                 <a href="{{ route('participantes.import.form') }}" title="Importar Participantes"
-                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-sky-500 to-cyan-600 sm:border-4 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-white rounded-full shadow-md border-1 group sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                     <svg class="w-5 h-5 transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 fill-white group-hover:-translate-y-10" viewBox="0 0 384 512">
                         <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
                     </svg>
@@ -31,9 +35,9 @@
 
                 {{-- Export Button --}}
                 <a href="{{ route('participantes.export', request()->query()) }}" title="Exportar Participantes Filtrados"
-                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 sm:border-4 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                     <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                     <span class="absolute text-xs font-medium text-white transition-all duration-200 ease-in-out scale-90 opacity-0 whitespace-nowrap sm:text-sm group-hover:opacity-100 group-hover:scale-100">
                         Exportar
@@ -41,13 +45,17 @@
                 </a>
 
                 {{-- Create Participant Button (x-crear-button should ideally handle its own dark mode variants) --}}
-                <x-crear-button onclick="window.location.href='{{ route('participante.create') }}'">
-                    {{-- Content for x-crear-button --}}
-                </x-crear-button>
+                <a href="{{ route('participante.create', request()->query()) }}" title="Crear Participante"
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-violet-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                    <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></path>
+                    </svg>
+                    <span class="absolute text-xs font-medium text-white transition-all duration-200 ease-in-out scale-90 opacity-0 translate-x-1/8 whitespace-nowrap sm:text-sm group-hover:opacity-100 group-hover:scale-100">
+                        Nuevo participante
+                    </span>
+                </a>
             </div>
-        </div>
-    </x-slot>
-
+    </div>
     <div class="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
         <div class="max-w-full px-2 mx-auto sm:px-4 lg:px-6">
             <div class="overflow-hidden shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
@@ -184,7 +192,10 @@
                                                     <span class="text-slate-400 dark:text-slate-500">N/A</span>
                                                 @endif
                                             </td>
-                                            <td class="px-3 py-3 text-sm whitespace-nowrap text-slate-600 dark:text-slate-300">{{ $participante->grado_p ?? 'N/A' }}</td>
+                                            <td class="px-3 py-3 text-sm whitespace-nowrap text-slate-600 dark:text-slate-300">
+                                                {{ $participante->grado_p == 12 ? 'Adulto' : ($participante->grado_p ?? 'N/A') }}
+                                            </td>
+
                                             <td class="px-3 py-3 text-sm whitespace-nowrap text-slate-600 dark:text-slate-300">{{ $participante->edad_p ?? 'N/A' }}</td>
                                             <td class="px-4 py-3 text-xs whitespace-nowrap text-slate-600 dark:text-slate-300">
                                                 @if($participante->programa)

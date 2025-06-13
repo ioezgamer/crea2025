@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
                     'resources/js/app.js',
                     'resources/js/pages/asistencia-attendance.js',
                     'resources/js/pages/participante-index.js',
+                    'resources/js/pages/estadisticas-programas.js',
+                    'resources/js/pages/dashboard.js',
+
                 ],
                 refresh: true, // Puedes configurarlo a un array de rutas si necesitas más control sobre la recarga
             }),

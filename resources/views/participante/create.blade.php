@@ -8,17 +8,15 @@
         </div>
     </x-slot>
 
-    <div class="py-8 font-sans bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
-        <div class="max-w-5xl px-4 mx-auto sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-xl rounded-xl">
-                <div class="px-6 py-5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 sm:px-8">
-                    <h1 class="text-2xl font-semibold text-center text-white">Formulario de Inscripción CREA</h1>
+    <div class="py-12 font-sans bg-gray-100 dark:bg-slate-900">
+        <div class="max-w-6xl px-4 mx-auto sm:px-6 lg:px-8">
+            <div class="overflow-hidden border shadow-2xl border-purple-400/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl">
+                <div class="px-6 py-5 bg-gradient-to-r from-indigo-600/80 via-purple-600/80 to-pink-500/80 sm:px-8 backdrop-blur-2xl backdrop-blur-xs">
+                    <h1 class="text-3xl font-semibold text-center text-white">Formulario de Inscripción CREA</h1>
                     <p class="mt-1 text-sm text-center text-indigo-200">Complete todos los campos requeridos (*).</p>
                 </div>
 
-                <div class="p-6 sm:p-8">
-                    {{-- Los mensajes de sesión (success, error) serán manejados por app.js globalmente --}}
-                    {{-- Mostrar errores de validación específicos del formulario --}}
+                <div class="p-6 sm:p-8 ">
                     @if ($errors->any())
                         <div class="p-4 mb-6 text-sm text-red-700 bg-red-100 border-l-4 border-red-500 rounded-md shadow" role="alert">
                             <p class="font-bold">Por favor corrige los siguientes errores:</p>
@@ -30,64 +28,81 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('participante.store') }}" method="POST" accept-charset="UTF-8" class="space-y-8" id="inscripcionForm">
+                    {{--
+                        MEJORA: Se añade x-data al formulario para manejar todo el estado de la UI.
+                        - `esParticipanteAdulto`: Controla los campos relacionados a participantes adultos.
+                        - `esOtro`: Controla el campo de texto para el tipo de participante "Otro".
+                        - Los valores se inicializan con `old()` para mantener el estado tras errores de validación.
+                    --}}
+                    <form
+                        action="{{ route('participante.store') }}"
+                        method="POST"
+                        accept-charset="UTF-8"
+                        class="space-y-8"
+                        id="inscripcionForm"
+                        x-data="{
+                            esParticipanteAdulto: '{{ old('participante', $participante->participante ?? '') }}' === 'Adulto',
+                            esOtro: '{{ old('participante', $participante->participante ?? '') }}' === 'Otro'
+                        }"
+                    >
                         @csrf
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Información General de Inscripción</legend>
-                            <div class="grid grid-cols-1 mt-2 md:grid-cols-2 gap-x-6 gap-y-4">
+                        {{-- === SECCIÓN 1: INFORMACIÓN GENERAL === --}}
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información general de la inscripción</legend>
+                            <div class="grid grid-cols-1 mt-2 md:grid-cols-2 gap-x-6 gap-y-4 ">
                                 <div>
-                                    <label for="fecha_de_inscripcion" class="block mb-1 text-xs font-medium text-gray-700">Fecha de inscripción <span class="text-red-500">*</span></label>
-                                    <input type="date" name="fecha_de_inscripcion" id="fecha_de_inscripcion" value="{{ old('fecha_de_inscripcion', now()->format('Y-m-d')) }}"
-                                           class="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150 ease-in-out @error('fecha_de_inscripcion') border-red-500 @enderror"
-                                           required aria-describedby="fecha_de_inscripcion-error">
-                                    @error('fecha_de_inscripcion') <p class="mt-1 text-xs text-red-600" id="fecha_de_inscripcion-error">{{ $message }}</p> @enderror
+                                    <x-input-label for="fecha_de_inscripcion" >
+                                        Fecha de inscripción <span class="text-red-500">*</span>
+                                    </x-input-label>
+                                    <x-date-picker id="fecha_de_inscripcion" name="fecha_de_inscripcion" :value="old('fecha_de_inscripcion', now()->format('Y-m-d'))" class="block w-full mt-1" />
+                                    <x-input-error :messages="$errors->get('fecha_de_inscripcion')" class="mt-2" />
                                 </div>
                                 <div>
-                                    <label for="ano_de_inscripcion" class="block mb-1 text-xs font-medium text-gray-700">Año de inscripción <span class="text-red-500">*</span></label>
+                                    <label for="ano_de_inscripcion" class="block mb-1 text-sm font-medium text-slate-700">Año de inscripción <span class="text-red-500">*</span></label>
                                     <input type="number" name="ano_de_inscripcion" id="ano_de_inscripcion" value="{{ old('ano_de_inscripcion', now()->year) }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-100 text-sm transition duration-150 ease-in-out @error('ano_de_inscripcion') border-red-500 @enderror"
-                                           readonly required aria-describedby="ano_de_inscripcion-error">
-                                    @error('ano_de_inscripcion') <p class="mt-1 text-xs text-red-600" id="ano_de_inscripcion-error">{{ $message }}</p> @enderror
+                                           class="w-full px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded-lg shadow-sm"
+                                           readonly required>
+                                    @error('ano_de_inscripcion') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
-                            </div>
-                            <div class="mt-4" style="display: none;">
-                                <label class="block mb-1 text-xs font-medium text-gray-700">Estado al Inscribir</label>
-                                <div class="flex items-center" >
-                                    {{-- Usamos un input hidden para manejar el estado activo --}}
-                                    <input type="hidden" name="activo" value="1">
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="activo" id="activo_toggle" value="1" class="sr-only peer" {{ old('activo', true) ? 'checked' : '' }}>
-                                        <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 dark:peer-focus:ring-indigo-600 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border dark:border-gray-500 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                                        <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">Activo</span>
-                                    </label>
-                                </div>
-                                @error('activo') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                <input type="hidden" name="activo" value="1">
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Documentos Requeridos</legend>
-                            <div class="grid grid-cols-1 mt-3 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
+                        {{-- === SECCIÓN 2: DOCUMENTOS REQUERIDOS (CON LÓGICA DINÁMICA) === --}}
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Documentos requeridos</legend>
+                            <div class="grid grid-cols-1 mt-3 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 ">
                                 @php
                                 $documentos = [
-                                    'partida_de_nacimiento' => 'Copia de partida de nacimiento',
-                                    'boletin_o_diploma_2024' => 'Copia boletín o diploma ('.now()->year.')',
-                                    'cedula_tutor' => 'Copia de cédula del tutor',
-                                    'cedula_participante_adulto' => 'Copia de cédula (participante adulto)',
+                                    'partida_de_nacimiento' => 'Partida de nacimiento',
+                                    'boletin_o_diploma_2024' => 'Boletín o diploma ('.now()->year.')',
+                                    'cedula_tutor' => 'Cédula del tutor',
+                                    'cedula_participante_adulto' => 'Cédula (participante adulto)',
                                 ];
                                 @endphp
                                 @foreach ($documentos as $fieldName => $label)
-                                <div>
-                                    <label class="block mb-1 text-xs font-medium text-gray-700">{{ $label }} <span class="text-red-500">*</span></label>
-                                    <div class="flex items-center mt-1 space-x-4">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="{{ $fieldName }}" value="1" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {{ old($fieldName) == '1' ? 'checked' : '' }} required>
-                                            <span class="ml-2 text-xs text-gray-600">Sí</span>
+                                <div
+                                    @if ($fieldName === 'cedula_participante_adulto')
+                                        x-show="esParticipanteAdulto"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                    @endif
+                                >
+                                    <label class="block mb-1 text-sm font-medium text-slate-800">{{ $label }} <span class="text-red-500">*</span></label>
+                                    {{-- MEJORA: Se asegura que el valor de `selected` sea siempre '0' o '1'. --}}
+                                    <div x-data="{ selected: '{{ old($fieldName, $participante->$fieldName ?? null) ?? '0' }}' }" class="flex items-center mt-1 space-x-4">
+                                        <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '1' ? 'bg-green-100 text-green-700 border-green-500 ring-2 ring-green-300' : 'border-gray-300 text-green-600'">
+                                            {{-- MEJORA: Se añade :checked para sincronizar el estado del input. --}}
+                                            <input type="radio" name="{{ $fieldName }}" value="1" class="hidden" @click="selected = '1'" :checked="selected === '1'" required>
+                                            ✓
                                         </label>
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="{{ $fieldName }}" value="0" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {{ old($fieldName, '0') == '0' ? 'checked' : '' }}>
-                                            <span class="ml-2 text-xs text-gray-600">No</span>
+                                        <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '0' ? 'bg-red-100 text-red-700 border-red-500 ring-2 ring-red-300' : 'border-gray-300 text-red-600'">
+                                            {{-- MEJORA: Se añade :checked para sincronizar el estado del input. --}}
+                                            <input type="radio" name="{{ $fieldName }}" value="0" class="hidden" @click="selected = '0'" :checked="selected === '0'">
+                                            ✕
                                         </label>
                                     </div>
                                     @error($fieldName) <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
@@ -96,103 +111,102 @@
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Información del Participante</legend>
+                        {{-- === SECCIÓN 3: INFORMACIÓN DEL PARTICIPANTE (CON LÓGICA DINÁMICA) === --}}
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información del participante</legend>
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                                {{-- Selector de participante que controla otros campos --}}
                                 <div>
-                                    <label for="participante_select" class="block mb-1 text-xs font-medium text-gray-700">Nivel del Participante <span class="text-red-500">*</span></label>
-                                    <select name="participante" id="participante_select" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('participante') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ !old('participante') ? 'selected' : '' }}>Seleccione...</option>
+                                    <label for="participante_select" class="block mb-1 text-sm font-medium text-slate-800">Participante <span class="text-red-500">*</span></label>
+                                    <select name="participante" id="participante_select" class="w-full px-3 py-2 text-sm border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        @change="
+                                            esParticipanteAdulto = $event.target.value === 'Adulto';
+                                            esOtro = $event.target.value === 'Otro';
+                                        " required>
+                                        <option value="" disabled selected>Seleccione...</option>
                                         @foreach ($tiposParticipante as $tipo)
-                                            <option value="{{ $tipo }}" {{ old('participante') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                                            <option value="{{ $tipo }}" @selected(old('participante') == $tipo)>{{ $tipo }}</option>
                                         @endforeach
-                                        <option value="Otro" {{ old('participante') == 'Otro' ? 'selected' : '' }}>Otro (especificar)</option>
+                                        <option value="Otro" @selected(old('participante') == 'Otro')>Otro (especificar)</option>
                                     </select>
                                     <input type="text" name="participante_otro" id="participante_otro_input"
-                                           class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm {{ (old('participante') == 'Otro' || old('participante_otro')) ? '' : 'hidden' }} @error('participante_otro') border-red-500 @enderror"
-                                           value="{{ old('participante_otro') }}"
-                                           placeholder="Especificar otro nivel">
+                                        class="w-full px-3 py-2 mt-2 border border-gray-300 rounded-lg shadow-sm"
+                                        value="{{ old('participante_otro') }}"
+                                        placeholder="Especificar otro nivel"
+                                        x-show="esOtro" x-transition>
                                     @error('participante') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                    @error('participante_otro') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="primer_nombre_p" class="block mb-1 text-xs font-medium text-gray-700">Primer Nombre <span class="text-red-500">*</span></label>
-                                    <input type="text" name="primer_nombre_p" id="primer_nombre_p" value="{{ old('primer_nombre_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('primer_nombre_p') @enderror" required>
+                                    <label for="primer_nombre_p" class="block mb-1 text-sm font-medium text-slate-800">Primer nombre <span class="text-red-500">*</span></label>
+                                    <input type="text" name="primer_nombre_p" id="primer_nombre_p" value="{{ old('primer_nombre_p') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" required>
                                     @error('primer_nombre_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="segundo_nombre_p" class="block mb-1 text-xs font-medium text-gray-700">Segundo Nombre</label>
-                                    <input type="text" name="segundo_nombre_p" id="segundo_nombre_p" value="{{ old('segundo_nombre_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('segundo_nombre_p') border-red-500 @enderror">
-                                    @error('segundo_nombre_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <label for="segundo_nombre_p" class="block mb-1 text-sm font-medium text-slate-800">Segundo nombre</label>
+                                    <input type="text" name="segundo_nombre_p" id="segundo_nombre_p" value="{{ old('segundo_nombre_p') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm">
                                 </div>
                                 <div>
-                                    <label for="primer_apellido_p" class="block mb-1 text-xs font-medium text-gray-700">Primer Apellido <span class="text-red-500">*</span></label>
-                                    <input type="text" name="primer_apellido_p" id="primer_apellido_p" value="{{ old('primer_apellido_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('primer_apellido_p') border-red-500 @enderror" required>
+                                    <label for="primer_apellido_p" class="block mb-1 text-sm font-medium text-slate-800">Primer apellido <span class="text-red-500">*</span></label>
+                                    <input type="text" name="primer_apellido_p" id="primer_apellido_p" value="{{ old('primer_apellido_p') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" required>
                                     @error('primer_apellido_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="segundo_apellido_p" class="block mb-1 text-xs font-medium text-gray-700">Segundo Apellido</label>
-                                    <input type="text" name="segundo_apellido_p" id="segundo_apellido_p" value="{{ old('segundo_apellido_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('segundo_apellido_p') border-red-500 @enderror">
-                                    @error('segundo_apellido_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <label for="segundo_apellido_p" class="block mb-1 text-sm font-medium text-slate-800">Segundo apellido</label>
+                                    <input type="text" name="segundo_apellido_p" id="segundo_apellido_p" value="{{ old('segundo_apellido_p') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm">
                                 </div>
-                                 <div>
-                                    <label for="cedula_participante_adulto_str" class="block mb-1 text-xs font-medium text-gray-700">Cédula (si es adulto)</label>
-                                    <input type="text" name="cedula_participante_adulto_str" id="cedula_participante_adulto_str" value="{{ old('cedula_participante_adulto_str') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('cedula_participante_adulto_str') border-red-500 @enderror">
+                                 {{-- Campo de Cédula que se muestra condicionalmente --}}
+                                <div x-show="esParticipanteAdulto" x-transition>
+                                    <label for="cedula_participante_adulto_str" class="block mb-1 text-sm font-medium text-slate-800">Cédula (si es adulto)</label>
+                                    <input type="text" name="cedula_participante_adulto_str" id="cedula_participante_adulto_str" value="{{ old('cedula_participante_adulto_str') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" :required="esParticipanteAdulto">
                                     @error('cedula_participante_adulto_str') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="fecha_de_nacimiento_p" class="block mb-1 text-xs font-medium text-gray-700">Fecha de Nacimiento <span class="text-red-500">*</span></label>
-                                    <input type="date" name="fecha_de_nacimiento_p" id="fecha_de_nacimiento_p" value="{{ old('fecha_de_nacimiento_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('fecha_de_nacimiento_p') border-red-500 @enderror" required>
-                                    @error('fecha_de_nacimiento_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-label for="fecha_de_nacimiento_p">Fecha de nacimiento</x-input-label>
+                                    <x-date-picker id="fecha_de_nacimiento_p" name="fecha_de_nacimiento_p" :value="old('fecha_de_nacimiento_p')" class="block w-full mt-1" />
+                                    <x-input-error :messages="$errors->get('fecha_de_nacimiento_p')" class="mt-2" />
                                 </div>
                                 <div>
-                                    <label for="edad_p" class="block mb-1 text-xs font-medium text-gray-700">Edad <span class="text-red-500">*</span></label>
-                                    <input type="number" name="edad_p" id="edad_p" value="{{ old('edad_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-gray-100 text-sm @error('edad_p') border-red-500 @enderror" readonly required>
+                                    <label for="edad_p" class="block mb-1 text-sm font-medium text-slate-800">Edad <span class="text-red-500">*</span></label>
+                                    <input type="number" name="edad_p" id="edad_p" value="{{ old('edad_p') }}" class="w-full px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded-lg shadow-sm" readonly required>
                                     @error('edad_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="genero" class="block mb-1 text-xs font-medium text-gray-700">Género <span class="text-red-500">*</span></label>
-                                    <select name="genero" id="genero" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('genero') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ old('genero') ? '' : 'selected' }}>Seleccione...</option>
-                                        <option value="Masculino" {{ old('genero') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
-                                        <option value="Femenino" {{ old('genero') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
+                                    <label for="genero" class="block mb-1 text-sm font-medium text-slate-800">Género <span class="text-red-500">*</span></label>
+                                    <select name="genero" id="genero" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" required>
+                                        <option value="" disabled selected>Seleccione...</option>
+                                        <option value="Masculino" @selected(old('genero') == 'Masculino')>Masculino</option>
+                                        <option value="Femenino" @selected(old('genero') == 'Femenino')>Femenino</option>
                                     </select>
                                     @error('genero') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="comunidad_p" class="block mb-1 text-xs font-medium text-gray-700">Comunidad del Participante <span class="text-red-500">*</span></label>
-                                    <select name="comunidad_p" id="comunidad_p" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_p') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ old('comunidad_p') ? '' : 'selected' }}>Seleccione...</option>
-                                        @foreach ($comunidades as $comunidad)
-                                            <option value="{{ $comunidad }}" {{ old('comunidad_p') == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('comunidad_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-label for="comunidad_p" required>Comunidad del Participante</x-input-label>
+                                    <x-community-selector :comunidades="$comunidades" name="comunidad_p" id="comunidad_p" :value="old('comunidad_p')" required class="mt-1"/>
                                 </div>
                                 <div>
-                                    <label for="ciudad_p" class="block mb-1 text-xs font-medium text-gray-700">Ciudad <span class="text-red-500">*</span></label>
-                                    <input type="text" name="ciudad_p" id="ciudad_p" value="{{ old('ciudad_p', 'Tola') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('ciudad_p') border-red-500 @enderror" required>
-                                    @error('ciudad_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <label for="ciudad_p" class="block mb-1 text-sm font-medium text-slate-800">Ciudad <span class="text-red-500">*</span></label>
+                                    <input type="text" name="ciudad_p" id="ciudad_p" value="{{ old('ciudad_p', 'Tola') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" required>
                                 </div>
                                 <div>
-                                    <label for="departamento_p" class="block mb-1 text-xs font-medium text-gray-700">Departamento <span class="text-red-500">*</span></label>
-                                    <input type="text" name="departamento_p" id="departamento_p" value="{{ old('departamento_p', 'Rivas') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('departamento_p') border-red-500 @enderror" required>
-                                    @error('departamento_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <label for="departamento_p" class="block mb-1 text-sm font-medium text-slate-800">Departamento <span class="text-red-500">*</span></label>
+                                    <input type="text" name="departamento_p" id="departamento_p" value="{{ old('departamento_p', 'Rivas') }}" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm" required>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Información Educativa</legend>
+                        {{-- ... EL RESTO DE LOS FIELDSETS (Educativa, Programa, Tutor, etc.) ... --}}
+                        {{-- (El resto del formulario se mantiene igual, no es necesario modificarlo para esta funcionalidad) --}}
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información educativa</legend>
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
-                                    <label for="escuela_p" class="block mb-1 text-xs font-medium text-gray-700">Nombre de la Escuela <span class="text-red-500">*</span></label>
-                                    <input type="text" name="escuela_p" id="escuela_p" value="{{ old('escuela_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('escuela_p') border-red-500 @enderror" required>
+                                    <label for="escuela_p" class="block mb-1 text-sm font-medium text-slate-800">Nombre de la escuela </label>
+                                    <input type="text" name="escuela_p" id="escuela_p" value="{{ old('escuela_p') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('escuela_p') border-red-500 @enderror">
                                     @error('escuela_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="comunidad_escuela" class="block mb-1 text-xs font-medium text-gray-700">Comunidad de la Escuela <span class="text-red-500">*</span></label>
-                                    <select name="comunidad_escuela" id="comunidad_escuela" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_escuela') border-red-500 @enderror" required>
+                                    <label for="comunidad_escuela" class="block mb-1 text-sm font-medium text-slate-800">Comunidad de la escuela </label>
+                                    <select name="comunidad_escuela" id="comunidad_escuela" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_escuela') border-red-500 @enderror">
                                         <option value="" disabled {{ old('comunidad_escuela') ? '' : 'selected' }}>Seleccione...</option>
                                          @foreach ($comunidades as $comunidad)
                                             <option value="{{ $comunidad }}" {{ old('comunidad_escuela') == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
@@ -201,7 +215,7 @@
                                     @error('comunidad_escuela') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="grado_p" class="block mb-1 text-xs font-medium text-gray-700">Grado <span class="text-red-500">*</span></label>
+                                    <label for="grado_p" class="block mb-1 text-sm font-medium text-slate-800">Grado <span class="text-red-500">*</span></label>
                                     <select name="grado_p" id="grado_p" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('grado_p') border-red-500 @enderror" required>
                                         <option value="" disabled {{ old('grado_p') ? '' : 'selected' }}>Seleccione...</option>
                                         @for ($i = 0; $i <= 12; $i++)
@@ -211,8 +225,8 @@
                                     @error('grado_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="turno" class="block mb-1 text-xs font-medium text-gray-700">Turno <span class="text-red-500">*</span></label>
-                                    <select name="turno" id="turno" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('turno') border-red-500 @enderror" required>
+                                    <label for="turno" class="block mb-1 text-sm font-medium text-slate-800">Turno </label>
+                                    <select name="turno" id="turno" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('turno') border-red-500 @enderror">
                                         <option value="" disabled {{ old('turno') ? '' : 'selected' }}>Seleccione...</option>
                                         <option value="Matutino" {{ old('turno') == 'Matutino' ? 'selected' : '' }}>Matutino</option>
                                         <option value="Vespertino" {{ old('turno') == 'Vespertino' ? 'selected' : '' }}>Vespertino</option>
@@ -221,16 +235,16 @@
                                     </select>
                                     @error('turno') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
-                                <div class="md:col-span-2">
-                                    <label class="block mb-1 text-xs font-medium text-gray-700">¿Repite Grado? <span class="text-red-500">*</span></label>
+                                <div class="md:col-span-2" x-data="{ repite: '{{ old('repite_grado', '0') }}' }">
+                                    <label class="block pb-3 mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">¿Repite grado?</label>
                                     <div class="flex items-center mt-1 space-x-4">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="repite_grado" value="1" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {{ old('repite_grado') == '1' ? 'checked' : '' }} required>
-                                            <span class="ml-2 text-xs text-gray-600">Sí</span>
+                                        <label class="flex items-center justify-center w-8 h-8 text-lg border rounded-full cursor-pointer" :class="repite == '1' ? 'bg-green-100 text-green-700 border-green-500 ring-2 ring-green-300' : 'border-gray-300 text-green-600'">
+                                            <input type="radio" name="repite_grado" value="1" class="hidden" @click="repite = '1'">
+                                            ✓
                                         </label>
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="repite_grado" value="0" class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" {{ old('repite_grado', '0') == '0' ? 'checked' : '' }}>
-                                            <span class="ml-2 text-xs text-gray-600">No</span>
+                                        <label class="flex items-center justify-center w-8 h-8 text-lg border rounded-full cursor-pointer" :class="repite == '0' ? 'bg-red-100 text-red-700 border-red-500 ring-2 ring-red-300' : 'border-gray-300 text-red-600'">
+                                            <input type="radio" name="repite_grado" value="0" class="hidden" @click="repite = '0'">
+                                            ✕
                                         </label>
                                     </div>
                                     @error('repite_grado') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
@@ -238,76 +252,120 @@
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Detalles del Programa CREA</legend>
-                            <div class="mt-2 space-y-4">
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Detalles programa</legend>
+                            <div class="mt-4 space-y-8">
+
+                                {{-- 1. Programa Principal --}}
                                 <div>
-                                    <label class="block mb-2 text-xs font-medium text-gray-700">Programa(s) Principal(es) <span class="text-red-500">*</span></label>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3">
-                                        @foreach ($programaOptionsList ?? [] as $programaItem)
-                                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
-                                                <input type="checkbox" name="programa[]" value="{{ $programaItem }}"
-                                                       @if(is_array(old('programa')) && in_array($programaItem, old('programa', []))) checked @endif
-                                                       class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                                {{ $programaItem }}
-                                            </label>
-                                        @endforeach
+                                    <x-input-label required>Programa principal</x-input-label>
+                                    <p class="mt-1 mb-3 text-xs text-slate-500 dark:text-slate-400">Selecciona al menos un programa principal al que se inscribe.</p>
+                                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+                                        @php
+                                            // Lógica para manejar `old()` y los datos existentes del participante en modo edición
+                                            $programasSeleccionados = old('programa', isset($participante) && is_string($participante->programa) ? explode(',', $participante->programa) : []);
+                                        @endphp
+                                        @foreach ($programaOptionsList as $programaItem)
+                                        @php
+                                            $colorClases = match($programaItem) {
+                                                'Exito Academico' => 'hover:bg-blue-100 border-blue-300 text-blue-800',
+                                                'Desarrollo Juvenil' => 'hover:bg-green-100 border-green-300 text-green-800',
+                                                'Biblioteca' => 'hover:bg-purple-100 border-purple-300 text-purple-800',
+                                                default => 'hover:bg-slate-100 border-slate-300 text-slate-800',
+                                            };
+                                        @endphp
+
+                                        <label class="flex items-center p-3 transition-colors border rounded-lg cursor-pointer dark:border-slate-600 dark:hover:bg-slate-700/50 {{ $colorClases }}">
+                                            <input type="checkbox" name="programa[]" value="{{ $programaItem }}"
+                                                @if(in_array($programaItem, $programasSeleccionados)) checked @endif
+                                                class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded dark:bg-slate-900 dark:border-slate-500 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
+                                            <span class="ml-3 text-sm font-medium dark:text-slate-200">{{ $programaItem }}</span>
+                                        </label>
+                                    @endforeach
+
                                     </div>
-                                    @error('programa') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-error :messages="$errors->get('programa')" class="mt-2" />
                                 </div>
-                                <div>
-                                    <label class="block mb-2 text-xs font-medium text-gray-700">Sub-Programa(s) <span class="text-red-500">*</span></label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-x-4 gap-y-3">
+
+                                {{-- 2. Subprogramas (Con opción para agregar uno nuevo) --}}
+                                <div x-data="{ otroSubprograma: {{ is_array(old('programas')) && in_array('_OTROS_', old('programas', [])) ? 'true' : 'false' }} }">
+                                    <x-input-label>Subprogramas</x-input-label>
+                                    <p class="mt-1 mb-3 text-xs text-slate-500 dark:text-slate-400">Selecciona los subprogramas aplicables.</p>
+                                    <div class="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                        @php
+                                            $subProgramasSeleccionados = old('programas', isset($participante) && is_string($participante->programas) ? explode(',', $participante->programas) : []);
+                                        @endphp
                                         @foreach ($subProgramaOptionsList ?? [] as $subProgramaItem)
-                                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                            <label class="flex items-center text-sm cursor-pointer dark:text-slate-200">
                                                 <input type="checkbox" name="programas[]" value="{{ $subProgramaItem }}"
-                                                       @if(is_array(old('programas')) && in_array($subProgramaItem, old('programas', []))) checked @endif
-                                                       class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                                    @if(in_array($subProgramaItem, $subProgramasSeleccionados)) checked @endif
+                                                    class="w-4 h-4 mr-2 text-indigo-600 bg-gray-100 border-gray-300 rounded dark:bg-slate-900 dark:border-slate-500 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
                                                 {{ $subProgramaItem }}
                                             </label>
                                         @endforeach
+                                        {{-- Checkbox para "Otro" --}}
+                                        <label class="flex items-center text-sm font-semibold cursor-pointer text-sky-600 dark:text-sky-400">
+                                            <input type="checkbox" name="programas[]" value="_OTROS_" x-model="otroSubprograma"
+                                                class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded dark:border-slate-500 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
+                                            Otro
+                                        </label>
                                     </div>
-                                    @error('programas') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-error :messages="$errors->get('programas')" class="mt-2" />
+                                    {{-- Campo de texto para el nuevo subprograma --}}
+                                    <div x-show="otroSubprograma" x-transition class="mt-4">
+                                        <x-input-label for="nuevo_subprograma">Nombre del nuevo subprograma</x-input-label>
+                                        <x-text-input id="nuevo_subprograma" type="text" name="nuevo_subprograma"
+                                                    :value="old('nuevo_subprograma')"
+                                                    class="block w-full mt-1 sm:w-1/2"
+                                                    placeholder="Escribe el nombre aquí..." />
+                                        <x-input-error :messages="$errors->get('nuevo_subprograma')" class="mt-2" />
+                                    </div>
                                 </div>
+
+                                {{-- 3. Lugar de Encuentro --}}
                                 <div>
-                                    <label for="lugar_de_encuentro_del_programa" class="block mb-1 text-xs font-medium text-gray-700">Lugar de encuentro del programa <span class="text-red-500">*</span></label>
-                                    <select name="lugar_de_encuentro_del_programa" id="lugar_de_encuentro_del_programa" class="w-full md:w-1/2 lg:w-1/3 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('lugar_de_encuentro_del_programa') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ old('lugar_de_encuentro_del_programa') ? '' : 'selected' }}>Seleccione...</option>
-                                        <option value="Asentamiento" {{ old('lugar_de_encuentro_del_programa') == 'Asentamiento' ? 'selected' : '' }}>Asentamiento</option>
-                                        <option value="CREA" {{ old('lugar_de_encuentro_del_programa') == 'CREA' ? 'selected' : '' }}>CREA</option>
-                                        <option value="Las Salinas" {{ old('lugar_de_encuentro_del_programa') == 'Las Salinas' ? 'selected' : '' }}>Las Salinas</option>
-                                        <option value="Limón 1" {{ old('lugar_de_encuentro_del_programa') == 'Limón 1' ? 'selected' : '' }}>Limón 1</option>
-                                        <option value="Las Mercedes" {{ old('lugar_de_encuentro_del_programa') == 'Las Mercedes' ? 'selected' : '' }}>Las Mercedes</option>
-                                        <option value="Virgen Morena" {{ old('lugar_de_encuentro_del_programa') == 'Virgen Morena' ? 'selected' : '' }}>Virgen Morena</option>
-                                        <option value="Ojochal" {{ old('lugar_de_encuentro_del_programa') == 'Ojochal' ? 'selected' : '' }}>Ojochal</option>
-                                    </select>
-                                    @error('lugar_de_encuentro_del_programa') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-label for="lugar_de_encuentro_del_programa" required>Lugar de encuentro del programa</x-input-label>
+                                    <div class="mt-2">
+                                        <x-radio-group-with-other
+                                            :options="$lugaresDeEncuentro"
+                                            name="lugar_de_encuentro_del_programa"
+                                            :value="old('lugar_de_encuentro_del_programa', $participante->lugar_de_encuentro_del_programa ?? '')"
+                                            required
+                                        />
+                                    </div>
                                 </div>
+
+                                {{-- 4. Días de Asistencia --}}
                                 <div>
-                                    <label class="block mb-2 text-xs font-medium text-gray-700">Días de Asistencia Esperados al Programa CREA <span class="text-red-500">*</span></label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-6 gap-y-3">
-                                        @php $diasSeleccionados = old('dias_de_asistencia_al_programa', []); @endphp
-                                        @foreach ($diasOptionsList ?? ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
-                                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                    <x-input-label required>Días de asistencia esperados</x-input-label>
+                                    <p class="mt-1 mb-3 text-xs text-slate-500 dark:text-slate-400">Marca los días que el participante asistirá al programa.</p>
+                                    <div class="flex flex-wrap items-center justify-center gap-4">
+                                        @php $diasSeleccionados = old('dias_de_asistencia_al_programa', isset($participante) && is_string($participante->dias_de_asistencia_al_programa) ? explode(',', $participante->dias_de_asistencia_al_programa) : []); @endphp
+                                        @foreach (['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
+                                            <label class="flex items-center px-4 py-2 text-sm border rounded-lg cursor-pointer dark:border-slate-600 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-700/50">
                                                 <input type="checkbox" name="dias_de_asistencia_al_programa[]" value="{{ $dia }}"
-                                                       @if(is_array($diasSeleccionados) && in_array($dia, $diasSeleccionados)) checked @endif
-                                                       class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded dias-asistencia focus:ring-indigo-500">
+                                                    @if(in_array($dia, $diasSeleccionados)) checked @endif
+                                                    class="w-4 h-4 mr-3 text-indigo-600 border-gray-300 rounded dark:bg-slate-900 dark:border-slate-500 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
                                                 {{ $dia }}
                                             </label>
                                         @endforeach
                                     </div>
-                                    @error('dias_de_asistencia_al_programa') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-error :messages="$errors->get('dias_de_asistencia_al_programa')" class="mt-2" />
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Información del Tutor Principal</legend>
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información del tutor principal</legend>
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
-                                    <label for="tutor_principal" class="block mb-1 text-xs font-medium text-gray-700">Parentesco <span class="text-red-500">*</span></label>
-                                    <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('tutor_principal') border-red-500 @enderror" required>
+                                    <label for="tutor_principal" class="block mb-1 text-sm font-medium text-slate-800">Tutor </label>
+                                    <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('tutor_principal') border-red-500 @enderror">
                                         <option value="" disabled {{ old('tutor_principal') ? '' : 'selected' }}>Seleccione...</option>
+                                        {{-- Opciones adicionales preestablecidas --}}
+                                        @foreach (['No aplica'] as $opcion)
+                                            <option value="{{ $opcion }}" {{ old('tutor_principal') == $opcion ? 'selected' : '' }}>{{ $opcion }}</option>
+                                        @endforeach
                                         @foreach ($tipos_tutor as $tipo)
                                             <option value="{{ $tipo }}" {{ old('tutor_principal') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
                                         @endforeach
@@ -315,38 +373,40 @@
                                     @error('tutor_principal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <label for="nombres_y_apellidos_tutor_principal" class="block mb-1 text-xs font-medium text-gray-700">Nombres y Apellidos <span class="text-red-500">*</span></label>
-                                    <input type="text" name="nombres_y_apellidos_tutor_principal" id="nombres_y_apellidos_tutor_principal" value="{{ old('nombres_y_apellidos_tutor_principal') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nombres_y_apellidos_tutor_principal') border-red-500 @enderror" required>
+                                    <label for="nombres_y_apellidos_tutor_principal" class="block mb-1 text-sm font-medium text-slate-800">Nombres y apellidos </label>
+                                    <input type="text" name="nombres_y_apellidos_tutor_principal" id="nombres_y_apellidos_tutor_principal" value="{{ old('nombres_y_apellidos_tutor_principal') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nombres_y_apellidos_tutor_principal') border-red-500 @enderror">
                                     @error('nombres_y_apellidos_tutor_principal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="numero_de_cedula_tutor" class="block mb-1 text-xs font-medium text-gray-700">Número de Cédula <span class="text-red-500">*</span></label>
-                                    <input type="text" name="numero_de_cedula_tutor" id="numero_de_cedula_tutor" value="{{ old('numero_de_cedula_tutor') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('numero_de_cedula_tutor') border-red-500 @enderror" required>
+                                    <label for="numero_de_cedula_tutor" class="block mb-1 text-sm font-medium text-slate-800">Número de cédula </label>
+                                    <input type="text" name="numero_de_cedula_tutor" id="numero_de_cedula_tutor" value="{{ old('numero_de_cedula_tutor') }}" class="w-full uppercase px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('numero_de_cedula_tutor') border-red-500 @enderror" >
                                     @error('numero_de_cedula_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
+                                {{-- Sección de Comunidad del Tutor (Con opción para agregar una nueva) --}}
                                 <div>
-                                    <label for="comunidad_tutor" class="block mb-1 text-xs font-medium text-gray-700">Comunidad del Tutor <span class="text-red-500">*</span></label>
-                                    <select name="comunidad_tutor" id="comunidad_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_tutor') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ old('comunidad_tutor') ? '' : 'selected' }}>Seleccione...</option>
-                                        @foreach ($comunidades as $comunidad)
-                                            <option value="{{ $comunidad }}" {{ old('comunidad_tutor') == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('comunidad_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <x-input-label for="comunidad_tutor" >Comunidad del Tutor</x-input-label>
+                                    <x-community-selector
+                                        :comunidades="$comunidades"  {{-- <-- Le pasas EXACTAMENTE LA MISMA lista maestra --}}
+                                        name="comunidad_tutor"     {{-- <-- Pero con el nombre del campo para el tutor --}}
+                                        id="comunidad_tutor"       {{-- <-- Y un ID diferente --}}
+                                        :value="old('comunidad_tutor', $participante->comunidad_tutor ?? '')" {{-- El valor actual del tutor --}}
+
+                                        class="mt-1"
+                                    />
                                 </div>
                                 <div class="lg:col-span-3">
-                                    <label for="direccion_tutor" class="block mb-1 text-xs font-medium text-gray-700">Dirección <span class="text-red-500">*</span></label>
-                                    <textarea name="direccion_tutor" id="direccion_tutor" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('direccion_tutor') border-red-500 @enderror" required>{{ old('direccion_tutor') }}</textarea>
+                                    <label for="direccion_tutor" class="block mb-1 text-sm font-medium text-slate-800">Dirección </label>
+                                    <textarea name="direccion_tutor" id="direccion_tutor" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('direccion_tutor') border-red-500 @enderror" >{{ old('direccion_tutor') }}</textarea>
                                     @error('direccion_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="telefono_tutor" class="block mb-1 text-xs font-medium text-gray-700">Teléfono <span class="text-red-500">*</span></label>
-                                    <input type="tel" name="telefono_tutor" id="telefono_tutor" value="{{ old('telefono_tutor') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('telefono_tutor') border-red-500 @enderror" required>
+                                    <label for="telefono_tutor" class="block mb-1 text-sm font-medium text-slate-800">Teléfono </label>
+                                    <input type="tel" name="telefono_tutor" id="telefono_tutor" value="{{ old('telefono_tutor') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('telefono_tutor') border-red-500 @enderror" >
                                     @error('telefono_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="sector_economico_tutor" class="block mb-1 text-xs font-medium text-gray-700">Sector Económico <span class="text-red-500">*</span></label>
-                                    <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('sector_economico_tutor') border-red-500 @enderror" required>
+                                    <label for="sector_economico_tutor" class="block mb-1 text-sm font-medium text-slate-800">Sector económico </label>
+                                    <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('sector_economico_tutor') border-red-500 @enderror" >
                                         <option value="" disabled {{ old('sector_economico_tutor') ? '' : 'selected' }}>Seleccione...</option>
                                         @foreach ($sector_economico as $sector)
                                             <option value="{{ $sector }}" {{ old('sector_economico_tutor') == $sector ? 'selected' : '' }}>{{ $sector }}</option>
@@ -355,8 +415,8 @@
                                     @error('sector_economico_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="nivel_de_educacion_formal_adquirido_tutor" class="block mb-1 text-xs font-medium text-gray-700">Nivel de Educación <span class="text-red-500">*</span></label>
-                                    <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nivel_de_educacion_formal_adquirido_tutor') border-red-500 @enderror" required>
+                                    <label for="nivel_de_educacion_formal_adquirido_tutor" class="block mb-1 text-sm font-medium text-slate-800">Nivel de educación </label>
+                                    <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nivel_de_educacion_formal_adquirido_tutor') border-red-500 @enderror">
                                         <option value="" disabled {{ old('nivel_de_educacion_formal_adquirido_tutor') ? '' : 'selected' }}>Seleccione...</option>
                                         @foreach ($nivel_educacion as $nivel)
                                             <option value="{{ $nivel }}" {{ old('nivel_de_educacion_formal_adquirido_tutor') == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
@@ -365,18 +425,18 @@
                                     @error('nivel_de_educacion_formal_adquirido_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="md:col-span-2 lg:col-span-3">
-                                    <label for="expectativas_del_programa_tutor_principal" class="block mb-1 text-xs font-medium text-gray-700">Expectativas del Programa <span class="text-red-500">*</span></label>
-                                    <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('expectativas_del_programa_tutor_principal') border-red-500 @enderror" required>{{ old('expectativas_del_programa_tutor_principal') }}</textarea>
+                                    <label for="expectativas_del_programa_tutor_principal" class="block mb-1 text-sm font-medium text-slate-800">Expectativas del programa </label>
+                                    <textarea name="expectativas_del_programa_tutor_principal" id="expectativas_del_programa_tutor_principal" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('expectativas_del_programa_tutor_principal') border-red-500 @enderror">{{ old('expectativas_del_programa_tutor_principal') }}</textarea>
                                     @error('expectativas_del_programa_tutor_principal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Información del Tutor Secundario (Opcional)</legend>
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información del tutor secundario (Opcional)</legend>
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
-                                    <label for="tutor_secundario" class="block mb-1 text-xs font-medium text-gray-700">Parentesco</label>
+                                    <label for="tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Tutor</label>
                                     <select name="tutor_secundario" id="tutor_secundario" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('tutor_secundario') border-red-500 @enderror">
                                         <option value="" selected>Seleccione (si aplica)...</option>
                                         @foreach ($tipos_tutor as $tipo) <option value="{{ $tipo }}" {{ old('tutor_secundario') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
@@ -385,17 +445,17 @@
                                     @error('tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="lg:col-span-2">
-                                    <label for="nombres_y_apellidos_tutor_secundario" class="block mb-1 text-xs font-medium text-gray-700">Nombres y Apellidos</label>
+                                    <label for="nombres_y_apellidos_tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Nombres y apellidos</label>
                                     <input type="text" name="nombres_y_apellidos_tutor_secundario" id="nombres_y_apellidos_tutor_secundario" value="{{ old('nombres_y_apellidos_tutor_secundario') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nombres_y_apellidos_tutor_secundario') border-red-500 @enderror">
                                     @error('nombres_y_apellidos_tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="numero_de_cedula_tutor_secundario" class="block mb-1 text-xs font-medium text-gray-700">Número de Cédula</label>
+                                    <label for="numero_de_cedula_tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Número de cédula</label>
                                     <input type="text" name="numero_de_cedula_tutor_secundario" id="numero_de_cedula_tutor_secundario" value="{{ old('numero_de_cedula_tutor_secundario') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('numero_de_cedula_tutor_secundario') border-red-500 @enderror">
                                     @error('numero_de_cedula_tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="comunidad_tutor_secundario" class="block mb-1 text-xs font-medium text-gray-700">Comunidad del Tutor Secundario</label>
+                                    <label for="comunidad_tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Comunidad del tutor secundario</label>
                                     <select name="comunidad_tutor_secundario" id="comunidad_tutor_secundario" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_tutor_secundario') border-red-500 @enderror">
                                         <option value="" selected>Seleccione (si aplica)...</option>
                                         @foreach ($comunidades as $comunidad)
@@ -405,57 +465,91 @@
                                      @error('comunidad_tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
-                                    <label for="telefono_tutor_secundario" class="block mb-1 text-xs font-medium text-gray-700">Teléfono</label>
+                                    <label for="telefono_tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Teléfono</label>
                                     <input type="tel" name="telefono_tutor_secundario" id="telefono_tutor_secundario" value="{{ old('telefono_tutor_secundario') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('telefono_tutor_secundario') border-red-500 @enderror">
                                     @error('telefono_tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset class="p-4 border border-gray-300 rounded-lg">
-                            <legend class="px-2 text-base font-semibold text-indigo-700">Participación en Otros Programas</legend>
-                            <div class="grid grid-cols-1 mt-2 md:grid-cols-2 gap-x-6 gap-y-4">
-                                <div>
-                                    <label class="block mb-1 text-xs font-medium text-gray-700">¿Asiste a otros programas fuera de CREA? <span class="text-red-500">*</span></label>
-                                    <div class="flex items-center mt-1 space-x-4">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="asiste_a_otros_programas" value="1" class="w-4 h-4 text-indigo-600 border-gray-300 asiste-otros-radio focus:ring-indigo-500" {{ old('asiste_a_otros_programas') == '1' ? 'checked' : '' }} required>
-                                            <span class="ml-2 text-xs text-gray-600">Sí</span>
-                                        </label>
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="radio" name="asiste_a_otros_programas" value="0" class="w-4 h-4 text-indigo-600 border-gray-300 asiste-otros-radio focus:ring-indigo-500" {{ old('asiste_a_otros_programas', '0') == '0' ? 'checked' : '' }}>
-                                            <span class="ml-2 text-xs text-gray-600">No</span>
-                                        </label>
-                                    </div>
-                                     @error('asiste_a_otros_programas') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <fieldset class="p-6 border border-purple-400 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
+                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Participación en otros programas</legend>
+                            <div x-data="{ asiste: '{{ old('asiste_a_otros_programas', '') }}' }" class="grid grid-cols-1 mt-2 md:grid-cols-2 gap-x-6 gap-y-4">
+    {{-- Pregunta principal con botones ✓ y ✕ --}}
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">
+                                    ¿Asiste a otros programas fuera de CREA?
+                                </label>
+                                <div class="flex items-center mt-1 space-x-4">
+                                    <label
+                                        class="flex items-center justify-center w-8 h-8 text-lg border rounded-full cursor-pointer"
+                                        :class="asiste == '1' ? 'bg-green-100 text-green-700 border-green-500 ring-2 ring-green-300' : 'border-gray-300 text-green-600'"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="asiste_a_otros_programas"
+                                            value="1"
+                                            class="hidden"
+                                            @click="asiste = '1'"
+
+                                        >
+                                        ✓
+                                    </label>
+                                    <label
+                                        class="flex items-center justify-center w-8 h-8 text-lg border rounded-full cursor-pointer"
+                                        :class="asiste == '0' ? 'bg-red-100 text-red-700 border-red-500 ring-2 ring-red-300' : 'border-gray-300 text-red-600'"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="asiste_a_otros_programas"
+                                            value="0"
+                                            class="hidden"
+                                            @click="asiste = '0'"
+                                        >
+                                        ✕
+                                    </label>
                                 </div>
-                                <div id="otros-programas-detalles-section" class="{{ old('asiste_a_otros_programas') == '1' ? '' : 'hidden' }} space-y-4 md:col-span-2">
-                                    <div>
-                                        <label for="otros_programas" class="block mb-1 text-xs font-medium text-gray-700">¿Cuáles programas?</label>
-                                        <input type="text" name="otros_programas" id="otros_programas" value="{{ old('otros_programas') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('otros_programas') border-red-500 @enderror">
-                                        @error('otros_programas') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                                @error('asiste_a_otros_programas')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Campos adicionales si selecciona "Sí" --}}
+                            <div x-show="asiste == '1'" class="space-y-4 md:col-span-2" x-transition>
+                                {{-- ¿Cuáles programas? --}}
+                                <div>
+                                    <label for="otros_programas" class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">¿Cuáles programas?</label>
+                                    <input type="text" name="otros_programas" id="otros_programas" value="{{ old('otros_programas') }}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('otros_programas') border-red-500 @enderror">
+                                    @error('otros_programas')
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Días que asiste --}}
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium text-slate-800 dark:text-slate-200">Días que asiste a esos otros programas</label>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-6 gap-y-3">
+                                        @php $diasOtrosSeleccionados = old('dias_asiste_a_otros_programas', []); @endphp
+                                        @foreach ($diasOptionsList ?? ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
+                                            <label class="flex items-center text-sm text-gray-600 cursor-pointer">
+                                                <input type="checkbox" name="dias_asiste_a_otros_programas[]" value="{{ $dia }}"
+                                                    @if(is_array($diasOtrosSeleccionados) && in_array($dia, $diasOtrosSeleccionados)) checked @endif
+                                                    class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                                {{ $dia }}
+                                            </label>
+                                        @endforeach
                                     </div>
-                                    <div>
-                                        <label class="block mb-2 text-xs font-medium text-gray-700">Días que asiste a esos otros programas</label>
-                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-x-6 gap-y-3">
-                                            @php $diasOtrosSeleccionados = old('dias_asiste_a_otros_programas', []); @endphp
-                                            @foreach ($diasOptionsList ?? ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'] as $dia)
-                                                <label class="flex items-center text-sm text-gray-600 cursor-pointer">
-                                                    <input type="checkbox" name="dias_asiste_a_otros_programas[]" value="{{ $dia }}"
-                                                           @if(is_array($diasOtrosSeleccionados) && in_array($dia, $diasOtrosSeleccionados)) checked @endif
-                                                           class="w-4 h-4 mr-2 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                                    {{ $dia }}
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                        @error('dias_asiste_a_otros_programas') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                    </div>
+                                    @error('dias_asiste_a_otros_programas')
+                                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
-                        </fieldset>
+                        </div>
 
+                        </fieldset>
                         <div class="flex flex-col items-center justify-end pt-8 space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
-                             <x-secondary-button type="button"> {{-- El onclick se asignará por JS --}}
+                             <x-secondary-button type="button" onclick="document.getElementById('inscripcionForm').reset();">
                                 Limpiar Formulario
                             </x-secondary-button>
                             <x-primary-button type="submit">
@@ -468,12 +562,8 @@
         </div>
     </div>
 
-    {{-- Script para pasar datos 'old' de Laravel a JS. Esto es mejor que generarlos directamente en el JS. --}}
-    <script>
-        // Estas variables globales serán leídas por participante-create.js
-        const _oldActivo = {{ old('activo', true) ? 'true' : 'false' }}; // Asegurar que sea booleano JS
-        const _oldParticipante = @json(old('participante'));
-        const _oldParticipanteOtro = @json(old('participante_otro'));
-    </script>
-    @vite(['resources/js/pages/participante-create.js'])
+    {{-- MEJORA: Se elimina el script de variables globales, ya no es necesario. --}}
+    @push('scripts')
+        @vite(['resources/js/pages/participante-create.js'])
+    @endpush
 </x-app-layout>

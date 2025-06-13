@@ -1,10 +1,10 @@
 <button {{ $attributes->merge([
     'type' => 'submit',
-    'class' => 'group inline-flex items-center justify-center text-blue-700 w-12 h-12 bg-white rounded-full shadow-md transition-all duration-300 transform hover:rotate-90 focus:outline-none stroke-zinc-900 fill-none hover:fill-zinc-800 active:stroke-zinc-200 active:fill-zinc-600'
+    'class' => 'group inline-flex items-center justify-center text-blue-700 w-14 h-14 bg-white rounded-full shadow-md transition-all duration-300 transform hover:rotate-90 focus:outline-none stroke-zinc-900 fill-none hover:fill-zinc-800 active:stroke-zinc-200 active:fill-zinc-600'
 ]) }}>
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="w-12 h-12  group-active:stroke-zinc-200 group-active:fill-zinc-600 transition-all duration-300 group-active:duration-0"
+        class="transition-all duration-300 h-14 w-14 group-active:stroke-zinc-200 group-active:fill-zinc-600 group-active:duration-0"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

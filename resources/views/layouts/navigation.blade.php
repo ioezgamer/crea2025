@@ -6,13 +6,8 @@
         <div class="flex items-center justify-between h-16 sm:h-18"> {{-- Increased height slightly for better spacing --}}
             <div class="flex items-center">
                 <a href="{{ route('home') }}" class="flex items-center flex-shrink-0 group">
-                    <div class="mr-2 h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 shadow-md group-hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-center w-full h-full bg-white rounded-full dark:bg-slate-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                            </svg>
-                        </div>
-                    </div>
+                    <x-application-logo class="w-8 h-8 mr-2 text-indigo-600 dark:text-indigo-400" />
+                    {{-- Logo Text with gradient and hover effect --}}
                     <span class="text-sm font-bold text-transparent transition-opacity bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 group-hover:opacity-80">
                         SistemaCREA
                     </span>
@@ -71,7 +66,7 @@
                         </div>
                     </x-nav-link>
                     @can('manage-roles')
-                        <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')" :count="$rolesCount ?? 0">
+                        <x-nav-link :href="route('roles.index')" :active="request()->routeIs('roles.index')" :count="$managedUsersCount ?? 0">
                             <div class="flex items-center space-x-1.5">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zm8 0c0-1.104-.896-2-2-2s-2 .896-2 2c0 .738.402 1.376 1 1.723V15a1 1 0 001 1h2a1 1 0 001-1v-2.277c.598-.347 1-.985 1-1.723zM6 3a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3H6z"></path></svg>
                                 <span class="text-xs font-medium">Roles</span>

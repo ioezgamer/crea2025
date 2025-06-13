@@ -33,12 +33,19 @@ class StoreParticipanteRequest extends FormRequest
             'activo' => 'required|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
             'cedula_tutor' => 'required|boolean',
-            'cedula_participante_adulto' => 'required|boolean',
-            'programa' => 'required|array|min:1', // Campo para el programa principal (puede ser múltiple si se guarda como CSV)
-            'programa.*' => Rule::in(['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca']),
-            'programas' => 'required|array|min:1', // Campo para sub-programas o códigos específicos
-            'programas.*' => Rule::in(['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM']),
-            'lugar_de_encuentro_del_programa' => 'required|string|max:255',
+            'cedula_participante_adulto' => 'nullable|boolean',
+            // --- REGLAS AÑADIDAS/MODIFICADAS ---
+            'programa' => ['required', 'array', 'min:1'], // Asume que programa principal es un array de checkboxes
+            'programas' => ['nullable', 'array'], // El array de checkboxes de subprogramas
+            'programas.*' => ['string'], // Cada valor en el array debe ser un string
+            'nuevo_subprograma' => ['nullable', 'string', 'max:100'], // El nuevo campo de texto
+            'lugar_de_encuentro_del_programa' => ['required', 'string'],
+                'nueva_lugar_de_encuentro_del_programa' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    Rule::requiredIf($this->input('lugar_de_encuentro_del_programa') === '_OTRA_')
+                ],
             'primer_nombre_p' => 'required|string|max:255',
             'segundo_nombre_p' => 'nullable|string|max:255',
             'primer_apellido_p' => 'required|string|max:255',
@@ -49,18 +56,30 @@ class StoreParticipanteRequest extends FormRequest
             'edad_p' => 'required|integer|min:0',
             'cedula_participante_adulto_str' => 'nullable|string|max:255|unique:participantes,cedula_participante_adulto_str', // Asegurar unicidad si es un identificador
             'genero' => 'required|string|max:255',
-            'comunidad_p' => 'required|string|max:255',
+            'comunidad_p' => ['required', 'string'],
+            'nueva_comunidad_p' => [
+                                    'nullable',
+                                    'string',
+                                    'max:100',
+                                    Rule::requiredIf($this->input('comunidad_p') === '_OTRA_')
+                                    ],
             'escuela_p' => 'required|string|max:255',
-            'comunidad_escuela' => 'required|string|max:255',
+            'comunidad_escuela' => 'nullable|string|max:255',
             'grado_p' => 'required|string|max:255',
             'turno' => 'nullable|string|max:255',
             'repite_grado' => 'nullable|boolean',
             'dias_de_asistencia_al_programa' => 'required|array|min:1',
             'dias_de_asistencia_al_programa.*' => Rule::in(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
-            'tutor_principal' => 'required|string|max:255',
-            'nombres_y_apellidos_tutor_principal' => 'required|string|max:255',
+            'tutor_principal' => 'nullable|string|max:255',
+            'nombres_y_apellidos_tutor_principal' => 'nullable|string|max:255',
             'numero_de_cedula_tutor' => 'nullable|string|max:255', // Considerar validación de formato de cédula si aplica
-            'comunidad_tutor' => 'nullable|string|max:255',
+            'comunidad_tutor' => ['nullable', 'string'],
+             'nueva_comunidad_tutor' => [
+            'nullable',
+            'string',
+            'max:100',
+            Rule::requiredIf($this->input('comunidad_tutor') === '_OTRA_')
+        ],
             'direccion_tutor' => 'nullable|string|max:255',
             'telefono_tutor' => 'nullable|string|max:20', // Considerar validación de formato de teléfono
             'sector_economico_tutor' => 'nullable|string|max:30',
@@ -88,6 +107,8 @@ class StoreParticipanteRequest extends FormRequest
             'programa.*.in' => 'El programa principal seleccionado no es válido.',
             'programas.*.in' => 'El sub-programa o código seleccionado no es válido.',
             'dias_de_asistencia_al_programa.*.in' => 'El día de asistencia seleccionado no es válido.',
+            'nueva_comunidad_tutor.required_if' => 'Debes especificar el nombre de la nueva comunidad.',
+
             // Puedes añadir más mensajes personalizados aquí
         ];
     }

@@ -122,20 +122,20 @@
                             <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
                                 <div class="info-item">
                                     <dt class="info-label">Partida de Nacimiento:</dt>
-                                    <dd class="info-value {{ $participante->partida_de_nacimiento ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->partida_de_nacimiento ? 'Entregada' : 'Pendiente' }}</dd>
+                                    <dd class="info-value {{ $participante->partida_de_nacimiento ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->partida_de_nacimiento ? 'Entregada' : 'No' }}</dd>
                                 </div>
                                 <div class="info-item">
                                     <dt class="info-label">Boletín o Diploma ({{ now()->year }}):</dt>
-                                    <dd class="info-value {{ $participante->boletin_o_diploma_2024 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->boletin_o_diploma_2024 ? 'Entregado' : 'Pendiente' }}</dd>
+                                    <dd class="info-value {{ $participante->boletin_o_diploma_2024 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->boletin_o_diploma_2024 ? 'Entregado' : 'No' }}</dd>
                                 </div>
                                 <div class="info-item">
                                     <dt class="info-label">Cédula del Tutor:</dt>
-                                    <dd class="info-value {{ $participante->cedula_tutor ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->cedula_tutor ? 'Entregada' : 'Pendiente' }}</dd>
+                                    <dd class="info-value {{ $participante->cedula_tutor ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->cedula_tutor ? 'Entregada' : 'No' }}</dd>
                                 </div>
                                 @if(in_array('Adulto', explode(',', $participante->tipo_participante)))
                                 <div class="info-item">
                                     <dt class="info-label">Cédula Participante (Adulto):</dt>
-                                    <dd class="info-value {{ $participante->cedula_participante_adulto ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->cedula_participante_adulto ? 'Entregada' : 'Pendiente' }}</dd>
+                                    <dd class="info-value {{ $participante->cedula_participante_adulto ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">{{ $participante->cedula_participante_adulto ? 'Entregada' : 'No' }}</dd>
                                 </div>
                                 @endif
                             </dl>

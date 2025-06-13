@@ -3,112 +3,135 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participante;
-use App\Models\User; // Asegúrate de que el modelo User exista y esté en la ruta correcta
-use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB; // Para consultas directas a la BD si son necesarias
-use Carbon\Carbon; // Import Carbon for date manipulation
+use Carbon\Carbon;
+use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display the main dashboard view with cached statistics.
+     *
+     * @return View
+     */
     public function index(): View
     {
-        // --- Estadísticas de Participantes ---
-        $totalParticipants = Participante::count();
+        $dashboardData = Cache::remember('dashboard_stats', now()->addHour(), function () {
 
-        $allProgramEntries = Participante::whereNotNull('programa')
-                                     ->where('programa', '!=', '')
-                                     ->pluck('programa');
+            // ========================================================================
+            // CAMBIO PRINCIPAL: Se define una consulta base para participantes válidos.
+            // Un participante válido para las estadísticas está activo y tiene un programa.
+            // ========================================================================
+            $validParticipantsQuery = Participante::where('activo', true)
+                ->whereNotNull('programa')
+                ->where('programa', '!=', '');
 
-        $programCounts = [];
-        foreach ($allProgramEntries as $programCsv) {
-            $individualPrograms = explode(',', $programCsv);
-            foreach ($individualPrograms as $prog) {
-                $trimmedProg = trim($prog);
-                if (!empty($trimmedProg)) {
-                    if (!isset($programCounts[$trimmedProg])) {
-                        $programCounts[$trimmedProg] = 0;
+            // --- Estadísticas de Participantes (basadas en la consulta unificada) ---
+
+            // El conteo total ahora solo incluye participantes válidos.
+            $totalParticipants = $validParticipantsQuery->count();
+
+            // ========================================================================
+            // LÓGICA MODIFICADA: Excluir subprograma 'Investigación' de 'Exito Academico'.
+            // ========================================================================
+            // Se obtienen ambos campos: programa principal y subprogramas.
+            $participantsPrograms = $validParticipantsQuery->clone()->get(['programa', 'programas']);
+
+            $programCounts = [];
+            foreach ($participantsPrograms as $participant) {
+                // Obtener arrays de programas principales y subprogramas, limpiando valores vacíos.
+                $mainPrograms = array_filter(array_map('trim', explode(',', $participant->programa ?? '')));
+                $subPrograms = array_filter(array_map('trim', explode(',', $participant->programas ?? '')));
+
+                foreach ($mainPrograms as $mainProg) {
+                    // Inicializar contador si no existe.
+                    if (!isset($programCounts[$mainProg])) {
+                        $programCounts[$mainProg] = 0;
                     }
-                    $programCounts[$trimmedProg]++;
+
+                    // LÓGICA DE EXCLUSIÓN:
+                    // Si el programa principal es "Exito Academico", solo se cuenta si el participante
+                    // NO está también en el subprograma "Investigación".
+                    if ($mainProg === 'Exito Academico') {
+                        if (!in_array('Investigación', $subPrograms)) {
+                            $programCounts[$mainProg]++;
+                        }
+                    } else {
+                        // Para todos los demás programas, se cuenta normalmente.
+                        $programCounts[$mainProg]++;
+                    }
                 }
             }
-        }
-        ksort($programCounts);
-
-        $participantsByPlace = Participante::groupBy('lugar_de_encuentro_del_programa')
-            ->selectRaw('lugar_de_encuentro_del_programa, count(*) as count')
-            ->whereNotNull('lugar_de_encuentro_del_programa')
-            ->where('lugar_de_encuentro_del_programa', '!=', '')
-            ->pluck('count', 'lugar_de_encuentro_del_programa')
-            ->toArray();
-        ksort($participantsByPlace);
-
-        // --- Nuevas Estadísticas de Inscripción de Participantes ---
-        $currentMonthStart = Carbon::now()->startOfMonth();
-        $newParticipantsThisMonth = Participante::where('fecha_de_inscripcion', '>=', $currentMonthStart)->count();
-
-        $newParticipantsByMonthData = Participante::select(
-                DB::raw("DATE_FORMAT(fecha_de_inscripcion, '%Y-%m') as month_year_key"), // Usar un alias diferente para la clave original
-                DB::raw("DATE_FORMAT(fecha_de_inscripcion, '%b %Y') as month_year_label"), // Etiqueta para el gráfico
-                DB::raw('count(*) as count')
-            )
-            ->where('fecha_de_inscripcion', '>=', Carbon::now()->subMonths(11)->startOfMonth())
-            ->groupBy('month_year_key', 'month_year_label') // Agrupar por ambos para mantener la etiqueta
-            ->orderBy('month_year_key', 'asc') // Ordenar por la clave YYYY-MM
-            ->get();
-
-        $newParticipantsByMonthFormatted = [];
-        // Crear un array con los últimos 12 meses como claves (formato 'M Y') y 0 como valor
-        for ($i = 11; $i >= 0; $i--) {
-            $date = Carbon::now()->subMonths($i);
-            // Usar Carbon para formatear el mes y año, asegurando consistencia y localización si es necesario
-            $newParticipantsByMonthFormatted[$date->locale(config('app.locale', 'es'))->isoFormat('MMM YYYY')] = 0;
-        }
-
-        // Llenar con los datos reales de la base de datos
-        foreach ($newParticipantsByMonthData as $entry) {
-            // Usar la etiqueta formateada directamente desde la consulta
-            $newParticipantsByMonthFormatted[$entry->month_year_label] = $entry->count;
-        }
+            ksort($programCounts);
 
 
-        // --- Estadísticas de Usuarios ---
-        $totalUsers = User::count();
+            // La consulta por lugar también se basa en los participantes válidos.
+            $participantsByPlace = $validParticipantsQuery->clone()
+                ->groupBy('lugar_de_encuentro_del_programa')
+                ->selectRaw('lugar_de_encuentro_del_programa, count(*) as count')
+                ->whereNotNull('lugar_de_encuentro_del_programa')
+                ->where('lugar_de_encuentro_del_programa', '!=', '')
+                ->pluck('count', 'lugar_de_encuentro_del_programa')
+                ->toArray();
+            ksort($participantsByPlace);
 
-        // AJUSTE: Usar los scopes del modelo User para consistencia, basados en 'approved_at'
-        $approvedUsers = User::approved()->count();
-        $pendingUsers = User::pendingApproval()->count();
+            // Nuevos participantes este mes (también se filtra por activos).
+            $newParticipantsThisMonth = Participante::where('activo', true)
+                ->where('fecha_de_inscripcion', '>=', Carbon::now()->startOfMonth())->count();
 
+            $newParticipantsByMonthFormatted = [];
+            $currentYear = Carbon::now()->year;
+            $months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            foreach($months as $monthName) {
+                $newParticipantsByMonthFormatted[$monthName] = 0;
+            }
 
-        $usersByRole = User::select('role', DB::raw('count(*) as count'))
-                            ->groupBy('role')
-                            ->pluck('count', 'role');
+            $newParticipantsByMonthData = Participante::where('activo', true)
+                ->select(DB::raw("MONTH(fecha_de_inscripcion) as month"), DB::raw('count(*) as count'))
+                ->whereYear('fecha_de_inscripcion', $currentYear)
+                ->groupBy('month')
+                ->orderBy('month', 'asc')
+                ->get();
 
-        $adminUsers = $usersByRole->get('admin', 0);
-        $editorUsers = $usersByRole->get('editor', 0);
-        $gestorUsers = $usersByRole->get('gestor', 0);
-        $standardUsers = $usersByRole->get('user', 0); // Asumiendo 'user' es el rol estándar
+            foreach ($newParticipantsByMonthData as $entry) {
+                $key = $months[$entry->month - 1];
+                $newParticipantsByMonthFormatted[$key] = $entry->count;
+            }
 
-        $tutorsCountFromParticipants = Participante::distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
+            // --- Estadísticas de Usuarios (sin cambios) ---
+            $totalUsers = User::count();
+            $approvedUsers = User::approved()->count();
+            $pendingUsers = User::pendingApproval()->count();
 
+            $usersByRole = Role::withCount('users')->pluck('users_count', 'name');
+            $adminUsers = $usersByRole->get('Administrador', 0);
+            $coordinadorUsers = $usersByRole->get('Coordinador', 0);
+            $facilitadorUsers = $usersByRole->get('Facilitador', 0);
+            $invitadoUsers = $usersByRole->get('Invitado', 0);
+            $tutorsCountFromParticipants = $validParticipantsQuery->clone()->distinct('numero_de_cedula_tutor')->count('numero_de_cedula_tutor');
 
-        return view('dashboard', [
-            'totalParticipants' => $totalParticipants,
-            'participantsByProgramData' => $programCounts,
-            'participantsByPlaceData' => $participantsByPlace,
-            'participantsByProgramForTable' => $programCounts, // Considera si necesitas datos diferentes para tabla y gráfico
-            'participantsByPlaceForTable' => $participantsByPlace, // Considera si necesitas datos diferentes para tabla y gráfico
-            'newParticipantsThisMonth' => $newParticipantsThisMonth,
-            'newParticipantsByMonth' => $newParticipantsByMonthFormatted,
+            return [
+                'totalParticipants' => $totalParticipants, // Este número ahora será consistente
+                'participantsByProgramData' => $programCounts,
+                'participantsByPlaceData' => $participantsByPlace,
+                'participantsByProgramForTable' => $programCounts,
+                'participantsByPlaceForTable' => $participantsByPlace,
+                'newParticipantsThisMonth' => $newParticipantsThisMonth,
+                'newParticipantsByMonth' => $newParticipantsByMonthFormatted,
+                'totalUsers' => $totalUsers,
+                'approvedUsers' => $approvedUsers,
+                'pendingUsers' => $pendingUsers,
+                'adminUsers' => $adminUsers,
+                'coordinadorUsers' => $coordinadorUsers,
+                'facilitadorUsers' => $facilitadorUsers,
+                'invitadoUsers' => $invitadoUsers,
+                'tutorsCount' => $tutorsCountFromParticipants,
+            ];
+        });
 
-            'totalUsers' => $totalUsers,
-            'approvedUsers' => $approvedUsers,
-            'pendingUsers' => $pendingUsers,
-            'adminUsers' => $adminUsers,
-            'editorUsers' => $editorUsers,
-            'gestorUsers' => $gestorUsers,
-            'standardUsers' => $standardUsers,
-            'tutorsCount' => $tutorsCountFromParticipants, // Este parece ser un conteo de tutores basado en la tabla Participantes
-        ]);
+        return view('dashboard', $dashboardData);
     }
 }

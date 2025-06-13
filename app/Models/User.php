@@ -6,11 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Casts\Attribute; // Necesario para el accesor/mutador
+use Spatie\Permission\Traits\HasRoles; // <--- AÑADE ESTA LÍNEA
 
-class User extends Authenticatable // Podrías implementar MustVerifyEmail aquí
+class User extends Authenticatable // Opcionalmente: implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles; // <--- AÑADE HasRoles AQUÍ
 
     /**
      * The attributes that are mass assignable.

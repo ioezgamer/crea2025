@@ -1,34 +1,48 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name') }}</title>
+
+    <title>{{ config('app.name', 'SistemaCREA') }}</title>
+
+    {{-- Fonts y CSS --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
 
+    {{-- Script para modo oscuro --}}
+    <script>
+        if (localStorage.getItem('themePreference') === 'dark' || (!('themePreference' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
-<body class="text-gray-900 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
-    {{-- Contenedor principal de la página: Altura de pantalla completa, layout de columna flex --}}
-    <div class="flex flex-col h-screen">
+<body class="font-sans antialiased text-gray-900">
+    <div class="min-h-screen bg-slate-100 dark:bg-slate-900">
+        {{-- Contenedor principal que se convierte en grid en pantallas grandes --}}
+        <div class="grid w-full min-h-screen grid-cols-1 lg:grid-cols-2">
 
-        <!-- Sección del Logo -->
-        <header class="p-3 text-center shrink-0 sm:p-4"> {{-- Padding reducido ligeramente --}}
-            <a href="/" class="inline-block">
-                <x-application-logo class="text-gray-100 fill-current w-14 h-14 sm:w-16 sm:h-16" />
-            </a>
-        </header>
+            {{-- Columna Izquierda: Branding (visible solo en LG y más grandes) --}}
+            @include('layouts.partials.auth-branding')
 
-        <!-- Contenedor del Slot Principal (Tarjeta de Login): Crece para tomar el espacio restante, centra el contenido, y permite scroll interno si es necesario -->
-        <main class="flex flex-col items-center justify-center flex-grow w-full p-2 overflow-y-hidden sm:p-3 md:p-4 ">
-            {{ $slot }} {{-- Aquí se inserta la tarjeta de login --}}
-        </main>
+            {{-- Columna Derecha: Contenido del Formulario (ocupa toda la pantalla en móvil) --}}
+            <div class="flex flex-col items-center justify-center w-full min-h-screen px-4 py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
+                {{-- Logo para vista móvil (oculto en LG y más grandes) --}}
+                <div class="mb-6 lg:hidden">
+                    <a href="/">
+                        <x-application-logo class="w-20 h-20 text-indigo-500 fill-current" />
+                    </a>
+                </div>
 
-        <!-- Sección del Pie de Página -->
-        @include('layouts.footer') {{-- Incluye el pie de página con derechos de autor y otra información relevante --}}
+                {{-- El slot donde se insertará el formulario de login o registro --}}
+                {{ $slot }}
+            </div>
+
+        </div>
     </div>
 </body>
 </html>

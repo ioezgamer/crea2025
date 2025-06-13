@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Participante;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreParticipanteRequest;
 use App\Http\Requests\UpdateParticipanteRequest;
@@ -11,6 +12,10 @@ use Mpdf\Mpdf;
 use App\Exports\ParticipantesExport;
 use App\Imports\ParticipantesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth; // Keep Auth import
+use App\Notifications\NuevoParticipanteNotificacion;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 
 class ParticipanteController extends Controller
 {
@@ -33,7 +38,7 @@ class ParticipanteController extends Controller
             $query->filterByGrado(urldecode($grado_param_url));
         }
 
-        $query->orderBy('grado_p', 'asc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
+        $query->orderBy('created_at', 'desc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
 
         $participantes = $query->paginate($request->input('per_page', 20));
         $programOptions = Participante::getDistinctProgramasOptions();
@@ -100,6 +105,46 @@ class ParticipanteController extends Controller
                 ->with('search_grado', $decodedGrado); // Para preseleccionar el grado en el filtro
     }
 
+public function consulta(Request $request)
+    {
+        // 1. Obtener los parámetros de búsqueda de la solicitud.
+        $search_name = $request->input('search_name');
+        $search_programa = $request->input('search_programa');
+        $search_lugar = $request->input('search_lugar');
+        $search_grado = $request->input('search_grado');
+
+        // 2. Construir la consulta base para el modelo Participante.
+        $query = Participante::query()
+            ->filterByName($search_name)
+            ->filterByPrograma($search_programa)
+            ->filterByLugar($search_lugar)
+            ->filterByGrado($search_grado);
+
+        // 3. Ordenar los resultados.
+        $query->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
+
+        // 4. Paginar los resultados.
+        $participantes = $query->paginate($request->input('per_page', 20));
+
+        // 5. Obtener las opciones para los filtros de la vista (programas, grados, etc.).
+        $programOptions = Participante::getDistinctProgramasOptions();
+        $gradoOptions = Participante::select('grado_p')->distinct()
+                            ->whereNotNull('grado_p')->where('grado_p', '!=', '')
+                            ->orderBy('grado_p')->pluck('grado_p')->toArray();
+
+        $lugarOptions = Participante::select('lugar_de_encuentro_del_programa')->distinct()
+                            ->whereNotNull('lugar_de_encuentro_del_programa')->where('lugar_de_encuentro_del_programa', '!=', '')
+                            ->orderBy('lugar_de_encuentro_del_programa')->pluck('lugar_de_encuentro_del_programa')->toArray();
+
+        return view('participante.consulta', compact('participantes', 'gradoOptions', 'lugarOptions'))
+                ->with('programas', $programOptions)
+                ->with('search_name', $search_name)
+                ->with('search_programa', $search_programa)
+                ->with('search_lugar', $search_lugar)
+                ->with('search_grado', $search_grado);
+    }
+
+
     public function getLugaresByPrograma(Request $request)
     {
         $programaFilter = $request->query('programa');
@@ -136,11 +181,11 @@ class ParticipanteController extends Controller
 
     public function create()
     {
-        $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort()->values();
+        $comunidades = $this->getUnifiedComunidadesList();
         $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
         $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
         $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
-        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro'];
+        $tipos_tutor_estaticos = ['Otro'];
         $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
         $tiposParticipanteDB = Participante::distinct()
                                 ->whereNotNull('participante')
@@ -149,33 +194,117 @@ class ParticipanteController extends Controller
                                 ->filter()->sort()->values();
         $tiposParticipanteEstaticos = ['Preescolar (o menos)', 'Primaria', 'Secundaria', 'Adulto'];
         $tiposParticipante = collect($tiposParticipanteEstaticos)->merge($tiposParticipanteDB)->unique()->sort()->values();
-        $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'];
-        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'];
+        $programaOptionsList = Participante::distinct()->pluck('programa')->filter()->sort()->values();
+        $subProgramaOptionsList = DB::table('participantes')
+                                    ->pluck('programas') // obtiene solo la columna 'programas'
+                                    ->flatMap(function ($item) {
+                                        return explode(',', $item); // separa por coma
+                                    })
+                                    ->map(fn($p) => trim($p)) // quita espacios
+                                    ->unique() // elimina duplicados
+                                    ->values(); // reindexa el array
         $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+        $lugaresDeEncuentro = Participante::select('lugar_de_encuentro_del_programa as lugar')
+                                ->whereNotNull('lugar_de_encuentro_del_programa')->where('lugar_de_encuentro_del_programa', '!=', '')
+                                ->distinct()
+                                ->orderBy('lugar')
+                                ->pluck('lugar');
 
         return view('participante.create', compact(
             'comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion',
-            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList',
+            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList', 'lugaresDeEncuentro',
             'tiposParticipante'
         ));
     }
 
     public function store(StoreParticipanteRequest $request)
     {
-        $validated = $request->validated();
-        // Convertir arrays a CSV antes de guardar
-        if (isset($validated['dias_de_asistencia_al_programa']) && is_array($validated['dias_de_asistencia_al_programa'])) {
-            $validated['dias_de_asistencia_al_programa'] = implode(',', $validated['dias_de_asistencia_al_programa']);
+        $data = $request->validated();
+
+        // --- INICIO DE LÓGICA MEJORADA PARA SUBPROGRAMAS ---
+        $selectedSubprograms = $request->validated('programas', []);
+        $newSubprogram = trim($request->validated('nuevo_subprograma'));
+
+        // Si el usuario seleccionó "Otra...", el valor a guardar es el del campo de texto nuevo.
+        if ($request->input('lugar_de_encuentro_del_programa') === '_OTRA_') {
+            $data['lugar_de_encuentro_del_programa'] = $request->input('nueva_lugar_de_encuentro_del_programa');
         }
-        if (isset($validated['programas']) && is_array($validated['programas'])) {
-            $validated['programas'] = implode(',', $validated['programas']);
+
+        if (!empty($newSubprogram)) {
+            // Añadir el nuevo subprograma si no está ya en la lista
+            if (!in_array($newSubprogram, $selectedSubprograms)) {
+                $selectedSubprograms[] = $newSubprogram;
+            }
         }
-        if (isset($validated['programa']) && is_array($validated['programa'])) {
-            $validated['programa'] = implode(',', $validated['programa']);
+        if ($request->input('comunidad_tutor') === '_OTRA_') {
+                $data['comunidad_tutor'] = $request->input('nueva_comunidad_tutor');
+            }
+        // Limpiar valores no deseados (como el placeholder '_OTROS_') y vacíos
+        $finalSubprograms = array_filter($selectedSubprograms, function($value) {
+            return !empty($value) && $value !== '_OTROS_';
+        });
+
+        // Unir el array final en una cadena para guardarlo en la base de datos
+        // y asignarlo al array de datos validados.
+        $data['programas'] = implode(',', $finalSubprograms);
+        // --- FIN DE LA LÓGICA MEJORADA ---
+
+        // Asumimos que los programas principales y días de asistencia también son arrays
+        // y necesitan ser convertidos a CSV. Si vienen de un <select multiple>, ya son arrays.
+        $data['programa'] = implode(',', (array)$request->validated('programa', []));
+        $data['dias_de_asistencia_al_programa'] = implode(',', (array)$request->validated('dias_de_asistencia_al_programa', []));
+
+        $participante = Participante::create($data);
+
+        // Enviar notificación a los Administradores
+        $administradores = User::role('Administrador')->get();
+        if ($administradores->isNotEmpty()) {
+            Notification::send($administradores, new NuevoParticipanteNotificacion($participante, Auth::user()));
         }
-        Participante::create($validated);
-        return redirect()->route('participante.index')
-                         ->with('success', 'Participante creado exitosamente.');
+
+        return redirect()->route('participante.index')->with('success', '¡Participante creado exitosamente!');
+    }
+
+    public function update(UpdateParticipanteRequest $request, Participante $participante)
+    {
+        $data = $request->validated();
+
+        // --- INICIO DE LÓGICA MEJORADA PARA SUBPROGRAMAS --- // Use validated() instead of input()
+        $selectedSubprograms = $request->validated('programas', []);
+        $newSubprogram = trim($request->validated('nuevo_subprograma'));
+
+// Si el usuario seleccionó "Otra...", el valor a guardar es el del campo de texto nuevo.
+        if ($request->input('lugar_de_encuentro_del_programa') === '_OTRA_') {
+            $data['lugar_de_encuentro_del_programa'] = $request->input('nueva_lugar_de_encuentro_del_programa');
+        }
+
+        if (!empty($newSubprogram)) {
+            if (!in_array($newSubprogram, $selectedSubprograms)) {
+                $selectedSubprograms[] = $newSubprogram;
+            }
+        }
+// Lógica para comunidad del participante
+        if ($request->input('comunidad_p') === '_OTRA_') {
+            $data['comunidad_p'] = $request->input('nueva_comunidad_p');
+        }
+         // Lógica para comunidad del tutor
+        if ($request->input('comunidad_tutor') === '_OTRA_') {
+            $data['comunidad_tutor'] = $request->input('nueva_comunidad_tutor');
+        }
+
+        $finalSubprograms = array_filter($selectedSubprograms, function($value) {
+            return !empty($value) && $value !== '_OTROS_';
+        });
+
+        $data['programas'] = implode(',', $finalSubprograms);
+        // --- FIN DE LA LÓGICA MEJORADA ---
+
+        $data['programa'] = implode(',', (array)$request->validated('programa', []));
+        $data['dias_de_asistencia_al_programa'] = implode(',', (array)$request->validated('dias_de_asistencia_al_programa', []));
+
+        $participante->update($data);
+
+        return redirect()->route('participante.show', $participante)->with('success', '¡Participante actualizado exitosamente!');
     }
 
     public function show(Participante $participante)
@@ -184,6 +313,26 @@ class ParticipanteController extends Controller
         $participante->programas_array = !empty($participante->programas) ? explode(',', $participante->programas) : [];
         $participante->programa_array = !empty($participante->programa) ? explode(',', $participante->programa) : [];
         return view('participante.show', compact('participante'));
+    }
+
+ private function getUnifiedComunidadesList()
+    {
+        // Obtiene las comunidades de los participantes
+        $comunidades_p = Participante::query()
+                            ->select('comunidad_p as comunidad')
+                            ->whereNotNull('comunidad_p')->where('comunidad_p', '!=', '');
+
+        // Obtiene las comunidades de los tutores, las une con las de los participantes,
+        // elimina duplicados y las ordena alfabéticamente.
+        $allComunidades = Participante::query()
+                            ->select('comunidad_tutor as comunidad')
+                            ->whereNotNull('comunidad_tutor')->where('comunidad_tutor', '!=', '')
+                            ->union($comunidades_p)
+                            ->distinct()
+                            ->orderBy('comunidad')
+                            ->pluck('comunidad');
+
+        return $allComunidades;
     }
 
     public function exportPdf($id)
@@ -208,7 +357,7 @@ class ParticipanteController extends Controller
 
     public function edit(Participante $participante)
     {
-        $comunidades = Participante::distinct()->pluck('comunidad_tutor')->filter()->sort()->values();
+        $comunidades = $this->getUnifiedComunidadesList();
         $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
         $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
         $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
@@ -228,28 +377,17 @@ class ParticipanteController extends Controller
         $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'];
         $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'];
         $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-
+        $lugaresDeEncuentro = Participante::select('lugar_de_encuentro_del_programa as lugar')
+                                    ->whereNotNull('lugar_de_encuentro_del_programa')->where('lugar_de_encuentro_del_programa', '!=', '')
+                                    ->distinct()
+                                    ->orderBy('lugar')
+                                    ->pluck('lugar');
         return view('participante.edit', compact(
             'participante', 'comunidades', 'tipos_tutor', 'sector_economico', 'nivel_educacion',
-            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList', 'tiposParticipante'
+            'programaOptionsList', 'subProgramaOptionsList', 'diasOptionsList', 'tiposParticipante', 'lugaresDeEncuentro'
         ));
     }
 
-    public function update(UpdateParticipanteRequest $request, Participante $participante)
-    {
-        $validated = $request->validated();
-        if (isset($validated['dias_de_asistencia_al_programa']) && is_array($validated['dias_de_asistencia_al_programa'])) {
-            $validated['dias_de_asistencia_al_programa'] = implode(',', $validated['dias_de_asistencia_al_programa']);
-        }
-        if (isset($validated['programas']) && is_array($validated['programas'])) {
-            $validated['programas'] = implode(',', $validated['programas']);
-        }
-        if (isset($validated['programa']) && is_array($validated['programa'])) {
-            $validated['programa'] = implode(',', $validated['programa']);
-        }
-        $participante->update($validated);
-        return redirect()->route('participante.index')->with('success', 'Participante actualizado correctamente.');
-    }
 
     public function destroy(Participante $participante)
     {

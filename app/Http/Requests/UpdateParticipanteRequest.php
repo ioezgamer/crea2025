@@ -23,7 +23,7 @@ class UpdateParticipanteRequest extends FormRequest
      */
     public function rules(): array
     {
-       $participante = $this->route('participante');
+    $participante = $this->route('participante');
     $participanteId = $participante?->getKey();
 
 
@@ -35,12 +35,18 @@ class UpdateParticipanteRequest extends FormRequest
             'activo' => 'required|boolean',
             'boletin_o_diploma_2024' => 'required|boolean',
             'cedula_tutor' => 'required|boolean',
-            'cedula_participante_adulto' => 'required|boolean',
-            'programa' => 'required|array|min:1',
-            'programa.*' => Rule::in(['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca']),
-            'programas' => 'required|array|min:1',
-            'programas.*' => Rule::in(['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM']),
-            'lugar_de_encuentro_del_programa' => 'required|string|max:255',
+            'cedula_participante_adulto' => 'nullable|boolean',
+            'programa' => ['required', 'array', 'min:1'],
+            'programas' => ['nullable', 'array'], // El array de checkboxes de subprogramas
+            'programas.*' => ['string'],
+            'nuevo_subprograma' => ['nullable', 'string', 'max:100'],
+            'lugar_de_encuentro_del_programa' => ['required', 'string'],
+                'nueva_lugar_de_encuentro_del_programa' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    Rule::requiredIf($this->input('lugar_de_encuentro_del_programa') === '_OTRA_')
+                ],
             'primer_nombre_p' => 'required|string|max:255',
             'segundo_nombre_p' => 'nullable|string|max:255',
             'primer_apellido_p' => 'required|string|max:255',
@@ -56,16 +62,22 @@ class UpdateParticipanteRequest extends FormRequest
                 Rule::unique('participantes', 'cedula_participante_adulto_str')->ignore($participanteId, 'participante_id'),
             ],
             'genero' => 'required|string|max:255',
-            'comunidad_p' => 'required|string|max:255',
-            'escuela_p' => 'required|string|max:255',
-            'comunidad_escuela' => 'required|string|max:255',
+             'comunidad_p' => ['required', 'string'],
+                'nueva_comunidad_p' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    Rule::requiredIf($this->input('comunidad_p') === '_OTRA_')
+                ],
+            'escuela_p' => 'nullable|string|max:255',
+            'comunidad_escuela' => 'nullable|string|max:255',
             'grado_p' => 'required|string|max:255',
             'turno' => 'nullable|string|max:255',
             'repite_grado' => 'nullable|boolean',
             'dias_de_asistencia_al_programa' => 'required|array|min:1',
             'dias_de_asistencia_al_programa.*' => Rule::in(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
             'tutor_principal' => 'required|string|max:255',
-            'nombres_y_apellidos_tutor_principal' => 'required|string|max:255',
+            'nombres_y_apellidos_tutor_principal' => 'nullable|string|max:255',
             'numero_de_cedula_tutor' => 'nullable|string|max:255',
             'comunidad_tutor' => 'nullable|string|max:255',
             'direccion_tutor' => 'nullable|string|max:255',

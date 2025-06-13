@@ -1,10 +1,10 @@
 {{-- resources/views/asistencia/partials/tabla_asistencia.blade.php --}}
 @if ($participantes->isNotEmpty())
-    <div class="overflow-x-auto rounded-2xl border-x-2 border-y-2 shadow-lg mt-6">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
+    <div class="mt-6 overflow-x-auto shadow-lg rounded-2xl border-x-2 border-y-2">
+        <table class="min-w-full text-sm divide-y divide-gray-200">
             <thead class="bg-gray-200">
                 <tr class="text-xs font-medium text-gray-600">
-                    <th class="px-4 py-3 text-left sticky left-0 bg-gray-200 z-10">Nombres y apellidos</th>
+                    <th class="sticky left-0 z-10 px-4 py-3 text-left bg-gray-200">Nombres y apellidos</th>
                     <th class="px-3 py-3 text-left">Género</th>
                     <th class="px-3 py-3 text-left">Grado</th>
                     {{-- <th class="px-3 py-3 text-left">Programa(s)</th> --}}
@@ -25,14 +25,14 @@
             <tbody class="divide-y divide-gray-200">
                 @foreach ($participantes as $participante)
                     <tr class="hover:bg-sky-100" id="fila-participante-{{ $participante->participante_id }}">
-                        <td class="px-4 py-3 text-gray-900 sticky left-0 bg-white hover:bg-sky-100 z-10 whitespace-nowrap">
+                        <td class="sticky left-0 z-10 px-4 py-3 text-gray-900 bg-white hover:bg-sky-100 whitespace-nowrap">
                             {{ $participante->primer_nombre_p }} {{ $participante->segundo_nombre_p ?? '' }} {{ $participante->primer_apellido_p }} {{ $participante->segundo_apellido_p ?? '' }}
-                            <span class="save-feedback ml-2 text-xs"></span>
+                            <span class="ml-2 text-xs save-feedback"></span>
                         </td>
                         <td class="px-3 py-3 text-gray-600">{{ $participante->genero }}</td>
                         <td class="px-3 py-3 text-gray-600">{{ $participante->grado_p ?? 'N/A' }}</td>
                         {{-- <td class="px-3 py-3 text-gray-600">{{ $participante->programa ?? 'N/A' }}</td> --}}
-                        <td class="px-3 py-3 text-gray-600 text-xs">
+                        <td class="px-3 py-3 text-xs text-gray-600">
                             @if($participante->dias_de_asistencia_al_programa)
                                 @php $diasEsperados = explode(',', $participante->dias_de_asistencia_al_programa); @endphp
                                 @foreach($diasEsperados as $de)
@@ -46,7 +46,7 @@
                         @foreach ($diasSemana as $diaNombre => $fechaDia)
                             <td class="px-2 py-3 text-center">
                                 <select name="asistencia_individual"
-                                        class="w-10 p-1 rounded-md border-gray-300 text-xs focus:border-blue-500 focus:ring-indigo-500 asistencia-select"
+                                        class="w-10 p-1 text-xs border-gray-300 rounded-md focus:border-blue-500 focus:ring-indigo-500 asistencia-select"
                                         data-participante-id="{{ $participante->participante_id }}"
                                         data-fecha-asistencia="{{ $fechaDia }}"
                                         data-dia-nombre="{{ $diaNombre }}">
@@ -64,7 +64,7 @@
         </table>
     </div>
 @else
-    <div class="mt-6 bg-white shadow-sm rounded-lg p-6 text-sm text-gray-500">
+    <div class="p-6 mt-6 text-sm text-gray-500 bg-white rounded-lg shadow-sm">
         Seleccione todos los filtros (Programa, Lugar, Grado y Semana) para cargar la lista de participantes.
         @if(isset($selectedPrograma) && $selectedPrograma && isset($selectedLugar) && $selectedLugar && isset($selectedGrado) && $selectedGrado)
             <br>No se encontraron participantes para los filtros seleccionados.

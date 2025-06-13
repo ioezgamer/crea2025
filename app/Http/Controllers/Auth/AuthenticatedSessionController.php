@@ -8,9 +8,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Http\Traits\RedirectsUsers; // <-- 1. Importar nuestro Trait
 
 class AuthenticatedSessionController extends Controller
 {
+    use RedirectsUsers; // <-- 2. Usar nuestro Trait
+
     /**
      * Display the login view.
      */
@@ -24,11 +27,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Este método valida y autentica al usuario
         $request->authenticate();
 
-        $request->session()->regenerate();
+        // Regenera la sesión para seguridad
+        session()->regenerate();
 
-        return redirect()->intended(route('home', absolute: false));
+        // --- LÓGICA DE REDIRECCIÓN CORREGIDA ---
+        // En lugar de redirigir a una ruta fija, obtenemos el usuario
+        // y usamos nuestro Trait para decidir a dónde enviarlo.
+        $user = Auth::user();
+        return $this->redirectBasedOnRole($user);
     }
 
     /**
