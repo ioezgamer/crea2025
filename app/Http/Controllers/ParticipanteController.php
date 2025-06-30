@@ -38,10 +38,19 @@ class ParticipanteController extends Controller
             $query->filterByGrado(urldecode($grado_param_url));
         }
 
-        $query->orderBy('created_at', 'desc')->orderBy('primer_apellido_p')->orderBy('primer_nombre_p');
+        $query->orderBy('grado_p', 'asc')
+        ->orderBy('primer_nombre_p')
+        ->orderBy('lugar_de_encuentro_del_programa');
 
         $participantes = $query->paginate($request->input('per_page', 20));
-        $programOptions = Participante::getDistinctProgramasOptions();
+        $programOptions = DB::table('participantes')
+                        ->pluck('programa') // obtiene solo la columna 'programa'
+                        ->flatMap(function ($item) {
+                            return explode(',', $item); // separa por coma
+                        })
+                        ->map(fn($p) => trim($p)) // quita espacios
+                        ->unique() // elimina duplicados
+                        ->values(); // reindexa el array
         $gradoOptionsQuery = Participante::select('grado_p')->distinct()
                             ->whereNotNull('grado_p')->where('grado_p', '!=', '');
         if ($search_programa) {
@@ -194,9 +203,16 @@ public function consulta(Request $request)
                                 ->filter()->sort()->values();
         $tiposParticipanteEstaticos = ['Preescolar (o menos)', 'Primaria', 'Secundaria', 'Adulto'];
         $tiposParticipante = collect($tiposParticipanteEstaticos)->merge($tiposParticipanteDB)->unique()->sort()->values();
-        $programaOptionsList = Participante::distinct()->pluck('programa')->filter()->sort()->values();
+        $programaOptionsList = DB::table('participantes')
+                                    ->pluck('programa') // obtiene solo la columna 'programa'
+                                    ->flatMap(function ($item) {
+                                        return explode(',', $item); // separa por coma
+                                    })
+                                    ->map(fn($p) => trim($p)) // quita espacios
+                                    ->unique() // elimina duplicados
+                                    ->values(); // reindexa el array
         $subProgramaOptionsList = DB::table('participantes')
-                                    ->pluck('programas') // obtiene solo la columna 'programas'
+                                    ->pluck('programas') // obtiene solo la columna 'subprogramas'
                                     ->flatMap(function ($item) {
                                         return explode(',', $item); // separa por coma
                                     })
@@ -226,8 +242,8 @@ public function consulta(Request $request)
         $newSubprogram = trim($request->validated('nuevo_subprograma'));
 
         // Si el usuario seleccionó "Otra...", el valor a guardar es el del campo de texto nuevo.
-        if ($request->input('lugar_de_encuentro_del_programa') === '_OTRA_') {
-            $data['lugar_de_encuentro_del_programa'] = $request->input('nueva_lugar_de_encuentro_del_programa');
+        if ($request->validated('lugar_de_encuentro_del_programa') === '_OTRA_') {
+            $data['lugar_de_encuentro_del_programa'] = $request->validated('nueva_lugar_de_encuentro_del_programa');
         }
 
         if (!empty($newSubprogram)) {
@@ -236,8 +252,8 @@ public function consulta(Request $request)
                 $selectedSubprograms[] = $newSubprogram;
             }
         }
-        if ($request->input('comunidad_tutor') === '_OTRA_') {
-                $data['comunidad_tutor'] = $request->input('nueva_comunidad_tutor');
+        if ($request->validated('comunidad_tutor') === '_OTRA_') {
+                $data['comunidad_tutor'] = $request->validated('nueva_comunidad_tutor');
             }
         // Limpiar valores no deseados (como el placeholder '_OTROS_') y vacíos
         $finalSubprograms = array_filter($selectedSubprograms, function($value) {
@@ -274,8 +290,8 @@ public function consulta(Request $request)
         $newSubprogram = trim($request->validated('nuevo_subprograma'));
 
 // Si el usuario seleccionó "Otra...", el valor a guardar es el del campo de texto nuevo.
-        if ($request->input('lugar_de_encuentro_del_programa') === '_OTRA_') {
-            $data['lugar_de_encuentro_del_programa'] = $request->input('nueva_lugar_de_encuentro_del_programa');
+        if ($request->validated('lugar_de_encuentro_del_programa') === '_OTRA_') {
+            $data['lugar_de_encuentro_del_programa'] = $request->validated('nueva_lugar_de_encuentro_del_programa');
         }
 
         if (!empty($newSubprogram)) {
@@ -284,12 +300,12 @@ public function consulta(Request $request)
             }
         }
 // Lógica para comunidad del participante
-        if ($request->input('comunidad_p') === '_OTRA_') {
-            $data['comunidad_p'] = $request->input('nueva_comunidad_p');
+        if ($request->validated('comunidad_p') === '_OTRA_') {
+            $data['comunidad_p'] = $request->validated('nueva_comunidad_p');
         }
          // Lógica para comunidad del tutor
-        if ($request->input('comunidad_tutor') === '_OTRA_') {
-            $data['comunidad_tutor'] = $request->input('nueva_comunidad_tutor');
+        if ($request->validated('comunidad_tutor') === '_OTRA_') {
+            $data['comunidad_tutor'] = $request->validated('nueva_comunidad_tutor');
         }
 
         $finalSubprograms = array_filter($selectedSubprograms, function($value) {
@@ -361,7 +377,7 @@ public function consulta(Request $request)
         $sector_economico = Participante::distinct()->pluck('sector_economico_tutor')->filter()->sort()->values();
         $nivel_educacion = Participante::distinct()->pluck('nivel_de_educacion_formal_adquirido_tutor')->filter()->sort()->values();
         $tipos_tutor_db = Participante::distinct()->pluck('tutor_principal')->filter()->sort()->values();
-        $tipos_tutor_estaticos = ['Padre', 'Madre', 'Abuelo/a', 'Tío/a', 'Otro'];
+        $tipos_tutor_estaticos = ['Tío','Primo'];
         $tipos_tutor = $tipos_tutor_db->merge($tipos_tutor_estaticos)->unique()->sort()->values();
         $tiposParticipanteDB = Participante::distinct()
                                 ->whereNotNull('participante')
@@ -375,7 +391,7 @@ public function consulta(Request $request)
         $participante->programas = !empty($participante->programas) ? explode(',', $participante->programas) : [];
         $participante->programa = !empty($participante->programa) ? explode(',', $participante->programa) : [];
         $programaOptionsList = ['Exito Academico', 'Desarrollo Juvenil', 'Biblioteca'];
-        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM'];
+        $subProgramaOptionsList = ['RAC', 'RACREA', 'CLC', 'CLCREA', 'DJ', 'BM', 'CLM', 'Investigación'];
         $diasOptionsList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
         $lugaresDeEncuentro = Participante::select('lugar_de_encuentro_del_programa as lugar')
                                     ->whereNotNull('lugar_de_encuentro_del_programa')->where('lugar_de_encuentro_del_programa', '!=', '')

@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role; // <-- AÑADIDO: Importar el modelo Role si se necesita
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
+// <-- AÑADIDO: Importar el modelo Role si se necesita
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,11 +67,18 @@ class AppServiceProvider extends ServiceProvider
                 $unreadNotifications = $user->unreadNotifications()->take(5)->get();
                 // Obtiene el conteo total para el badge de la campana
                 $unreadNotificationsCount = $user->unreadNotifications()->count();
-
+$activeProgramsCount = Participante::whereNotNull('programa')
+    ->pluck('programa')
+    ->flatMap(function ($item) {
+        return collect(explode(',', $item))
+            ->map(fn($p) => trim(Str::lower($p))); // limpieza
+    })
+    ->unique()
+    ->count();
                 // Pasar todas las variables a la vista de navegación
                 $view->with([
                     'totalParticipants' => Participante::count(),
-                    'activeProgramsCount' => Participante::distinct('programa')->count('programa'),
+                    'activeProgramsCount' => $activeProgramsCount, // <-- CORREGIDO Y RENOMBRADO
                     'managedUsersCount' => $managedUsersCount, // <-- CORREGIDO Y RENOMBRADO
                     'unreadNotifications' => $unreadNotifications, // <-- AÑADIDO
                     'unreadNotificationsCount' => $unreadNotificationsCount, // <-- AÑADIDO

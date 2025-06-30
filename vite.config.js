@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
                 input: [
                     'resources/css/app.css',
                     'resources/js/app.js',
+                    'resources/js/components/alpine-dashboard.js',
                     'resources/js/pages/asistencia-attendance.js',
                     'resources/js/pages/participante-index.js',
                     'resources/js/pages/estadisticas-programas.js',

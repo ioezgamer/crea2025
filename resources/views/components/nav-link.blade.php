@@ -2,21 +2,21 @@
 
 @php
 // Define the base classes shared by both active and inactive states
-$baseClasses = 'group flex items-center px-3 py-2 rounded-2xl text-sm transition-colors duration-150 ease-in-out';
+$baseClasses = 'group flex items-center px-1.5 py-2 rounded-full text-[10px] transition-colors duration-150 ease-in-out';
 
 // Define classes for the inactive state
-$inactiveClasses = 'text-slate-600 dark:text-slate-300 hover:bg-indigo-100 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-400 transition-all duration-700 ease-in-out hover:scale-110';
+$inactiveClasses = 'text-slate-600 dark:text-slate-300 hover:bg-indigo-100 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-400 transition-all duration-700 ease-in-out hover:scale-110 ';
 
 // Define classes for the active state
-$activeClasses = 'bg-indigo-100 text-indigo-700 dark:bg-indigo-700/30 dark:text-indigo-300 font-semibold';
+$activeClasses = 'bg-violet-100/85 text-violet-800 dark:bg-purple-700/30 dark:text-white/85 font-semibold backdrop-blur-3xl';
 
 // Combine base classes with state-specific classes
 $classes = $baseClasses . ' ' . (($active ?? false) ? $activeClasses : $inactiveClasses);
 
 // Define classes for the count badge
-$countBaseClasses = 'text-xs px-1.5 py-0.5 rounded-full ml-auto transition-opacity duration-300 ease-in';
-$countActiveClasses = 'bg-indigo-600 text-white dark:bg-indigo-500 dark:text-white';
-$countInactiveClasses = 'bg-indigo-500 text-white dark:bg-indigo-600 dark:text-indigo-100 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500';
+$countBaseClasses = 'text-[10px] px-1 py-0.5 rounded-3xl ml-0.5 transition-opacity duration-300 ease-in';
+$countActiveClasses = 'bg-gradient-to-br from-violet-700 via-purple-700 to-purple-800 text-white dark:bg-indigo-500 dark:text-white';
+$countInactiveClasses = 'bg-gradient-to-br from-violet-700 via-purple-700 to-purple-800 text-white dark:bg-indigo-600 dark:text-indigo-100 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 ';
 $countClasses = $countBaseClasses . ' ' . (($active ?? false) ? $countActiveClasses : $countInactiveClasses);
 
 @endphp

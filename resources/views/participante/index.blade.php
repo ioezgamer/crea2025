@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         {{-- Header Section with Title and Action Buttons --}}
-        <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 ">
             <div>
                 <h2 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
                     Gestión de Participantes
@@ -16,15 +16,12 @@
                     @endif
                     <span class="text-xs text-slate-500 dark:text-slate-400"> (Total: {{ $participantes->total() }})</span>
                 </p>
-            </div>
 
-        </div>
-    </x-slot>
-    <div class="flex items-center justify-end px-6 pt-4 sm:px-6 lg:px-6">
-        <div class="flex items-center space-x-2 sm:space-x-3">
+            </div>
+ <div class="flex items-center space-x-2 sm:space-x-3">
                 {{-- Import Button --}}
                 <a href="{{ route('participantes.import.form') }}" title="Importar Participantes"
-                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-white rounded-full shadow-md border-1 group sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-white rounded-full shadow-md border-1 group sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                     <svg class="w-5 h-5 transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 fill-white group-hover:-translate-y-10" viewBox="0 0 384 512">
                         <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"></path>
                     </svg>
@@ -35,7 +32,7 @@
 
                 {{-- Export Button --}}
                 <a href="{{ route('participantes.export', request()->query()) }}" title="Exportar Participantes Filtrados"
-                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-pink-500 to-pink-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                     <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
@@ -46,7 +43,7 @@
 
                 {{-- Create Participant Button (x-crear-button should ideally handle its own dark mode variants) --}}
                 <a href="{{ route('participante.create', request()->query()) }}" title="Crear Participante"
-                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-violet-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                   class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-purple-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                     <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></path>
                     </svg>
@@ -55,12 +52,15 @@
                     </span>
                 </a>
             </div>
-    </div>
-    <div class="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
+        </div>
+    </x-slot>
+
+    {{-- Main Content Section --}}
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
         <div class="max-w-full px-2 mx-auto sm:px-4 lg:px-6">
-            <div class="overflow-hidden shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
+            <div class="overflow-hidden shadow-md bg-indigo-600/5 dark:bg-slate-800/80 backdrop-blur-lg rounded-3xl ">
                 {{-- Filter Form Section --}}
-                <div class="px-4 py-4 border-b sm:px-6 border-slate-200 dark:border-slate-700">
+                <div class="px-4 py-4 sm:px-6">
                     <form method="GET" action="{{ request('grado') ? route('participante.indexByGrade', ['grado' => request('grado')]) : route('participante.index') }}" id="filterForm" class="space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-4 md:items-end">
 
                         @if(request('grado') && !request()->routeIs('participante.index'))
@@ -74,14 +74,14 @@
                                     <svg class="w-4 h-4 text-slate-400 dark:text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
                                 </div>
                                 <input type="text" name="search_name" id="search_name" placeholder="Nombre o apellido..." value="{{ request('search_name') }}"
-                                       class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out">
+                                       class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 rounded-3xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out">
                             </div>
                         </div>
 
                         <div class="col-span-12 md:col-span-4 lg:col-span-2">
                             <label for="search_programa" class="block text-xs font-medium text-slate-700 dark:text-slate-300">Programa</label>
                             <select name="search_programa" id="search_programa"
-                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out">
+                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-3xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out">
                                 <option value="">Todos los programas</option>
                                 @foreach($programas as $programaOption)
                                     <option value="{{ $programaOption }}" {{ request('search_programa') == $programaOption ? 'selected' : '' }}>
@@ -94,7 +94,7 @@
                         <div class="col-span-12 md:col-span-4 lg:col-span-2">
                             <label for="search_lugar" class="block text-xs font-medium text-slate-700 dark:text-slate-300">Lugar de Encuentro</label>
                             <select name="search_lugar" id="search_lugar"
-                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-3xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
                                     {{ request('search_programa') ? '' : 'disabled' }}>
                                 <option value="">{{ request('search_programa') ? 'Todos los lugares' : 'Seleccione programa primero' }}</option>
                             </select>
@@ -102,7 +102,7 @@
                         <div class="col-span-12 md:col-span-4 lg:col-span-2">
                             <label for="search_grado" class="block text-xs font-medium text-slate-700 dark:text-slate-300">Grado</label>
                             <select name="search_grado" id="search_grado"
-                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
+                                    class="mt-1 block w-full pl-3 pr-8 py-2.5 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-300 rounded-3xl text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500 transition duration-150 ease-in-out"
                                     {{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? '' : 'disabled' }}>
                                 <option value="">{{ (request('search_programa') && request('search_lugar')) || (request('search_programa') && !$gradoOptions) ? 'Todos los grados' : 'Seleccione programa/lugar' }}</option>
                                 @foreach($gradoOptions as $gradoOption)
@@ -113,12 +113,12 @@
                             </select>
                         </div>
 
-                        <div class="flex items-end col-span-12 space-x-2 md:col-span-12 lg:col-span-3"> {{-- Adjusted span for new filter --}}
-                            <button type="submit" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150 shadow-md hover:shadow-lg">
+                        <div class="flex items-end col-span-12 ml-24 space-x-2 md:col-span-12 lg:col-span-3 "> {{-- Adjusted span for new filter --}}
+                            <button type="submit" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-t from-sky-600  to-indigo-700  rounded-3xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-sky-700  transition ease-in-out duration-150 shadow-md hover:shadow-lg">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 Filtrar
                             </button>
-                            <a href="{{ route('participante.index') }}" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-slate-200 dark:bg-slate-600 border border-transparent rounded-xl font-semibold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-widest hover:bg-slate-300 dark:hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150 shadow-sm hover:shadow-md" title="Limpiar filtros">
+                            <a href="{{ route('participante.index') }}" class="w-full lg:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-slate-200 dark:bg-slate-600 border border-transparent rounded-3xl font-semibold text-xs text-slate-700 dark:text-slate-200 uppercase tracking-widest hover:bg-slate-300 dark:hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transition ease-in-out duration-150 shadow-sm hover:shadow-md" title="Limpiar filtros">
                                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 Limpiar
                             </a>
@@ -145,7 +145,7 @@
                         <div class="px-2 mb-4 text-xs text-slate-600 dark:text-slate-400">
                             Mostrando <span class="font-semibold">{{ $participantes->firstItem() }}</span> a <span class="font-semibold">{{ $participantes->lastItem() }}</span> de <span class="font-semibold">{{ $participantes->total() }}</span> resultados.
                         </div>
-                        <div class="overflow-x-auto border shadow-sm rounded-xl border-slate-200 dark:border-slate-700">
+                        <div class="overflow-x-auto border shadow-sm rounded-3xl border-slate-200 dark:border-slate-700">
                             <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                                 <thead class="bg-slate-100 dark:bg-slate-700/50">
                                     <tr>
@@ -163,7 +163,7 @@
                                         @endcan
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y dark:bg-slate-800 divide-slate-200 dark:divide-slate-700">
+                                <tbody class="divide-y bg-white/35 dark:bg-slate-800 divide-slate-200 dark:divide-slate-700">
                                     @foreach ($participantes as $participante)
                                         <tr class="transition-colors duration-150 hover:bg-sky-50/70 dark:hover:bg-slate-700/30">
                                             <td class="px-4 py-3 text-xs font-medium whitespace-nowrap text-slate-700 dark:text-slate-300">
@@ -253,7 +253,7 @@
                             </table>
                         </div>
 
-                        <div class="px-4 py-3 bg-white border-t dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-b-xl">
+                        <div class="px-4 py-3 mt-4 shadow-md bg-purple-600/5 dark:bg-slate-800 dark:border-slate-700 rounded-3xl backdrop-blur-lg">
                             {{ $participantes->appends(request()->query())->links() }}
                         </div>
                     @endif

@@ -1,6 +1,6 @@
 {{-- resources/views/layouts/navigation.blade.php --}}
 <nav x-data="{ open: false }"
-     class="fixed top-0 left-0 right-0 z-50 transition-all ease-in shadow-sm bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-slate-700 dark:text-slate-200 duration-600 "
+     class="fixed top-0 left-0 right-0 z-50 h-auto transition-all duration-500 ease-in-out border-b shadow-sm backdrop-blur-md bg-white/60 dark:bg-slate-900/30 border-white/70 dark:border-slate-200/10 text-slate-800 dark:text-slate-100 "
      aria-label="Navegación Principal">
     <div class="max-w-full px-4 mx-auto sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 sm:h-18"> {{-- Increased height slightly for better spacing --}}
@@ -13,11 +13,6 @@
                     </span>
                 </a>
 
-                {{-- Desktop Navigation Links --}}
-                {{-- Se asume que x-nav-link maneja sus propios estilos dark:
-                     Base: "text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150"
-                     Active: "text-indigo-700 dark:text-indigo-300 bg-indigo-100 dark:bg-indigo-700/50 px-3 py-2 rounded-md text-sm font-medium"
-                --}}
                 <div class="hidden md:ml-6 lg:ml-10 md:flex md:items-center md:space-x-2 lg:space-x-4">
                     @can('manage-roles')
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">

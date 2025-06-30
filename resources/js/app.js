@@ -1,55 +1,40 @@
 // Importar Bootstrap (si lo usas, y su configuración está en bootstrap.js)
 import './bootstrap';
 
-// Importar y configurar Alpine.js
+// Importar Alpine.js
 import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-import flatpickr from "flatpickr"; // Importar flatpickr
-import { Spanish } from "flatpickr/dist/l10n/es.js"; // Importar el idioma español
 
-// Asignar el idioma y hacer flatpickr accesible globalmente o para Alpine
+// Importar Flatpickr y el idioma
+import flatpickr from "flatpickr";
+import { Spanish } from "flatpickr/dist/l10n/es.js";
+
+// === INICIO DE LA LÓGICA DE GRÁFICOS ===
+// 1. Importar el componente de dashboard que creamos
+import dashboardCharts from './components/alpine-dashboard.js';
+
+// 2. Registrar el componente para que esté disponible globalmente como 'dashboardCharts'
+Alpine.data('dashboardCharts', dashboardCharts);
+// === FIN DE LA LÓGICA DE GRÁFICOS ===
+
+// Configurar Flatpickr
 flatpickr.localize(Spanish);
 window.flatpickr = flatpickr;
+
+// Hacer Alpine global e iniciarlo (MUY IMPORTANTE: Iniciar después de registrar los componentes)
+window.Alpine = Alpine;
 Alpine.start();
 
-// Importar la función para mostrar toasts
-import { showToast } from './utils/notifications.js'; // Asegúrate de que la ruta sea correcta
+// Importar tu sistema de notificaciones
+import { showToast } from './utils/notifications.js';
 
-// Esperar a que el DOM esté completamente cargado
+// Lógica para mostrar mensajes flash de sesión como toasts
 document.addEventListener('DOMContentLoaded', function () {
-
-    // Lógica para mostrar mensajes flash de sesión como toasts
     const sessionMessagesEl = document.getElementById('sessionMessages');
     if (sessionMessagesEl) {
         const successMessage = sessionMessagesEl.dataset.successMessage;
         const errorMessage = sessionMessagesEl.dataset.errorMessage;
-        const warningMessage = sessionMessagesEl.dataset.warningMessage;
-        const infoMessage = sessionMessagesEl.dataset.infoMessage;
 
-        if (successMessage) {
-            showToast(successMessage, 'success');
-        }
-        if (errorMessage) {
-            showToast(errorMessage, 'error');
-        }
-        if (warningMessage) {
-            showToast(warningMessage, 'warning');
-        }
-        if (infoMessage) {
-            showToast(infoMessage, 'info');
-        }
-        // Opcional: remover el elemento después de procesar para limpiar el DOM,
-        // aunque al ser 'hidden' no molesta visualmente.
-        // sessionMessagesEl.remove();
+        if (successMessage) showToast(successMessage, 'success');
+        if (errorMessage) showToast(errorMessage, 'error');
     }
-
-    // Puedes añadir otra lógica JavaScript global aquí si es necesario
-    // console.log('App.js cargado, Alpine iniciado y notificaciones configuradas.');
-
 });
-
-// Para que la función showToast esté disponible globalmente si necesitas llamarla desde
-// scripts en línea o desde la consola (generalmente no recomendado para código de producción,
-// pero puede ser útil para depuración o casos muy específicos).
-// Es mejor importar `showToast` en los módulos JS donde la necesites.
-// window.showToast = showToast;

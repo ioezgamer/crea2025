@@ -9,14 +9,21 @@
                     Administra el acceso y los permisos de los usuarios del sistema.
                 </p>
             </div>
-            <x-crear-button onclick="window.location.href='{{ route('roles.user.create') }}'">
-
-            </x-crear-button>
+             {{-- Create Participant Button (x-crear-button should ideally handle its own dark mode variants) --}}
+             <a href="{{ route('roles.user.create', request()->query()) }}" title="Añadir usuario"
+                class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-purple-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
+                 <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></path>
+                 </svg>
+                 <span class="absolute text-xs font-medium text-white transition-all duration-200 ease-in-out scale-90 opacity-0 translate-x-1/8 whitespace-nowrap sm:text-sm group-hover:opacity-100 group-hover:scale-100">
+                     Nuevo usuario
+                 </span>
+             </a>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-full px-4 mx-auto sm:px-6 lg:px-8">
+    <div class="py-2">
+        <div class="px-4 mx-auto max-w-[180dvh] sm:px-6 lg:px-8">
 
             {{-- Alertas de Sesión --}}
             <div class="mb-6">
@@ -31,10 +38,10 @@
                 @endif
             </div>
 
-            <div class="overflow-hidden shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
+            <div class="overflow-hidden shadow-xl rounded-3xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl ">
                 {{-- Filtros y Estadísticas --}}
                 <div class="px-4 py-4 border-b sm:px-6 border-slate-200 dark:border-slate-700">
-                    <form method="GET" action="{{ route('roles.index') }}" class="grid items-end grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <form method="GET" action="{{ route('roles.index') }}" class="grid items-end grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 ">
                         <input type="text" name="search" placeholder="Buscar por nombre o email..." value="{{ request('search') }}" class="w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
                         <select name="approval_status" class="w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
                             <option value="">Todos los estados</option>
@@ -58,9 +65,9 @@
                 </div>
 
                 {{-- Tabla de Usuarios --}}
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto ">
                     <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                        <thead class="bg-slate-100 dark:bg-slate-700/50">
+                        <thead class="bg-slate-50 dark:bg-slate-700/50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Usuario</th>
                                 <th scope="col" class="px-6 py-3 text-xs font-semibold tracking-wider text-left uppercase text-slate-600 dark:text-slate-300">Rol</th>

@@ -1,14 +1,15 @@
 <x-app-layout>
+    {{--
     <x-slot name="header">
         <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        {{-- El texto del header ahora tiene una variante dark --}}
+         El texto del header ahora tiene una variante dark
                 <h1 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
 
             {{ __('Home') }}
                 </h1>
         </div>
     </x-slot>
-
+--}}
     {{-- Main content area: el degradado de fondo puede necesitar ajuste o que el card interior sea opaco en modo oscuro --}}
     {{-- Para este ejemplo, el degradado se mantiene y el card interior se hace más opaco en modo oscuro --}}
     <div class="py-12 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 min-h-[calc(80vh-2rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8">

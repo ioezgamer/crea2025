@@ -37,7 +37,8 @@ class AuthenticatedSessionController extends Controller
         // En lugar de redirigir a una ruta fija, obtenemos el usuario
         // y usamos nuestro Trait para decidir a dónde enviarlo.
         $user = Auth::user();
-        return $this->redirectBasedOnRole($user);
+        return $this->redirectBasedOnRole($user); 
+
     }
 
     /**

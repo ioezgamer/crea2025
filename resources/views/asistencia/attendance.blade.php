@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <h2 class="text-2xl font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
-                {{ __('Registro de Asistencia Interactivo') }}
+                {{ __('Registro de asistencia') }}
             </h2>
             <x-boton-regresar onclick="window.location.href='{{ route('dashboard') }}'" />
         </div>
@@ -11,11 +11,11 @@
     <div class="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
         <div class="max-w-full px-2 mx-auto sm:px-4 lg:px-6">
             {{-- Filter Section Card --}}
-            <div class="p-4 mb-6 shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl sm:p-6">
+            <div class="p-4 mb-6 border-transparent shadow-lg bg-gradient-to-r from-indigo-600/5 via-purple-600/5 to-pink-500/5 dark:bg-slate-800/80 backdrop-blur-sm rounded-3xl sm:p-6">
                 <div class="grid items-end grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
                     <div>
                         <label for="filtro_programa" class="block mb-1 text-xs font-medium text-slate-700 dark:text-slate-300">Programa <span class="text-red-500">*</span></label>
-                        <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
+                        <select name="programa" id="filtro_programa" class="mt-1 block w-full rounded-3xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
                             <option value="">Seleccione Programa...</option>
                             @foreach ($programOptions as $prog)
                                 <option value="{{ $prog }}" {{ $selectedPrograma == $prog ? 'selected' : '' }}>{{ $prog }}</option>
@@ -24,7 +24,7 @@
                     </div>
                     <div>
                         <label for="filtro_lugar" class="block mb-1 text-xs font-medium text-slate-700 dark:text-slate-300">Lugar <span class="text-red-500">*</span></label>
-                        <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
+                        <select name="lugar_de_encuentro_del_programa" id="filtro_lugar" class="mt-1 block w-full rounded-3xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
                             <option value="">Seleccione Lugar...</option>
                             @foreach ($lugarOptions as $lugar) {{-- Populated by JS --}}
                                 <option value="{{ $lugar }}" {{ $selectedLugar == $lugar ? 'selected' : '' }}>{{ $lugar }}</option>
@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <label for="filtro_grado" class="block mb-1 text-xs font-medium text-slate-700 dark:text-slate-300">Grado <span class="text-red-500">*</span></label>
-                        <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
+                        <select name="grado_p" id="filtro_grado" class="mt-1 block w-full rounded-3xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out" disabled>
                             <option value="">Seleccione Grado...</option>
                              @foreach ($gradoOptions as $grado) {{-- Populated by JS --}}
                                 <option value="{{ $grado }}" {{ $selectedGrado == $grado ? 'selected' : '' }}>{{ $grado }}</option>
@@ -42,18 +42,18 @@
                     </div>
                     <div>
                         <label for="filtro_tipo_asistencia" class="block mb-1 text-xs font-medium text-slate-700 dark:text-slate-300">Tipo Asistencia <span class="text-red-500">*</span></label>
-                        <select name="tipo_asistencia" id="filtro_tipo_asistencia" class="mt-1 block w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
+                        <select name="tipo_asistencia" id="filtro_tipo_asistencia" class="mt-1 block w-full rounded-3xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 pl-3 pr-8 transition duration-150 ease-in-out">
                             <option value="semanal" {{ ($selectedTipoAsistencia ?? 'semanal') == 'semanal' ? 'selected' : '' }}>Semanal</option>
                             <option value="diaria" {{ ($selectedTipoAsistencia ?? 'semanal') == 'diaria' ? 'selected' : '' }}>Diaria</option>
                         </select>
                     </div>
                     <div>
                         <label for="filtro_fecha" class="block mb-1 text-xs font-medium text-slate-700 dark:text-slate-300"><span id="label_fecha">Semana (Lunes)</span> <span class="text-red-500">*</span></label>
-                        <input type="date" name="fecha" id="filtro_fecha" value="{{ $fechaInput ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2 placeholder-slate-400 dark:placeholder-slate-500 dark:[color-scheme:dark]">
+                        <input type="date" name="fecha" id="filtro_fecha" value="{{ $fechaInput ?? now()->startOfWeek()->format('Y-m-d') }}" class="mt-1 block w-full rounded-3xl border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300 text-sm shadow-sm focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 py-2.5 placeholder-slate-400 dark:placeholder-slate-500 dark:[color-scheme:dark]">
                     </div>
                 </div>
                 <div class="mt-4 text-right">
-                    <button type="button" id="btn_cargar_participantes" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition ease-in-out duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <button type="button" id="btn_cargar_participantes" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-3xl font-semibold text-xs text-white uppercase tracking-widest hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition ease-in-out duration-150 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                         <svg id="spinner_cargar" class="hidden w-4 h-4 mr-2 -ml-1 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -120,16 +120,20 @@
 {{-- ... tu contenido de la vista ... --}}
 
 <div id="asistenciaConfig" class="hidden"
-     data-opciones-lugares-url="{{ route('asistencia.opciones.lugares') }}"
-     data-opciones-grados-url="{{ route('asistencia.opciones.grados') }}"
-     data-opciones-participantes-url="{{ route('asistencia.opciones.participantes') }}"
-     data-store-individual-url="{{ route('asistencia.storeIndividual') }}"
+     data-opciones-lugares-url="{{ route('asistencia.ajax.lugares') }}"
+     data-opciones-grados-url="{{ route('asistencia.ajax.grados') }}"
+     data-opciones-participantes-url="{{ route('asistencia.ajax.participantes') }}"
+     
      data-reporte-url-base="{{ route('asistencia.reporte') }}"
      data-csrf-token="{{ csrf_token() }}"
      data-initial-selected-programa="{{ $selectedPrograma ?? '' }}"
      data-initial-selected-lugar="{{ $selectedLugar ?? '' }}"
      data-initial-selected-grado="{{ $selectedGrado ?? '' }}"
+     data-store-individual-url="{{ route('asistencia.ajax.storeIndividual') }}"
+
+
 ></div>
+
 
 
 <style>

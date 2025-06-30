@@ -10,7 +10,7 @@ trait RedirectsUsers
     /**
      * Redirige al usuario a la vista correspondiente según su rol principal.
      */
-    protected function redirectBasedOnRole(User $user): RedirectResponse
+    protected function redirectBasedOnRole(User $user): string | RedirectResponse
     {
         // El rol con los permisos más altos debe ir primero.
         if ($user->hasRole('Administrador')) {

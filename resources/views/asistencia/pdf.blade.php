@@ -19,17 +19,19 @@
 </head>
 <body>
     <h1>Reporte de Asistencias</h1>
-    <p><strong>Programa:</strong> {{ $programa }}</p>
-    <p><strong>Fecha de inicio:</strong> {{ \Carbon\Carbon::parse($fechaInicio)->format('d/m/Y') }}</p>
-    <p><strong>Lugar:</strong> {{ $lugar_encuentro ?? 'Todos' }}</p>
-    <p><strong>Grado:</strong> {{ $grado ?? 'Todos' }}</p>
+    {{-- Se accede a las variables desde el arreglo $filters --}}
+    <p><strong>Programa:</strong> {{ $filters['programa'] }}</p>
+    <p><strong>Fecha de inicio:</strong> {{ \Carbon\Carbon::parse($filters['fecha'])->format('d/m/Y') }}</p>
+    <p><strong>Lugar:</strong> {{ $filters['lugar_de_encuentro_del_programa'] ?? 'Todos' }}</p>
+    <p><strong>Grado:</strong> {{ $filters['grado_p'] ?? 'Todos' }}</p>
 
     @if ($participantes->isNotEmpty())
         <!-- Resumen general -->
         <div class="summary">
             <h2>Resumen General</h2>
             <p>Total de participantes: {{ $totalParticipantes }}</p>
-            <p>Promedio de asistencia: {{ number_format($promedioAsistencia, 1) }}%</p>
+            {{-- Se usa el nombre de variable correcto pasado desde el controlador --}}
+            <p>Promedio de asistencia: {{ number_format($promedioAsistenciaGeneral, 1) }}%</p>
         </div>
 
         <!-- Estadísticas por día -->

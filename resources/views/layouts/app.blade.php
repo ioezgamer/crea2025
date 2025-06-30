@@ -11,12 +11,16 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/es.js"></script>
     {{-- SweetAlert2 CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     {{-- Scripts de Vite (CSS principal) --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js']) {{-- Asegúrate de que app.js se compile aquí --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+
 
     {{-- Script para inicializar el modo oscuro --}}
     <script>
@@ -29,34 +33,30 @@
                 document.documentElement.classList.remove('dark');
             }
         }
-        applyTheme(); // Aplicar inmediatamente
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-            const currentPreference = localStorage.getItem('themePreference');
-            if (currentPreference === 'system' || !currentPreference) {
-                applyTheme();
-                const alpineComponent = document.querySelector('[x-data*="currentTheme"]');
-                if (alpineComponent && alpineComponent.__x) {
-                    alpineComponent.__x.$data.currentTheme = alpineComponent.__x.$data.getInitialTheme();
-                }
-            }
+        applyTheme();
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+             const currentPreference = localStorage.getItem('themePreference');
+            if (currentPreference === 'system' || !currentPreference) applyTheme();
         });
     </script>
 </head>
 <body class="font-sans antialiased text-gray-800 transition-colors duration-300 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 dark:text-slate-200">
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen ">
+        {{-- Barra de navegación --}}
 
         @include('layouts.navigation')
 
         @isset($header)
-        <header class="sticky top-0 z-40 shadow-sm bg-white/70 dark:bg-slate-800/80 backdrop-blur-md">
+        <header class="static top-0 z-40 ">
             <div class="flex flex-col w-full px-4 py-2 mx-auto gap-y-1 sm:flex-row sm:items-center sm:justify-between max-w-7xl sm:px-6 lg:px-8 sm:py-1">
                 {{ $header }}
             </div>
         </header>
         @endisset
 
-        <main class="flex-grow">
+        <main class="flex-grow ">
+            {{-- Contenedor principal con margen y padding --}}
+            {{-- Contenido principal de la página --}}
             {{ $slot }}
         </main>
 
@@ -64,12 +64,9 @@
     </div>
 
     {{-- Contenedor global para toasts --}}
-    <div id="global_toast_container" class="fixed top-20 right-5 z-[100] w-full max-w-xs sm:max-w-sm space-y-3">
-        {{-- Los toasts se añadirán aquí dinámicamente por notifications.js --}}
-    </div>
+    <div id="global_toast_container" class="fixed top-20 right-5 z-[100] w-full max-w-xs sm:max-w-sm space-y-3"></div>
 
     {{-- Div para pasar mensajes de sesión de Laravel a JavaScript --}}
-    {{-- Este div será leído por resources/js/app.js para mostrar los toasts --}}
     <div id="sessionMessages" class="hidden"
          @if (session('success')) data-success-message="{{ session('success') }}" @endif
          @if (session('error')) data-error-message="{{ session('error') }}" @endif
@@ -77,12 +74,11 @@
          @if (session('info')) data-info-message="{{ session('info') }}" @endif
     ></div>
 
-   
+
     {{-- SweetAlert2 JS --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Scripts específicos de página pusheados aquí --}}
     @stack('scripts')
-    {{-- El @vite ya carga app.js, que debería manejar lógica global y de inicialización. --}}
 </body>
 </html>

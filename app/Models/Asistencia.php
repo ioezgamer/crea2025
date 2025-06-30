@@ -18,7 +18,7 @@ class Asistencia extends Model
         'estado',
     ];
     protected $casts = [
-        
+
     ];
     public function participante()
     {

@@ -3,7 +3,7 @@
     <button
         @click="open = !open"
         type="button"
-        class="p-2 transition-colors duration-200 rounded-md theme-toggle-button text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800"
+        class="p-2 transition-colors duration-200 rounded-3xl theme-toggle-button text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800"
         aria-label="Seleccionar tema"
     >
         {{-- Icono Sol (Modo Claro) --}}

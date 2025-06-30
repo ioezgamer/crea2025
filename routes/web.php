@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\DashboardController;
@@ -84,7 +85,25 @@ Route::middleware(['auth'])->prefix('asistencia')->name('asistencia.')->group(fu
     Route::get('/opciones/participantes', [AsistenciaController::class, 'getParticipantesFiltrados'])->name('opciones.participantes');
 });
 
+use App\Http\Controllers\AsistenciaAjaxController;
 
+
+Route::prefix('asistencia/ajax')->name('asistencia.ajax.')->group(function () {
+    Route::get('lugares', [AsistenciaAjaxController::class, 'opcionesLugares'])->name('lugares');
+    Route::get('grados', [AsistenciaAjaxController::class, 'opcionesGrados'])->name('grados');
+    Route::get('participantes', [AsistenciaAjaxController::class, 'participantes'])->name('participantes');
+
+    // 🔴 ESTA es la ruta que falta
+    Route::post('store-individual', [AsistenciaAjaxController::class, 'storeIndividual'])->name('storeIndividual');
+});
+
+
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/api/options/lugares', [OptionController::class, 'getLugares'])->name('api.options.lugares');
+    Route::get('/api/options/grados', [OptionController::class, 'getGrados'])->name('api.options.grados');
+});
 // --- Gestión de Usuarios y Roles (requieren el permiso más alto) ---
 Route::middleware(['auth', 'permission:gestionar usuarios y roles'])->prefix('roles')->name('roles.')->group(function () {
     Route::get('/', [RoleController::class, 'index'])->name('index');

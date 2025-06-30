@@ -64,3 +64,70 @@
 .dark .flatpickr-months .flatpickr-prev-month, .dark .flatpickr-months .flatpickr-next-month {
     @apply fill-current text-slate-400 hover:text-indigo-400;
 }
+
+/* resources/css/app.css */
+/* --- Estilos para el efecto de tarjeta de vidrio con brillo de aurora --- */
+@layer components {
+    /* Base Glass Card */
+    .glass-card {
+        @apply relative overflow-hidden transition-all duration-500 ease-out;
+        @apply border shadow-2xl rounded-3xl;
+        @apply bg-gradient-to-tr from-pink-800/20 via-slate-500/30 to-violet-500/10 backdrop-blur-lg backdrop-saturate-200;
+        @apply border-indigo-400/15 dark:border-indigo-500/10;
+        transform: translateZ(0);
+        will-change: transform, box-shadow;
+    }
+
+    /* Hover State with Dynamic Glow and Scale */
+    .glass-card:hover {
+        @apply shadow-[0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)];
+        transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, background 0.5s ease-out;
+    }
+
+    /* Dark Mode Styling */
+    .dark .glass-card {
+        @apply bg-gradient-to-br from-indigo-900/30 to-purple-900/20;
+        @apply border-indigo-800/20 shadow-[0_4px_16px_rgba(0,0,0,0.4)];
+    }
+
+    /* Noise Texture with Subtle Animation */
+    .glass-noise::after {
+        content: "";
+        @apply absolute inset-0 z-0 pointer-events-none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.05;
+        animation: noise-shift 8s infinite linear;
+    }
+
+    /* Inner Glow for Depth */
+    .glass-card::before {
+        content: "";
+        @apply absolute inset-0 z-0 pointer-events-none;
+        background: radial-gradient(circle at 25% 25%, rgba(235, 235, 237, 0.2) 0%, transparent 65%);
+        opacity: 0;
+        animation: glow-pulse 2.5s ease-in-out infinite;
+    }
+}
+
+/* Keyframes for Subtle Animations */
+@keyframes noise-shift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+
+@layer base {
+    body {
+        @apply bg-gradient-to-r from-purple-900 via-purple-600 to-slate-50 dark:from-purple-950 dark:via-purple-800 dark:to-slate-800;
+    }
+
+    /* Ensure the grid columns don't interfere with the background gradient */
+    .grid-cols-1 lg:grid-cols-2 > div {
+        @apply min-h-screen;
+    }
+
+    /* Optional: Adjust text and form container to match the gradient aesthetic */
+    .flex-col.items-center.justify-center {
+        @apply bg-transparent;
+    }
+}

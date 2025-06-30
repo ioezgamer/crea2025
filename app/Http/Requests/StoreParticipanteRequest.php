@@ -44,7 +44,6 @@ class StoreParticipanteRequest extends FormRequest
                     'nullable',
                     'string',
                     'max:100',
-                    Rule::requiredIf($this->input('lugar_de_encuentro_del_programa') === '_OTRA_')
                 ],
             'primer_nombre_p' => 'required|string|max:255',
             'segundo_nombre_p' => 'nullable|string|max:255',
@@ -54,7 +53,7 @@ class StoreParticipanteRequest extends FormRequest
             'departamento_p' => 'nullable|string|max:255',
             'fecha_de_nacimiento_p' => 'required|date|before_or_equal:today',
             'edad_p' => 'required|integer|min:0',
-            'cedula_participante_adulto_str' => 'nullable|string|max:255|unique:participantes,cedula_participante_adulto_str', // Asegurar unicidad si es un identificador
+            'cedula_participante_adulto_str' => 'nullable|string|max:255',
             'genero' => 'required|string|max:255',
             'comunidad_p' => ['required', 'string'],
             'nueva_comunidad_p' => [
@@ -72,7 +71,7 @@ class StoreParticipanteRequest extends FormRequest
             'dias_de_asistencia_al_programa.*' => Rule::in(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']),
             'tutor_principal' => 'nullable|string|max:255',
             'nombres_y_apellidos_tutor_principal' => 'nullable|string|max:255',
-            'numero_de_cedula_tutor' => 'nullable|string|max:255', // Considerar validación de formato de cédula si aplica
+            'numero_de_cedula_tutor' => 'nullable|string|max:16', // Considerar validación de formato de cédula si aplica
             'comunidad_tutor' => ['nullable', 'string'],
              'nueva_comunidad_tutor' => [
             'nullable',
@@ -87,7 +86,7 @@ class StoreParticipanteRequest extends FormRequest
             'expectativas_del_programa_tutor_principal' => 'nullable|string',
             'tutor_secundario' => 'nullable|string|max:255',
             'nombres_y_apellidos_tutor_secundario' => 'nullable|string|max:255',
-            'numero_de_cedula_tutor_secundario' => 'nullable|string|max:255',
+            'numero_de_cedula_tutor_secundario' => 'nullable|string|max:16',
             'comunidad_tutor_secundario' => 'nullable|string|max:255',
             'telefono_tutor_secundario' => 'nullable|string|max:255',
             'asiste_a_otros_programas' => 'nullable|boolean',

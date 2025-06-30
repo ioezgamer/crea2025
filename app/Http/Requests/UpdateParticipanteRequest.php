@@ -58,8 +58,7 @@ class UpdateParticipanteRequest extends FormRequest
             'cedula_participante_adulto_str' => [
                 'nullable',
                 'string',
-                'max:255',
-                Rule::unique('participantes', 'cedula_participante_adulto_str')->ignore($participanteId, 'participante_id'),
+                'max:16',
             ],
             'genero' => 'required|string|max:255',
              'comunidad_p' => ['required', 'string'],
@@ -87,7 +86,7 @@ class UpdateParticipanteRequest extends FormRequest
             'expectativas_del_programa_tutor_principal' => 'nullable|string',
             'tutor_secundario' => 'nullable|string|max:255',
             'nombres_y_apellidos_tutor_secundario' => 'nullable|string|max:255',
-            'numero_de_cedula_tutor_secundario' => 'nullable|string|max:255',
+            'numero_de_cedula_tutor_secundario' => 'nullable|string|max:16',
             'comunidad_tutor_secundario' => 'nullable|string|max:255',
             'telefono_tutor_secundario' => 'nullable|string|max:255',
             'asiste_a_otros_programas' => 'nullable|boolean',
