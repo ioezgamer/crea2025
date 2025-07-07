@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\OptionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\DashboardController;
@@ -10,7 +11,19 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use Illuminate\Support\Facades\Artisan;
+Route::get('/ejecutar-seeder', function () {
+    if (!Auth::check() || !Auth::user()->hasRole('Administrador')) {
+        abort(403, 'No autorizado');
+    }
 
+    Artisan::call('db:seed', [
+        '--class' => 'DatabaseSeeder',
+        '--force' => true,
+    ]);
+
+    return 'Seeder ejecutado correctamente. Ahora podés comentarla o borrarla.';
+})->middleware('web', 'auth');
 // --- Rutas Públicas ---
 Route::get('/', function () {
     return view('welcome');
