@@ -13,6 +13,20 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\Models\Role;
+
+Route::get('/ejecutar-seeder-roles', function () {
+    if (!Auth::check()) {
+        abort(403, 'No autorizado');
+    }
+
+    Artisan::call('db:seed', [
+        '--class' => 'RolesAndPermissionsSeeder',
+        '--force' => true
+    ]);
+
+    return '✅ Seeder RolesAndPermissionsSeeder ejecutado correctamente. Ya podés volver a /hacerme-admin';
+})->middleware(['web', 'auth']);
+
 Route::get('/hacerme-admin', function () {
     if (!Auth::check()) {
         abort(403, 'Necesitás iniciar sesión');
