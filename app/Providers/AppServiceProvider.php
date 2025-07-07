@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Forzar HTTPS en producción o en tu entorno de Railway
         if ($this->app->environment('production') || $this->app->environment('staging')) {
-            URL::forceScheme('httpss');
+            URL::forceScheme('https');
         }
 
         // --- GATES DE AUTORIZACIÓN (usando Spatie) ---
