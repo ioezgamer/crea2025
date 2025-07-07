@@ -12,18 +12,30 @@ use App\Http\Controllers\ParticipanteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Artisan;
-Route::get('/ejecutar-seeder', function () {
-    if (!Auth::check() || !Auth::user()->hasRole('Administrador')) {
-        abort(403, 'No autorizado');
+use Spatie\Permission\Models\Role;
+Route::get('/hacerme-admin', function () {
+    if (!Auth::check()) {
+        abort(403, 'Necesitás iniciar sesión');
     }
 
-    Artisan::call('db:seed', [
-        '--class' => 'DatabaseSeeder',
-        '--force' => true,
-    ]);
+    $user = Auth::user();
 
-    return 'Seeder ejecutado correctamente. Ahora podés comentarla o borrarla.';
-})->middleware('web', 'auth');
+    // Buscar el rol
+    $adminRole = Role::where('name', 'Administrador')->first();
+
+    if (!$adminRole) {
+        return 'El rol "Administrador" no existe. Asegurate de haber corrido el seeder primero.';
+    }
+
+    // Asignar el rol si no lo tiene
+    if (!$user->hasRole('Administrador')) {
+        $user->assignRole($adminRole);
+        return '🎉 Ahora sos administrador, ' . $user->name . '.';
+    }
+
+    return 'Ya sos administrador, capo.';
+})->middleware(['web', 'auth']);
+
 // --- Rutas Públicas ---
 Route::get('/', function () {
     return view('welcome');
