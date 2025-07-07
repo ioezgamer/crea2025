@@ -1,4 +1,28 @@
 #!/bin/bash
+#!/bin/bash
+
+echo "📦 Limpiando Laravel y Vite para deploy limpio..."
+
+# 1. Eliminar carpeta build de Vite
+echo "🧼 Borrando public/build..."
+rm -rf public/build
+
+# 2. Limpiar y reconstruir Laravel caches
+echo "🧼 Limpiando cachés de Laravel..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+echo "⚙️ Regenerando cachés..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 3. Regenerar assets de Vite
+echo "🎨 Compilando assets con Vite..."
+npm run build
+
+echo "✅ Todo limpio y compilado. Listo para producción."
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
