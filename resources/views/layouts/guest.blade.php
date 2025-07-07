@@ -1,3 +1,8 @@
+@can('ver-home')
+    {{-- Layout de invitado para páginas como login y registro --}}
+    @include('layouts.guest')
+
+@endcan
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
 <head>
