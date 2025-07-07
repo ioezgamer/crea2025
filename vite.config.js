@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => {
                     'resources/js/pages/participante-index.js',
                     'resources/js/pages/estadisticas-programas.js',
                     'resources/js/pages/dashboard.js',
+                    'resources/js/pages/participante-create.js',
+                    'resources/js/pages/participante-edit.js',
 
                 ],
                 refresh: true, // Puedes configurarlo a un array de rutas si necesitas más control sobre la recarga
