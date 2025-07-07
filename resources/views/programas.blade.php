@@ -23,30 +23,75 @@
 
             {{-- Filtros --}}
             <div class="mb-8">
-                <div class="p-6 shadow-xl bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
+                <div class="p-6 transition-all duration-300 shadow-md bg-white/70 dark:bg-slate-800/80 rounded-3xl hover:shadow-lg">
                     <form id="filtersForm" method="GET" action="{{ route('programas') }}" class="grid items-end grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+                        {{-- Custom Select for Programa --}}
                         <div>
                             <label for="programa_filter" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Programa</label>
-                            <select name="programa" id="programa_filter" class="block w-full mt-1 text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
-                                <option value="">Todos los programas</option>
-                                @foreach($programOptions as $option)
-                                    <option value="{{ $option }}" {{ $selectedProgram == $option ? 'selected' : '' }}>{{ $option }}</option>
-                                @endforeach
-                            </select>
+                            <div x-data="{ open: false, selected: '{{ $selectedProgram ?? '' }}' }" class="relative mt-1">
+                                <button @click="open = !open" type="button" class="relative w-full py-2 pl-3 pr-10 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                    <span class="flex items-center"><span class="block truncate" x-text="selected || 'Todos los programas'"></span></span>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                </button>
+                                <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto text-base bg-white shadow-lg rounded-3xl dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                    <div @click="selected = ''; open = false; $nextTick(() => $refs.select.dispatchEvent(new Event('change')))" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Todos los programas</span></div>
+                                    @foreach($programOptions as $option)
+                                        <div @click="selected = '{{ $option }}'; open = false; $nextTick(() => $refs.select.dispatchEvent(new Event('change')))" :class="{'bg-indigo-600 text-white': selected === '{{ $option }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white">
+                                            <span class="block truncate" :class="{'font-semibold': selected === '{{ $option }}'}">{{ $option }}</span>
+                                            <span x-show="selected === '{{ $option }}'" class="absolute inset-y-0 right-0 flex items-center pr-4 text-white"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg></span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <select x-ref="select" name="programa" id="programa_filter" x-model="selected" class="hidden">
+                                     <option value="">Todos los programas</option>
+                                    @foreach($programOptions as $option)
+                                        <option value="{{ $option }}">{{ $option }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label for="lugar_filter" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Lugar de Encuentro</label>
-                            <select name="lugar" id="lugar_filter" class="block w-full mt-1 text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
-                                    data-ruta-lugares="{{ route('programas.lugares') }}" {{ !$selectedProgram ? 'disabled' : '' }}>
-                                <option value="">{{ !$selectedProgram ? 'Seleccione un programa' : 'Todos los lugares' }}</option>
-                                @foreach($lugarOptions as $option)
-                                    <option value="{{ $option }}" {{ $selectedLugar == $option ? 'selected' : '' }}>{{ $option }}</option>
-                                @endforeach
-                            </select>
+
+                        {{-- Custom Select for Lugar --}}
+                        <div >
+                            <label for="lugar_filter" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Lugar de encuentro</label>
+                            <div x-data="{ open: false, selected: '{{ $selectedLugar ?? '' }}', disabled: true, options: [] }" x-init="
+                                const selectEl = $refs.select;
+                                const syncState = () => {
+                                    disabled = selectEl.disabled;
+                                    options = Array.from(selectEl.options).map(o => ({ value: o.value, text: o.text }));
+                                    if (selected !== selectEl.value) {
+                                        selected = selectEl.value;
+                                    }
+                                };
+                                const observer = new MutationObserver(syncState);
+                                observer.observe(selectEl, { attributes: true, childList: true, subtree: true });
+                                syncState();
+                            " class="relative mt-1">
+                                <button @click="open = !open" type="button" :disabled="disabled" class="relative w-full py-2 pl-3 pr-10 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:cursor-not-allowed">
+                                    <span class="flex items-center"><span class="block truncate" x-text="selected || (disabled ? 'Seleccione un programa' : 'Todos los lugares')"></span></span>
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                </button>
+                                <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto text-base bg-white shadow-lg rounded-3xl dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                    <template x-for="option in options" :key="option.value">
+                                        <div @click="selected = option.value; open = false;" :class="{'bg-indigo-600 text-white': selected === option.value}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white">
+                                            <span class="block truncate" x-text="option.text" :class="{'font-semibold': selected === option.value}"></span>
+                                            <span x-show="selected === option.value" class="absolute inset-y-0 right-0 flex items-center pr-4 text-white"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg></span>
+                                        </div>
+                                    </template>
+                                </div>
+                                <select x-ref="select" name="lugar" id="lugar_filter" x-model="selected" class="hidden" data-ruta-lugares="{{ route('programas.lugares') }}" {{ !$selectedProgram ? 'disabled' : '' }}>
+                                    <option value="">{{ !$selectedProgram ? 'Seleccione un programa' : 'Todos los lugares' }}</option>
+                                    @foreach($lugarOptions as $option)
+                                        <option value="{{ $option }}" {{ $selectedLugar == $option ? 'selected' : '' }}>{{ $option }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div class="flex space-x-2 lg:col-span-2">
-                            <x-primary-button type="submit" class="w-full"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>Filtrar</x-primary-button>
-                            <x-secondary-button class="w-full" onclick="window.location.href='{{ route('programas') }}'"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>Limpiar</x-secondary-button>
+
+                        <div class="flex items-center justify-between space-x-2 lg:col-span-2">
+                            <x-primary-button type="submit" class="w-full py-2 pl-3 pr-10 text-center shadow-sm rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm "><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>Filtrar</x-primary-button>
+                            <x-secondary-button class="w-full py-2 pl-3 pr-10 text-center shadow-sm rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm " onclick="window.location.href='{{ route('programas') }}'"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>Limpiar</x-secondary-button>
                         </div>
                     </form>
                 </div>

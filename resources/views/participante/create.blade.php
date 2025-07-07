@@ -70,72 +70,138 @@
                         </fieldset>
 
                         {{-- === SECCIÓN 2: DOCUMENTOS REQUERIDOS (CON LÓGICA DINÁMICA) === --}}
-                        <fieldset class="p-6 border border-purple-400 rounded-3xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
-                            <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Documentos requeridos</legend>
-                            <div class="grid grid-cols-1 mt-3 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 ">
-                                @php
-                                $documentos = [
-                                    'partida_de_nacimiento' => 'Partida de nacimiento',
-                                    'boletin_o_diploma_2024' => 'Boletín o diploma ('.now()->year.')',
-                                    'cedula_tutor' => 'Cédula del tutor',
-                                    'cedula_participante_adulto' => 'Cédula (participante adulto)',
-                                ];
-                                @endphp
-                                @foreach ($documentos as $fieldName => $label)
-                                <div
-                                    @if ($fieldName === 'cedula_participante_adulto')
-                                        x-show="esParticipanteAdulto"
-                                        x-transition:enter="transition ease-out duration-300"
-                                        x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                        x-transition:leave="transition ease-in duration-200"
-                                        x-transition:leave-end="opacity-0 transform -translate-y-2"
-                                    @endif
-                                >
-                                    <label class="block mb-1 text-sm font-medium text-slate-800">{{ $label }} <span class="text-red-500">*</span></label>
-                                    {{-- MEJORA: Se asegura que el valor de `selected` sea siempre '0' o '1'. --}}
-                                    <div x-data="{ selected: '{{ old($fieldName, $participante->$fieldName ?? null) ?? '0' }}' }" class="flex items-center mt-1 space-x-4">
-                                        <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '1' ? 'bg-green-100 text-green-700 border-green-500 ring-2 ring-green-300' : 'border-gray-300 text-green-600'">
-                                            {{-- MEJORA: Se añade :checked para sincronizar el estado del input. --}}
-                                            <input type="radio" name="{{ $fieldName }}" value="1" class="hidden" @click="selected = '1'" :checked="selected === '1'" required>
-                                            ✓
-                                        </label>
-                                        <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '0' ? 'bg-red-100 text-red-700 border-red-500 ring-2 ring-red-300' : 'border-gray-300 text-red-600'">
-                                            {{-- MEJORA: Se añade :checked para sincronizar el estado del input. --}}
-                                            <input type="radio" name="{{ $fieldName }}" value="0" class="hidden" @click="selected = '0'" :checked="selected === '0'">
-                                            ✕
-                                        </label>
-                                    </div>
-                                    @error($fieldName) <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                </div>
-                                @endforeach
-                            </div>
-                        </fieldset>
+                        <!-- Bloque 3: Documentos Requeridos -->
+<fieldset class="p-6 mt-8 border border-purple-400 rounded-3xl hover:bg-slate-100/50 dark:hover:bg-slate-800/50">
+    <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Documentos requeridos</legend>
+    <div class="grid grid-cols-1 mt-3 sm:grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5 ">
+        @php
+        $documentos = [
+            'partida_de_nacimiento' => 'Partida de nacimiento',
+            'boletin_o_diploma_2024' => 'Boletín o diploma ('.now()->year.')',
+            'cedula_tutor' => 'Cédula del tutor',
+            'cedula_participante_adulto' => 'Cédula (participante adulto)',
+        ];
+        @endphp
+        @foreach ($documentos as $fieldName => $label)
+        <div
+            @if ($fieldName === 'cedula_participante_adulto')
+                x-show="$store.formState.esAdulto"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform -translate-y-2"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-end="opacity-0 transform -translate-y-2"
+            @endif
+        >
+            <label class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">{{ $label }} <span class="text-red-500">*</span></label>
+            <div x-data="{ selected: '{{ old($fieldName, $participante->$fieldName ?? null) ?? '0' }}' }" class="flex items-center mt-1 space-x-4">
+                <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '1' ? 'bg-green-100 text-green-700 border-green-500 ring-2 ring-green-300' : 'border-gray-300 text-green-600'">
+                    <input type="radio" name="{{ $fieldName }}" value="1" class="hidden" @click="selected = '1'" :checked="selected === '1'" required>
+                    ✓
+                </label>
+                <label class="flex items-center justify-center w-8 h-8 text-lg font-bold border rounded-full cursor-pointer" :class="selected == '0' ? 'bg-red-100 text-red-700 border-red-500 ring-2 ring-red-300' : 'border-gray-300 text-red-600'">
+                    <input type="radio" name="{{ $fieldName }}" value="0" class="hidden" @click="selected = '0'" :checked="selected === '0'">
+                    ✕
+                </label>
+            </div>
+            @error($fieldName) <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+        @endforeach
+    </div>
+</fieldset>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('formState', {
+            // Inicializa con los valores antiguos de Laravel o null
+            tipoParticipante: '{{ old('participante') }}' || null,
+            grado: '{{ old('grado_p') }}' || null,
 
+            // Determina si el participante es "Adulto"
+            get esAdulto() {
+                return this.tipoParticipante === 'Adulto';
+            },
+
+            // Determina si el campo 'Otro' debe mostrarse
+            get esOtro() {
+                return this.tipoParticipante === 'Otro';
+            },
+
+            // Calcula los grados disponibles según el tipo de participante
+            get gradosDisponibles() {
+                switch (this.tipoParticipante) {
+                    case 'Primaria':
+                        return [1, 2, 3, 4, 5, 6];
+                    case 'Secundaria':
+                        return [7, 8, 9, 10, 11];
+                    case 'Preescolar o menos':
+                        return [0];
+                    case 'Adulto':
+                        return [12];
+                    default:
+                        return []; // No hay grados para 'Otro' o si no se ha seleccionado nada
+                }
+            },
+
+            // Devuelve la etiqueta correcta para cada valor de grado
+            gradoLabel(g) {
+                if (g === null || g === '') return 'Seleccione...';
+                if (g == 0) return 'Preescolar';
+                if (g == 12) return 'Adulto';
+                return g;
+            },
+
+            // Función para manejar el cambio de tipo de participante
+            seleccionarTipo(tipo) {
+                // Si el tipo cambia, reseteamos el grado seleccionado
+                if (this.tipoParticipante !== tipo) {
+                    this.grado = null;
+                }
+                this.tipoParticipante = tipo;
+            }
+        });
+    });
+</script>
                         {{-- === SECCIÓN 3: INFORMACIÓN DEL PARTICIPANTE (CON LÓGICA DINÁMICA) === --}}
                         <fieldset class="p-6 border border-purple-400 rounded-3xl hover:bg-slate-100/50 dark:hover:bg-slate-100">
                             <legend class="px-2 text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Información del participante</legend>
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 {{-- Selector de participante que controla otros campos --}}
-                                <div>
-                                    <label for="participante_select" class="block mb-1 text-sm font-medium text-slate-800">Participante <span class="text-red-500">*</span></label>
-                                    <select name="participante" id="participante_select" class="w-full px-3 py-2 text-sm border shadow-sm rounded-3xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        @change="
-                                            esParticipanteAdulto = $event.target.value === 'Adulto';
-                                            esOtro = $event.target.value === 'Otro';
-                                        " required>
-                                        <option value="" disabled selected>Seleccione...</option>
-                                        @foreach ($tiposParticipante as $tipo)
-                                            <option value="{{ $tipo }}" @selected(old('participante') == $tipo)>{{ $tipo }}</option>
-                                        @endforeach
-                                        <option value="Otro" @selected(old('participante') == 'Otro')>Otro (especificar)</option>
-                                    </select>
-                                    <input type="text" name="participante_otro" id="participante_otro_input"
-                                        class="w-full px-3 py-2 mt-2 border border-gray-300 shadow-sm rounded-3xl"
-                                        value="{{ old('participante_otro') }}"
-                                        placeholder="Especificar otro nivel"
-                                        x-show="esOtro" x-transition>
-                                    @error('participante') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                </div>
+
+                                <!-- Selector de Tipo de Participante -->
+    <div>
+        <label for="participante" class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">Tipo de Participante <span class="text-red-500">*</span></label>
+        <div x-data="{ open: false }" class="relative">
+            <!-- Botón del Dropdown -->
+            <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                <span class="block truncate" x-text="$store.formState.tipoParticipante || 'Seleccione...'"></span>
+                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+            </button>
+
+            <!-- Panel de Opciones -->
+            <div x-show="open" @click.away="open = false" x-transition class="absolute z-50 w-full mt-1 bg-white shadow-lg rounded-xl dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                @foreach ($tiposParticipante as $tipo)
+                    <div @click="$store.formState.seleccionarTipo('{{ $tipo }}'); open = false" :class="{'bg-indigo-600 text-white': $store.formState.tipoParticipante === '{{ $tipo }}'}" class="relative py-2 pl-3 text-gray-900 cursor-pointer select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $tipo }}</span></div>
+                @endforeach
+                <div @click="$store.formState.seleccionarTipo('Otro'); open = false" :class="{'bg-indigo-600 text-white': $store.formState.tipoParticipante === 'Otro'}" class="relative py-2 pl-3 text-gray-900 cursor-pointer select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Otro (especificar)</span></div>
+            </div>
+
+            <!-- Select oculto para el envío del formulario -->
+            <select name="participante" id="participante_select" x-model="$store.formState.tipoParticipante" class="hidden" required>
+                <option value="" disabled>Seleccione...</option>
+                @foreach ($tiposParticipante as $tipo)
+                    <option value="{{ $tipo }}">{{ $tipo }}</option>
+                @endforeach
+                <option value="Otro">Otro (especificar)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Campo de texto para "Otro" (Condicional) -->
+    <div x-show="$store.formState.esOtro" x-transition>
+        <label for="participante_otro" class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">Especifique el tipo <span class="text-red-500">*</span></label>
+        <input type="text" name="participante_otro" id="participante_otro"
+               class="w-full px-3 py-2 bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+               :required="$store.formState.esOtro" placeholder="Ej: Docente, Padre de familia, etc.">
+    </div>
                                 <div>
                                     <label for="primer_nombre_p" class="block mb-1 text-sm font-medium text-slate-800">Primer nombre <span class="text-red-500">*</span></label>
                                     <input type="text" name="primer_nombre_p" id="primer_nombre_p" value="{{ old('primer_nombre_p') }}" class="w-full px-3 py-2 text-sm border border-gray-300 shadow-sm rounded-3xl" required>
@@ -172,11 +238,21 @@
                                 </div>
                                 <div>
                                     <label for="genero" class="block mb-1 text-sm font-medium text-slate-800">Género <span class="text-red-500">*</span></label>
-                                    <select name="genero" id="genero" class="w-full px-3 py-2 text-sm border border-gray-300 shadow-sm rounded-3xl" required>
-                                        <option value="" disabled selected>Seleccione...</option>
-                                        <option value="Masculino" @selected(old('genero') == 'Masculino')>Masculino</option>
-                                        <option value="Femenino" @selected(old('genero') == 'Femenino')>Femenino</option>
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('genero') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-40 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm " style="display: none;">
+                                            <div @click="selected = 'Masculino'; open = false" :class="{'bg-indigo-600 text-white': selected === 'Masculino'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white hover:rounded-md"><span class="block truncate">Masculino</span></div>
+                                            <div @click="selected = 'Femenino'; open = false" :class="{'bg-indigo-600 text-white': selected === 'Femenino'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Femenino</span></div>
+                                        </div>
+                                        <select name="genero" id="genero" x-model="selected" class="hidden" required>
+                                            <option value="" disabled>Seleccione...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                        </select>
+                                    </div>
                                     @error('genero') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
@@ -206,33 +282,75 @@
                                 </div>
                                 <div>
                                     <label for="comunidad_escuela" class="block mb-1 text-sm font-medium text-slate-800">Comunidad de la escuela </label>
-                                    <select name="comunidad_escuela" id="comunidad_escuela" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_escuela') border-red-500 @enderror">
-                                        <option value="" disabled {{ old('comunidad_escuela') ? '' : 'selected' }}>Seleccione...</option>
-                                         @foreach ($comunidades as $comunidad)
-                                            <option value="{{ $comunidad }}" {{ old('comunidad_escuela') == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('comunidad_escuela') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-30 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach ($comunidades as $comunidad)
+                                                <div @click="selected = '{{ $comunidad }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $comunidad }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $comunidad }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="comunidad_escuela" id="comunidad_escuela" x-model="selected" class="hidden">
+                                            <option value="" disabled>Seleccione...</option>
+                                            @foreach ($comunidades as $comunidad)
+                                                <option value="{{ $comunidad }}">{{ $comunidad }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @error('comunidad_escuela') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
-                                <div>
-                                    <label for="grado_p" class="block mb-1 text-sm font-medium text-slate-800">Grado <span class="text-red-500">*</span></label>
-                                    <select name="grado_p" id="grado_p" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('grado_p') border-red-500 @enderror" required>
-                                        <option value="" disabled {{ old('grado_p') ? '' : 'selected' }}>Seleccione...</option>
-                                        @for ($i = 0; $i <= 12; $i++)
-                                            <option value="{{ $i }}" {{ old('grado_p') == $i ? 'selected' : '' }}>{{ $i == 0 ? 'Preescolar' : $i }}</option>
-                                        @endfor
-                                    </select>
-                                    @error('grado_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                                </div>
+                                <!-- Selector de Grado (Condicional) -->
+    <div x-show="$store.formState.gradosDisponibles.length > 0" x-transition>
+        <label for="grado_p" class="block mb-1 text-sm font-medium text-slate-800 dark:text-slate-200">Grado <span class="text-red-500">*</span></label>
+        <div x-data="{ open: false }" class="relative">
+            <!-- Botón del Dropdown -->
+            <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                <span class="block truncate" x-text="$store.formState.gradoLabel($store.formState.grado)"></span>
+                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+            </button>
+
+            <!-- Panel de Opciones (generado dinámicamente) -->
+            <div x-show="open" @click.away="open = false" x-transition class="absolute z-30 w-full mt-1 overflow-auto bg-white shadow-lg rounded-xl dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                <template x-for="g in $store.formState.gradosDisponibles" :key="g">
+                    <div @click="$store.formState.grado = g; open = false" :class="{'bg-indigo-600 text-white': $store.formState.grado == g}" class="relative py-2 pl-3 text-gray-900 cursor-pointer select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white">
+                        <span class="block truncate" x-text="$store.formState.gradoLabel(g)"></span>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Select oculto para el envío del formulario -->
+            <select name="grado_p" id="grado_p" x-model="$store.formState.grado" class="hidden" :required="$store.formState.gradosDisponibles.length > 0">
+                <option value="" disabled>Seleccione...</option>
+                <template x-for="g in $store.formState.gradosDisponibles" :key="g">
+                    <option :value="g" x-text="$store.formState.gradoLabel(g)"></option>
+                </template>
+            </select>
+        </div>
+        @error('grado_p') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+    </div>
                                 <div>
                                     <label for="turno" class="block mb-1 text-sm font-medium text-slate-800">Turno </label>
-                                    <select name="turno" id="turno" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('turno') border-red-500 @enderror">
-                                        <option value="" disabled {{ old('turno') ? '' : 'selected' }}>Seleccione...</option>
-                                        <option value="Matutino" {{ old('turno') == 'Matutino' ? 'selected' : '' }}>Matutino</option>
-                                        <option value="Vespertino" {{ old('turno') == 'Vespertino' ? 'selected' : '' }}>Vespertino</option>
-                                        <option value="Sabatino" {{ old('turno') == 'Sabatino' ? 'selected' : '' }}>Sabatino</option>
-                                        <option value="No Aplica" {{ old('turno') == 'No Aplica' ? 'selected' : '' }}>No Aplica (ej. Adulto)</option>
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('turno') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-30 w-full mt-1 bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            <div @click="selected = 'Matutino'; open = false" :class="{'bg-indigo-600 text-white': selected === 'Matutino'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Matutino</span></div>
+                                            <div @click="selected = 'Vespertino'; open = false" :class="{'bg-indigo-600 text-white': selected === 'Vespertino'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Vespertino</span></div>
+                                            <div @click="selected = 'Sabatino'; open = false" :class="{'bg-indigo-600 text-white': selected === 'Sabatino'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">Sabatino</span></div>
+                                            <div @click="selected = 'No Aplica'; open = false" :class="{'bg-indigo-600 text-white': selected === 'No Aplica'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">No Aplica (ej. Adulto)</span></div>
+                                        </div>
+                                        <select name="turno" id="turno" x-model="selected" class="hidden">
+                                            <option value="" disabled>Seleccione...</option>
+                                            <option value="Matutino">Matutino</option>
+                                            <option value="Vespertino">Vespertino</option>
+                                            <option value="Sabatino">Sabatino</option>
+                                            <option value="No Aplica">No Aplica (ej. Adulto)</option>
+                                        </select>
+                                    </div>
                                     @error('turno') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="md:col-span-2" x-data="{ repite: '{{ old('repite_grado', '0') }}' }">
@@ -360,16 +478,29 @@
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
                                     <label for="tutor_principal" class="block mb-1 text-sm font-medium text-slate-800">Tutor </label>
-                                    <select name="tutor_principal" id="tutor_principal" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('tutor_principal') border-red-500 @enderror">
-                                        <option value="" disabled {{ old('tutor_principal') ? '' : 'selected' }}>Seleccione...</option>
-                                        {{-- Opciones adicionales preestablecidas --}}
-                                        @foreach (['No aplica'] as $opcion)
-                                            <option value="{{ $opcion }}" {{ old('tutor_principal') == $opcion ? 'selected' : '' }}>{{ $opcion }}</option>
-                                        @endforeach
-                                        @foreach ($tipos_tutor as $tipo)
-                                            <option value="{{ $tipo }}" {{ old('tutor_principal') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('tutor_principal') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-20 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach (['No aplica'] as $opcion)
+                                                <div @click="selected = '{{ $opcion }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $opcion }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $opcion }}</span></div>
+                                            @endforeach
+                                            @foreach ($tipos_tutor as $tipo)
+                                                <div @click="selected = '{{ $tipo }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $tipo }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $tipo }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="tutor_principal" id="tutor_principal" x-model="selected" class="hidden">
+                                            <option value="" disabled>Seleccione...</option>
+                                            @foreach (['No aplica'] as $opcion)
+                                                <option value="{{ $opcion }}">{{ $opcion }}</option>
+                                            @endforeach
+                                            @foreach ($tipos_tutor as $tipo)
+                                                <option value="{{ $tipo }}">{{ $tipo }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @error('tutor_principal') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="lg:col-span-2">
@@ -406,22 +537,44 @@
                                 </div>
                                 <div>
                                     <label for="sector_economico_tutor" class="block mb-1 text-sm font-medium text-slate-800">Sector económico </label>
-                                    <select name="sector_economico_tutor" id="sector_economico_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('sector_economico_tutor') border-red-500 @enderror" >
-                                        <option value="" disabled {{ old('sector_economico_tutor') ? '' : 'selected' }}>Seleccione...</option>
-                                        @foreach ($sector_economico as $sector)
-                                            <option value="{{ $sector }}" {{ old('sector_economico_tutor') == $sector ? 'selected' : '' }}>{{ $sector }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('sector_economico_tutor') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-20 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach ($sector_economico as $sector)
+                                                <div @click="selected = '{{ $sector }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $sector }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $sector }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="sector_economico_tutor" id="sector_economico_tutor" x-model="selected" class="hidden">
+                                            <option value="" disabled>Seleccione...</option>
+                                            @foreach ($sector_economico as $sector)
+                                                <option value="{{ $sector }}">{{ $sector }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @error('sector_economico_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>
                                     <label for="nivel_de_educacion_formal_adquirido_tutor" class="block mb-1 text-sm font-medium text-slate-800">Nivel de educación </label>
-                                    <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('nivel_de_educacion_formal_adquirido_tutor') border-red-500 @enderror">
-                                        <option value="" disabled {{ old('nivel_de_educacion_formal_adquirido_tutor') ? '' : 'selected' }}>Seleccione...</option>
-                                        @foreach ($nivel_educacion as $nivel)
-                                            <option value="{{ $nivel }}" {{ old('nivel_de_educacion_formal_adquirido_tutor') == $nivel ? 'selected' : '' }}>{{ $nivel }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('nivel_de_educacion_formal_adquirido_tutor') }}' }" class="relative ">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-20 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach ($nivel_educacion as $nivel)
+                                                <div @click="selected = '{{ $nivel }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $nivel }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $nivel }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="nivel_de_educacion_formal_adquirido_tutor" id="nivel_de_educacion_formal_adquirido_tutor" x-model="selected" class="hidden">
+                                            <option value="" disabled>Seleccione...</option>
+                                            @foreach ($nivel_educacion as $nivel)
+                                                <option value="{{ $nivel }}">{{ $nivel }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @error('nivel_de_educacion_formal_adquirido_tutor') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="md:col-span-2 lg:col-span-3">
@@ -437,11 +590,23 @@
                             <div class="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                                 <div>
                                     <label for="tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Tutor</label>
-                                    <select name="tutor_secundario" id="tutor_secundario" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('tutor_secundario') border-red-500 @enderror">
-                                        <option value="" selected>Seleccione (si aplica)...</option>
-                                        @foreach ($tipos_tutor as $tipo) <option value="{{ $tipo }}" {{ old('tutor_secundario') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('tutor_secundario') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione (si aplica)...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach ($tipos_tutor as $tipo)
+                                                <div @click="selected = '{{ $tipo }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $tipo }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $tipo }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="tutor_secundario" id="tutor_secundario" x-model="selected" class="hidden">
+                                            <option value="" selected>Seleccione (si aplica)...</option>
+                                            @foreach ($tipos_tutor as $tipo)
+                                                <option value="{{ $tipo }}">{{ $tipo }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     @error('tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div class="lg:col-span-2">
@@ -456,12 +621,23 @@
                                 </div>
                                 <div>
                                     <label for="comunidad_tutor_secundario" class="block mb-1 text-sm font-medium text-slate-800">Comunidad del tutor secundario</label>
-                                    <select name="comunidad_tutor_secundario" id="comunidad_tutor_secundario" class="w-full px-3 py-2 border border-gray-300 rounded-3xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm @error('comunidad_tutor_secundario') border-red-500 @enderror">
-                                        <option value="" selected>Seleccione (si aplica)...</option>
-                                        @foreach ($comunidades as $comunidad)
-                                            <option value="{{ $comunidad }}" {{ old('comunidad_tutor_secundario') == $comunidad ? 'selected' : '' }}>{{ $comunidad }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div x-data="{ open: false, selected: '{{ old('comunidad_tutor_secundario') }}' }" class="relative">
+                                        <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-700 dark:border-slate-600 rounded-3xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                            <span class="block truncate" x-text="selected || 'Seleccione (si aplica)...'"></span>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                                        </button>
+                                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                            @foreach ($comunidades as $comunidad)
+                                                <div @click="selected = '{{ $comunidad }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $comunidad }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate">{{ $comunidad }}</span></div>
+                                            @endforeach
+                                        </div>
+                                        <select name="comunidad_tutor_secundario" id="comunidad_tutor_secundario" x-model="selected" class="hidden">
+                                            <option value="" selected>Seleccione (si aplica)...</option>
+                                            @foreach ($comunidades as $comunidad)
+                                                <option value="{{ $comunidad }}">{{ $comunidad }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                      @error('comunidad_tutor_secundario') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                 </div>
                                 <div>

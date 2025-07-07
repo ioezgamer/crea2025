@@ -112,7 +112,9 @@ class RoleController extends Controller
         }
 
         $user->syncRoles([$request->role]); // <-- CORREGIDO: Sincronizar (asignar) el nuevo rol usando Spatie
-
+            // --- SOLUCIÓN: AÑADE ESTA LÍNEA ---
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            // -
         return back()->with('success', 'Rol del usuario actualizado correctamente.');
     }
 

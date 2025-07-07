@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV APP_ENV=production
 ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr 
+ENV LOG_CHANNEL=stderr
 
 # Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
@@ -15,13 +15,15 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libgd-dev \
     libonig-dev \
+    libpq-dev \
     default-mysql-client \
     unzip \
     zip \
     gnupg \
     nginx \
-    && docker-php-ext-install pdo pdo_mysql zip gd mbstring bcmath exif pcntl \
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip gd mbstring bcmath exif pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -77,7 +79,7 @@ COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Exponer puerto para Nginx (Railway mapeará esto)
-EXPOSE 80 
+EXPOSE 80
 
 # Iniciar script
 CMD ["/app/start.sh"]

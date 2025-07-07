@@ -40,7 +40,7 @@
         });
     </script>
 </head>
-<body class="font-sans antialiased text-gray-800 transition-colors duration-300 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 dark:text-slate-200">
+<body class="font-sans antialiased text-gray-800 transition-colors duration-300 bg-gradient-to-br from-slate-600/5 via-purple-500/10 to-pink-500/15 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 dark:text-slate-200">
     <div class="flex flex-col min-h-screen ">
         {{-- Barra de navegación --}}
 

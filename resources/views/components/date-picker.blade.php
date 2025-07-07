@@ -18,7 +18,7 @@
                 locale: 'es',        // Usar el idioma español
                 defaultDate: this.value,
                 monthSelectorType: 'dropdown', // Selector de mes como desplegable
-                
+
                 onChange: (selectedDates, dateStr, instance) => {
                     this.value = dateStr;
                 },
@@ -33,7 +33,7 @@
         x-ref="input"
         type="text"
         {{ $disabled ? 'disabled' : '' }}
-        {{ $attributes->merge(['class' => 'block w-full text-xl text-center border-gray-300 rounded-3xl shadow-sm dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600']) }}
+        {{ $attributes->merge(['class' => 'block w-full text-sm text-left border-gray-300 rounded-3xl shadow-sm dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600']) }}
         :value="value"
     >
 </div>

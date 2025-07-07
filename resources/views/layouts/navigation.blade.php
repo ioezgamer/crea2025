@@ -1,6 +1,6 @@
 {{-- resources/views/layouts/navigation.blade.php --}}
 <nav x-data="{ open: false }"
-     class="fixed top-0 left-0 right-0 z-50 h-auto transition-all duration-500 ease-in-out border-b shadow-sm backdrop-blur-md bg-white/60 dark:bg-slate-900/30 border-white/70 dark:border-slate-200/10 text-slate-800 dark:text-slate-100 "
+     class="fixed top-0 left-0 right-0 z-50 h-auto backdrop-blur-[10px] bg-white/50 dark:bg-slate-900/30 border-white/70 dark:border-slate-200/10 text-slate-800 dark:text-slate-100 "
      aria-label="Navegación Principal">
     <div class="max-w-full px-4 mx-auto sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 sm:h-18"> {{-- Increased height slightly for better spacing --}}

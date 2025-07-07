@@ -8,12 +8,12 @@
     </x-slot>
 
     {{-- Main content area --}}
-    <div class="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
+    <div class="min-h-screen py-8 transition-colors duration-300 bg-gradient-to-b from-slate-600/5 via-purple-500/10 to-pink-500/15 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900 dark:text-slate-20">
         <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
 
             {{-- Welcome Banner --}}
             <div class="mb-8">
-                <div class="p-6 transition-all duration-500 ease-in-out shadow-lg rounded-3xl text-slate-800 dark:text-slate-100 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg hover:shadow-xl">
+                <div class="p-6 transition-all duration-500 ease-in-out shadow-lg rounded-3xl text-slate-800 dark:text-slate-100 bg-white/50 dark:bg-slate-800/60 backdrop-blur-[10px] hover:shadow-xl">
                     <h3 class="text-xs font-bold text-transparent lg:text-3xl bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">
                         ¡Bienvenido, <span class="font-bold">{{ Auth::user()->name }}</span>!
                     </h3>
@@ -27,7 +27,7 @@
             <h3 class="mb-4 ml-1 text-xl font-semibold text-slate-700 dark:text-slate-200">Estadísticas de Usuarios</h3>
             <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
                 {{-- Stat Card: Total Users --}}
-                <div class="flex items-center p-6 transition-shadow duration-300 shadow-lg bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl hover:shadow-xl">
+                <div class="flex items-center p-6 transition-shadow duration-300 shadow-lg bg-white/50 dark:bg-slate-800/80 backdrop-blur-[10px] rounded-2xl hover:shadow-xl">
                     <div class="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-3.5 mr-4 shadow-md">
                         <svg class="w-8 h-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -243,13 +243,51 @@
             <!-- NUEVA SECCIÓN: Tops de Asistencia Mensual (con selector)              -->
             <!-- ==================================================================== -->
             <div class="mt-8">
-                 <div class="flex flex-col items-start justify-between gap-4 mb-4 md:flex-row md:items-center">
+                <div class="flex flex-col items-start justify-between gap-4 mb-4 md:flex-row md:items-center">
                     <h3 class="ml-1 text-xl font-semibold text-slate-700 dark:text-slate-200">
                         Tops de Asistencia de {{ $monthName ?? 'este mes' }}
                     </h3>
-                    <form action="{{ route('dashboard') }}" method="GET" id="monthSelectorForm">
-                        <label for="monthSelector" class="sr-only">Seleccionar Mes</label>
-                        <select name="month" id="monthSelector" onchange="this.form.submit()" class="block w-full px-3 py-2 text-sm bg-white border-gray-300 rounded-md shadow-sm md:w-auto focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
+
+                    {{-- Custom Select for Month --}}
+                    <form x-data="{
+                            open: false,
+                            selectedValue: '{{ $selectedMonth ?? '' }}'
+                          }"
+                          action="{{ route('dashboard') }}" method="GET"
+                          class="relative">
+
+                        {{-- The visible button for the custom select --}}
+                        <button @click="open = !open" type="button" class="relative w-full px-4 py-2 pr-10 text-left bg-white border border-gray-300 rounded-md shadow-sm cursor-default dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm md:w-auto">
+                            <span class="flex items-center">
+                                {{-- Display the text of the currently selected option from the hidden select --}}
+                                <span class="block truncate" x-text="$refs.select.options[$refs.select.selectedIndex]?.text || 'Seleccionar Mes'"></span>
+                            </span>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg>
+                            </span>
+                        </button>
+
+                        {{-- Dropdown panel --}}
+                        <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto text-base bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                            @forelse($availableMonths ?? [] as $month)
+                                @php
+                                    $value = is_object($month) ? $month->value : $month;
+                                    $name = is_object($month) ? $month->name : $month;
+                                @endphp
+                                {{-- When an option is clicked, update the value and submit the form --}}
+                                <div @click="selectedValue = '{{ $value }}'; open = false; $nextTick(() => $el.closest('form').submit())"
+                                     :class="{'bg-indigo-600 text-white': selectedValue === '{{ $value }}', 'text-gray-900 dark:text-white': !(selectedValue === '{{ $value }}')}"
+                                     class="relative py-2 pl-3 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white">
+                                    <span class="block truncate" :class="{'font-semibold': selectedValue === '{{ $value }}'}">{{ $name }}</span>
+                                    <span x-show="selectedValue === '{{ $value }}'" class="absolute inset-y-0 right-0 flex items-center pr-4 text-white"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg></span>
+                                </div>
+                            @empty
+                                <div class="px-3 py-2 text-gray-500">No hay meses disponibles</div>
+                            @endforelse
+                        </div>
+
+                        {{-- Hidden select element that holds the actual form value --}}
+                        <select name="month" id="monthSelector" x-ref="select" x-model="selectedValue" class="hidden">
                             @forelse($availableMonths ?? [] as $month)
                                 @if(is_object($month))
                                     <option value="{{ $month->value }}" {{ ($selectedMonth ?? '') == $month->value ? 'selected' : '' }}>
@@ -266,6 +304,7 @@
                         </select>
                     </form>
                 </div>
+
                 <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
 
                     {{-- Top Participants Table --}}

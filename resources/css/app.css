@@ -131,3 +131,9 @@
         @apply bg-transparent;
     }
 }
+
+@layer base {
+    ul, ol {
+       list-style: revert-layer;
+    }
+ }

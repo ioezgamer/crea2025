@@ -9,7 +9,7 @@
                     Administra el acceso y los permisos de los usuarios del sistema.
                 </p>
             </div>
-             {{-- Create Participant Button (x-crear-button should ideally handle its own dark mode variants) --}}
+             {{-- Create User Button --}}
              <a href="{{ route('roles.user.create', request()->query()) }}" title="Añadir usuario"
                 class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden text-xs tracking-widest text-white transition-all duration-300 ease-in-out border-2 border-white rounded-full shadow-lg group sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-500 to-purple-600 sm:border-2 dark:border-slate-700 hover:w-36 hover:sm:w-40 hover:rounded-full active:scale-90 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800">
                  <svg class="w-5 h-5 text-white transition-transform duration-300 ease-in-out sm:w-6 sm:h-6 group-hover:-translate-y-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -43,17 +43,53 @@
                 <div class="px-4 py-4 border-b sm:px-6 border-slate-200 dark:border-slate-700">
                     <form method="GET" action="{{ route('roles.index') }}" class="grid items-end grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 ">
                         <input type="text" name="search" placeholder="Buscar por nombre o email..." value="{{ request('search') }}" class="w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
-                        <select name="approval_status" class="w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
-                            <option value="">Todos los estados</option>
-                            <option value="approved" {{ request('approval_status') == 'approved' ? 'selected' : '' }}>Aprobados</option>
-                            <option value="pending" {{ request('approval_status') == 'pending' ? 'selected' : '' }}>Pendientes</option>
-                        </select>
-                        <select name="role" class="w-full text-sm border-gray-300 shadow-sm rounded-xl dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600">
-                            <option value="">Todos los roles</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role }}" {{ request('role') == $role ? 'selected' : '' }}>{{ $role }}</option>
-                            @endforeach
-                        </select>
+
+                        {{-- Custom Select for Approval Status --}}
+                        <div x-data="{ open: false, selected: '{{ request('approval_status', '') }}',
+                            get text() {
+                                if (this.selected === 'approved') return 'Aprobados';
+                                if (this.selected === 'pending') return 'Pendientes';
+                                return 'Todos los estados';
+                            }
+                        }" class="relative">
+                             <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                <span class="flex items-center"><span class="block truncate" x-text="text"></span></span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                            </button>
+                            <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto text-base bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                <div @click="selected = ''; open = false" :class="{'bg-indigo-600 text-white': selected === ''}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate" :class="{'font-semibold': selected === ''}">Todos los estados</span></div>
+                                <div @click="selected = 'approved'; open = false" :class="{'bg-indigo-600 text-white': selected === 'approved'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate" :class="{'font-semibold': selected === 'approved'}">Aprobados</span></div>
+                                <div @click="selected = 'pending'; open = false" :class="{'bg-indigo-600 text-white': selected === 'pending'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate" :class="{'font-semibold': selected === 'pending'}">Pendientes</span></div>
+                            </div>
+                            <select name="approval_status" x-model="selected" class="hidden">
+                                <option value="">Todos los estados</option>
+                                <option value="approved">Aprobados</option>
+                                <option value="pending">Pendientes</option>
+                            </select>
+                        </div>
+
+                        {{-- Custom Select for Role --}}
+                         <div x-data="{ open: false, selected: '{{ request('role', '') }}' }" class="relative">
+                             <button @click="open = !open" type="button" class="relative w-full px-3 py-2 text-left bg-white border border-gray-300 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm">
+                                <span class="flex items-center"><span class="block truncate" x-text="selected || 'Todos los roles'"></span></span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"><svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                            </button>
+                            <div x-show="open" @click.away="open = false" x-transition class="absolute z-10 w-full mt-1 overflow-auto text-base bg-white rounded-md shadow-lg dark:bg-slate-800 max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" style="display: none;">
+                                <div @click="selected = ''; open = false" :class="{'bg-indigo-600 text-white': selected === ''}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white"><span class="block truncate" :class="{'font-semibold': selected === ''}">Todos los roles</span></div>
+                                @foreach($roles as $role)
+                                    <div @click="selected = '{{ $role }}'; open = false" :class="{'bg-indigo-600 text-white': selected === '{{ $role }}'}" class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9 hover:bg-indigo-600 hover:text-white dark:text-white">
+                                        <span class="block truncate" :class="{'font-semibold': selected === '{{ $role }}'}">{{ $role }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <select name="role" x-model="selected" class="hidden">
+                                <option value="">Todos los roles</option>
+                                @foreach($roles as $role)
+                                    <option value="{{ $role }}">{{ $role }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="flex space-x-2">
                             <x-primary-button type="submit" class="w-full"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>Filtrar</x-primary-button>
                             <x-secondary-button class="w-full" onclick="window.location.href='{{ route('roles.index') }}'"><svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>Limpiar</x-secondary-button>
@@ -113,7 +149,7 @@
                                             </span>
                                         @endif
                                     </td>
-                                    {{-- Columna de Acciones (Rediseñada al estilo de la imagen) --}}
+                                    {{-- Columna de Acciones --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center justify-center space-x-1 md:space-x-2">
                                             @if(Auth::user()->id !== $user->id)

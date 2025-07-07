@@ -1,11 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-                <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-
-        <h2 class="text-xl font-semibold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 dark:text-white">
-            {{ __('Perfil de usuario') }}
-        </h2>
-                </div>
+        <div class="flex items-center justify-between w-full px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <h2 class="text-xl font-semibold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 dark:text-white">
+                {{ __('Perfil de usuario') }}
+            </h2>
+        </div>
     </x-slot>
 
     <div class="min-h-screen py-12 bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-800 dark:via-purple-900 dark:to-pink-900">
@@ -43,44 +42,24 @@
                     <div class="p-4 border shadow-inner sm:p-6 bg-slate-100/70 dark:bg-slate-700/50 rounded-xl border-slate-200/80 dark:border-slate-600/80">
                         <x-input-label for="role_display" :value="__('Rol Asignado')" class="mb-1 text-sm font-medium text-left text-slate-700 dark:text-slate-300" />
                         <p id="role_display" class="block w-full px-3 py-3 mt-1 text-lg font-semibold text-center text-indigo-700 bg-white border rounded-lg shadow-sm dark:text-indigo-400 dark:bg-slate-900 border-slate-300 dark:border-slate-600">
-                            {{ ucfirst($user->role) }}
+                            {{--
+                                CORRECCIÓN:
+                                En lugar de usar '$user->role', que apunta a una columna obsoleta,
+                                usamos 'Auth::user()->getRoleNames()->first()' que es el método
+                                correcto del paquete Spatie para obtener el nombre del rol.
+                            --}}
+                            {{ ucfirst(Auth::user()->getRoleNames()->first() ?? 'Sin rol asignado') }}
                         </p>
                         <p class="mt-3 text-xs text-left text-slate-500 dark:text-white">
                             {{ __('Nota: El rol de usuario solo puede ser modificado por un administrador del sistema.') }}
                         </p>
                     </div>
-
-                    {{--
-                    <div class="flex justify-center mt-6 space-x-6">
-                        <a href="#" class="text-indigo-600 transition transform hover:text-indigo-500 hover:scale-110" title="Facebook">
-                            <i class="fab fa-facebook-f fa-lg"></i>
-                        </a>
-                        <a href="#" class="transition transform text-sky-500 hover:text-sky-400 hover:scale-110" title="Twitter">
-                            <i class="fab fa-twitter fa-lg"></i>
-                        </a>
-                        <a href="#" class="text-pink-600 transition transform hover:text-pink-500 hover:scale-110" title="Instagram">
-                            <i class="fab fa-instagram fa-lg"></i>
-                        </a>
-                        <a href="#" class="text-blue-700 transition transform hover:text-blue-600 hover:scale-110" title="LinkedIn">
-                            <i class="fab fa-linkedin-in fa-lg"></i>
-                        </a>
-                    </div>
-                     <div class="mt-4 text-xs text-slate-400">
-
-                    </div>
-                    (Redes sociales podrían ir aquí si se implementan) --}}
                 </div>
             </div>
 
             {{-- Update Profile Information Section --}}
             <div class="p-6 shadow-xl sm:p-8 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
                 <div class="max-w-xl">
-                    {{-- El partial 'profile.partials.update-profile-information-form'
-                         necesita ser estilizado para modo oscuro.
-                         Sus elementos internos (labels, inputs, buttons) deben usar
-                         clases dark: para colores de texto, bordes, y fondos.
-                         Ejemplo: x-input-label, x-text-input, x-primary-button
-                    --}}
                     @include('profile.partials.update-profile-information-form')
                 </div>
             </div>
@@ -88,38 +67,21 @@
             {{-- Update Password Section --}}
             <div class="p-6 shadow-xl sm:p-8 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
                 <div class="max-w-xl">
-                    {{-- El partial 'profile.partials.update-password-form' necesita adaptaciones similares para modo oscuro. --}}
                     @include('profile.partials.update-password-form')
                 </div>
             </div>
 
             {{-- Delete User Section --}}
-            @can('manage-roles') {{-- O el permiso apropiado si es para eliminar la propia cuenta y es diferente --}}
+            @can('manage-roles')
             <div class="p-6 shadow-xl sm:p-8 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
                 <div class="max-w-xl">
-                    {{-- El partial 'profile.partials.delete-user-form' necesita adaptaciones para modo oscuro,
-                         especialmente el botón de peligro (x-danger-button).
-                    --}}
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
             @endcan
-
-            {{-- Logout Other Browser Sessions Section (Si tienes este partial desde Jetstream/Breeze) --}}
-            {{-- Ejemplo:
-            @if (Laravel\Fortify\Features::canManageTwoFactorAuthentication())
-                <div class="p-6 shadow-xl sm:p-8 bg-white/70 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl">
-                    <div class="max-w-xl">
-                        {{-- Este componente Livewire también necesitará estilos dark: --}}
-                        {{-- @livewire('profile.logout-other-browser-sessions-form')
-                    </div>
-                </div>
-            @endif
-            --}}
         </div>
     </div>
 
-    {{-- Animation Styles (ya presentes) --}}
     <style>
         .animate-fade-in-down {
             animation: fade-in-down 0.5s ease-out forwards;
@@ -135,8 +97,5 @@
                 transform: translateY(0);
             }
         }
-        /* Asegúrate que Font Awesome esté enlazado si usas <i> tags para iconos sociales, e.g., en app.blade.php:
-           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        */
     </style>
 </x-app-layout>
